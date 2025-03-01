@@ -18,7 +18,47 @@ export const navItems: NavItem[] = [
     url: '/dashboard/overview',
     icon: 'dashboard',
     isActive: false,
+    shortcut: ['b', 'b'],
+    items: [] // Empty array as there are no child items for Dashboard
+  },
+  {
+    title: 'Beds',
+    url: '/dashboard/beds',
+    icon: 'dashboard',
+    isActive: false,
     shortcut: ['d', 'd'],
+    items: [] // Empty array as there are no child items for Dashboard
+  },
+  {
+    title: 'Rooms',
+    url: '/dashboard/rooms',
+    icon: 'dashboard',
+    isActive: false,
+    shortcut: ['r', 'r'],
+    items: [] // Empty array as there are no child items for Dashboard
+  },
+  {
+    title: 'Tenants',
+    url: '/dashboard/tenants',
+    icon: 'dashboard',
+    isActive: false,
+    shortcut: ['tn', 'tn'],
+    items: [] // Empty array as there are no child items for Dashboard
+  },
+  {
+    title: 'Employees',
+    url: '/dashboard/employees',
+    icon: 'dashboard',
+    isActive: false,
+    shortcut: ['em', 'em'],
+    items: [] // Empty array as there are no child items for Dashboard
+  },
+  {
+    title: 'Visitors',
+    url: '/dashboard/visitors',
+    icon: 'dashboard',
+    isActive: false,
+    shortcut: ['v', 'v'],
     items: [] // Empty array as there are no child items for Dashboard
   },
   {
