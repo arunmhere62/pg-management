@@ -5,14 +5,20 @@ import { DefaultJWT } from 'next-auth/jwt';
 declare module 'next-auth' {
   interface User extends DefaultUser {
     id: string;
-    token?: string; // ✅ Add token to User
+    email: string;
+    name: string;
+    token: string;
+    roleId: string;
+    roleName: string;
   }
 
   interface Session {
     user: DefaultSession['user'] & {
       id: string;
-      token?: string; // ✅ Add token to Session
+      email: string;
     };
+    roleId: string;
+    roleName: string;
   }
 }
 
@@ -20,6 +26,10 @@ declare module 'next-auth' {
 declare module 'next-auth/jwt' {
   interface JWT extends DefaultJWT {
     id: string;
-    token?: string; // ✅ Store only necessary fields in JWT
+    email: string;
+    name: string;
+    token: string;
+    roleId: string;
+    roleName: string;
   }
 }

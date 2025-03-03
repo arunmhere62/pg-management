@@ -7,33 +7,50 @@ import {
 } from '@/components/ui/select';
 import axiosService from '@/services/utils/axios';
 import React, { useEffect, useState } from 'react';
-
-const pgData = [
-  { id: '1', name: 'Yube2' },
-  { id: '2', name: 'Alpha League' }
-];
+import { setPgLocation } from '@/store/slices/pgLocationSlice';
+import { useDispatch } from '@/store';
+interface IPgListProps {
+  id: number;
+  locationName: string;
+}
 const PgSelection = () => {
   const [selectedPg, setSelectedPg] = useState<string | undefined>();
+  const [pgListData, setPgListData] = useState<IPgListProps[]>([]);
+
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const getPgList = async () => {
       try {
-        const res = await axiosService.get('/api/pg');
-        console.log(res);
+        const res = await axiosService.get<IPgListProps[]>('/api/pg');
+        setPgListData(res.data);
       } catch (error) {}
     };
     getPgList();
-  });
+  }, []);
+
+  const handlePgChange = (value: string) => {
+    setSelectedPg(value);
+    const selectedPgData = pgListData.find((pg) => pg.id.toString() === value);
+    if (selectedPgData) {
+      dispatch(
+        setPgLocation({
+          id: selectedPgData.id,
+          name: selectedPgData.locationName
+        })
+      );
+    }
+  };
+
   return (
-    <Select onValueChange={(value) => setSelectedPg(value)} value={selectedPg}>
+    <Select onValueChange={handlePgChange} value={selectedPg}>
       <SelectTrigger>
         <SelectValue placeholder='Select PG' />
       </SelectTrigger>
       <SelectContent>
-        {/* @ts-ignore  */}
-        {pgData.map((pg) => (
-          <SelectItem key={pg.id} value={pg.id}>
-            {pg.name}
+        {pgListData?.map((pg) => (
+          <SelectItem key={pg.id} value={pg?.id?.toString()}>
+            {pg?.locationName}
           </SelectItem>
         ))}
       </SelectContent>
