@@ -9,11 +9,15 @@ import axiosService from '@/services/utils/axios';
 import React, { useEffect, useState } from 'react';
 import { setPgLocation } from '@/store/slices/pgLocationSlice';
 import { useDispatch } from '@/store';
+import { useSelector } from '@/store';
 interface IPgListProps {
   id: number;
   locationName: string;
 }
 const PgSelection = () => {
+  const { pgLocationId, pgLocationName } = useSelector(
+    (state) => state.pgLocation
+  );
   const [selectedPg, setSelectedPg] = useState<string | undefined>();
   const [pgListData, setPgListData] = useState<IPgListProps[]>([]);
 
@@ -28,6 +32,12 @@ const PgSelection = () => {
     };
     getPgList();
   }, []);
+
+  useEffect(() => {
+    if (pgLocationId) {
+      setSelectedPg(pgLocationId.toString());
+    }
+  }, [pgLocationId]);
 
   const handlePgChange = (value: string) => {
     setSelectedPg(value);

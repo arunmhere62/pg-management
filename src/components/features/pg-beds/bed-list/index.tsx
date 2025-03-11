@@ -1,0 +1,135 @@
+import HeaderButton from '@/components/ui/large/HeaderButton';
+import { Modal } from '@/components/ui/modal';
+import GridTable from '@/components/ui/mui-grid-table/GridTable';
+import axiosService from '@/services/utils/axios';
+import { EditIcon, Eye, Trash2 } from 'lucide-react';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
+
+interface IBedsProps {
+  id: number;
+  bedNo: string;
+  roomId: number;
+  pgId: number;
+  status: string;
+  images: string[];
+  createdAt: string;
+  updatedAt: string;
+  roomNo: string;
+}
+
+const BedsList = () => {
+  const router = useRouter();
+  const [bedsData, setBedsData] = useState<IBedsProps[]>([]);
+
+  useEffect(() => {
+    const getBeds = async () => {
+      try {
+        const res = await axiosService.get('/api/bed');
+        if (res.data) {
+          const formattedRes = res.data.map((data: any) => ({
+            id: data.id,
+            bedNo: data.bedNo,
+            roomId: data.roomId,
+            pgId: data.pgId,
+            status: data.status,
+            images: data.images,
+            createdAt: data.createdAt,
+            updatedAt: data.updatedAt,
+            roomNo: data.rooms.roomNo
+          }));
+          setBedsData(formattedRes);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    getBeds();
+  }, []);
+
+  const columns = [
+    // { field: 'id', headerName: 'S No', width: 50 },
+    {
+      field: 'images',
+      headerName: 'Profile',
+      width: 100,
+      renderCell: (params: any) => {
+        const image = params?.value?.[0] || [];
+        return image ? (
+          <div className='mt-2.5'>
+            <Image
+              src={image}
+              alt='Profile'
+              width={50}
+              height={50}
+              className='h-[40px] w-[60px] rounded-md object-cover'
+            />
+          </div>
+        ) : (
+          <span>No Image</span>
+        );
+      }
+    },
+    { field: 'bedNo', headerName: 'bedNo', flex: 1 },
+    { field: 'roomNo', headerName: 'Room No', flex: 1 },
+    { field: 'status', headerName: 'status', flex: 1 },
+    { field: 'createdAt', headerName: 'Created At', flex: 1 },
+    { field: 'updatedAt', headerName: 'Updated At', flex: 1 },
+    {
+      field: 'actions',
+      headerName: 'Actions',
+      width: 150,
+      renderCell: (params: any) => (
+        <div className='ml-3 mt-3 flex gap-3'>
+          <EditIcon
+            onClick={() => {
+              router.push(`/bed/${params.row.id}`);
+            }}
+            className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]'
+          />
+          <Trash2
+            onClick={() => {
+              alert(JSON.stringify(params.row));
+            }}
+            className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]'
+          />
+          <Eye
+            onClick={() => {
+              router.push(`/bed/details/${params.row.id}`);
+            }}
+            className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]'
+          />
+        </div>
+      )
+    }
+  ];
+  return (
+    <>
+      <HeaderButton
+        title='Beds List'
+        buttons={[
+          {
+            label: 'Create New',
+            onClick: () => {
+              router.push('/bed/new');
+            },
+            variant: 'default'
+          }
+        ]}
+      />
+      <div className='mt-6'>
+        <GridTable
+          columns={columns}
+          rows={bedsData}
+          loading={false}
+          rowHeight={80}
+          showToolbar={true}
+          hideFooter={false}
+        />
+      </div>
+    </>
+  );
+};
+
+export default BedsList;

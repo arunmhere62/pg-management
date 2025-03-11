@@ -30,21 +30,22 @@ export const navItems: NavItem[] = [
     items: []
   },
   {
-    title: 'Beds',
-    url: '/beds',
-    icon: 'dashboard',
-    isActive: false,
-    shortcut: ['d', 'd'],
-    items: []
-  },
-  {
     title: 'Rooms',
-    url: '/dashboard/rooms',
+    url: '/room',
     icon: 'dashboard',
     isActive: false,
     shortcut: ['r', 'r'],
     items: []
   },
+  {
+    title: 'Beds',
+    url: '/bed',
+    icon: 'dashboard',
+    isActive: false,
+    shortcut: ['d', 'd'],
+    items: []
+  },
+
   {
     title: 'Tenants',
     url: '/dashboard/tenants',

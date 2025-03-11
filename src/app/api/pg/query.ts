@@ -27,8 +27,6 @@ export const getPgListQuery = async (userId: number) => {
       stateName: data.state?.name,
       ...data
     }));
-    console.log(resModel);
-
     return resModel;
   } catch (error) {
     throw error;

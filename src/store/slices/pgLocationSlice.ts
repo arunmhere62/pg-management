@@ -1,18 +1,13 @@
 'use client';
 import { createSlice } from '@reduxjs/toolkit';
+import Cookies from 'js-cookie';
 
 const getInitialPgLocation = () => {
-  if (typeof window !== 'undefined') {
-    return {
-      pgLocationId: window.localStorage.getItem('pgLocationId')
-        ? Number(window.localStorage.getItem('pgLocationId'))
-        : null,
-      pgLocationName: window.localStorage.getItem('pgLocationName') || ''
-    };
-  }
   return {
-    pgLocationId: null,
-    pgLocationName: ''
+    pgLocationId: Cookies.get('pgLocationId')
+      ? Number(Cookies.get('pgLocationId'))
+      : null,
+    pgLocationName: Cookies.get('pgLocationName') || ''
   };
 };
 
@@ -25,21 +20,14 @@ const pgLocationSlice = createSlice({
     setPgLocation: (state, action) => {
       state.pgLocationId = action.payload.id;
       state.pgLocationName = action.payload.name;
-      if (typeof window !== 'undefined') {
-        window.localStorage.setItem(
-          'pgLocationId',
-          action.payload.id.toString()
-        );
-        window.localStorage.setItem('pgLocationName', action.payload.name);
-      }
+      Cookies.set('pgLocationId', action.payload.id.toString(), { expires: 7 }); // 7 days expiry
+      Cookies.set('pgLocationName', action.payload.name, { expires: 7 });
     },
     clearPgLocation: (state) => {
       state.pgLocationId = null;
       state.pgLocationName = '';
-      if (typeof window !== 'undefined') {
-        window.localStorage.removeItem('pgLocationId');
-        window.localStorage.removeItem('pgLocationName');
-      }
+      Cookies.remove('pgLocationId');
+      Cookies.remove('pgLocationName');
     }
   }
 });

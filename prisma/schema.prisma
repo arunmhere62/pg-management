@@ -8,34 +8,37 @@ datasource db {
 }
 
 model users {
-  id                Int                 @id @default(autoincrement()) @map("s_no")
-  name              String              @db.VarChar(100)
-  email             String              @unique(map: "email") @db.VarChar(100)
-  password          String              @db.VarChar(255)
-  phone             String?             @db.VarChar(15)
-  status            users_status?       @default(active)
-  createdAt         DateTime?           @default(now()) @map("created_at") @db.Timestamp(0)
-  updatedAt         DateTime?           @default(now()) @map("updated_at") @db.Timestamp(0)
-  roleId            Int                 @map("role_id")
-  pgLocationId      Int                 @map("pg_location_id")
-  pg_locations      pg_locations[]
-  user_pg_locations user_pg_locations[]
-  roles             roles               @relation(fields: [roleId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_users_role")
+  id           Int            @id @default(autoincrement()) @map("s_no")
+  name         String         @db.VarChar(100)
+  email        String         @unique(map: "email") @db.VarChar(100)
+  password     String         @db.VarChar(255)
+  phone        String?        @db.VarChar(15)
+  status       users_status?  @default(active)
+  createdAt    DateTime?      @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt    DateTime?      @default(now()) @map("updated_at") @db.Timestamp(0)
+  roleId       Int            @map("role_id")
+  pgLocationId Int            @map("pg_location_id")
+  pg_locations pg_locations[]
+  roles        roles          @relation(fields: [roleId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_users_role")
 
   @@index([roleId], map: "fk_users_role")
 }
 
 model beds {
-  id        Int        @id @default(autoincrement()) @map("s_no")
-  bedId     String     @unique(map: "bed_id") @map("bed_id") @db.VarChar(50)
-  roomId    Int?       @map("room_id")
-  status    BedStatus? @default(VACANT)
-  createdAt DateTime?  @default(now()) @map("created_at") @db.Timestamp(0)
-  updatedAt DateTime?  @default(now()) @map("updated_at") @db.Timestamp(0)
-  rooms     rooms?     @relation(fields: [roomId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "beds_ibfk_1")
-  tenants   tenants[]
+  id          Int           @id @default(autoincrement()) @map("s_no")
+  bedNo       String        @unique(map: "bed_id") @map("bed_no") @db.VarChar(50)
+  roomId      Int?          @map("room_id")
+  pgId        Int?          @map("pg_id")
+  status      BedStatus?    @default(VACANT)
+  images      Json?
+  createdAt   DateTime?     @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt   DateTime?     @default(now()) @map("updated_at") @db.Timestamp(0)
+  rooms       rooms?        @relation(fields: [roomId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "beds_ibfk_1")
+  pgLocations pg_locations? @relation(fields: [pgId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_pg_id")
+  tenants     tenants[]
 
   @@index([roomId], map: "room_id")
+  @@index([pgId], map: "fk_pg_id")
 }
 
 model employees {
@@ -56,42 +59,32 @@ model employees {
 }
 
 model pg_locations {
-  id              Int                  @id @unique(map: "s_no_2") @default(autoincrement()) @map("s_no")
-  userId          Int                  @map("user_id")
-  locationName    String               @map("location_name") @db.VarChar(100)
-  address         String               @db.VarChar(255)
-  pincode         String?              @db.VarChar(10)
-  createdAt       DateTime?            @default(now()) @map("created_at") @db.Timestamp(0)
-  updatedAt       DateTime?            @default(now()) @map("updated_at") @db.Timestamp(0)
-  status          pg_locations_status? @default(ACTIVE)
-  images          Json?
-  cityId          Int?                 @map("city_id")
-  stateId         Int?                 @map("state_id")
-  employees       employees[]
-  expenses        expenses[]
-  income          income[]
-  city            city?                @relation(fields: [cityId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_city")
-  state           state?               @relation(fields: [stateId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_state")
-  users           users                @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pg_locations_ibfk_1")
-  rooms           rooms[]
-  tenants         tenants[]
-  userPgLocations user_pg_locations[]
-  visitors        visitors[]
+  id           Int                  @id @unique(map: "s_no_2") @default(autoincrement()) @map("s_no")
+  userId       Int                  @map("user_id")
+  locationName String               @map("location_name") @db.VarChar(100)
+  address      String               @db.VarChar(255)
+  pincode      String?              @db.VarChar(10)
+  createdAt    DateTime?            @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt    DateTime?            @default(now()) @map("updated_at") @db.Timestamp(0)
+  status       pg_locations_status? @default(ACTIVE)
+  images       Json?
+  cityId       Int?                 @map("city_id")
+  stateId      Int?                 @map("state_id")
+  beds         beds[]
+  employees    employees[]
+  expenses     expenses[]
+  income       income[]
+  city         city?                @relation(fields: [cityId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_city")
+  state        state?               @relation(fields: [stateId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_state")
+  users        users                @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pg_locations_ibfk_1")
+  rooms        rooms[]
+  tenants      tenants[]
+  visitors     visitors[]
 
   @@index([userId], map: "owner_id")
   @@index([id], map: "s_no")
   @@index([cityId], map: "fk_city")
   @@index([stateId], map: "fk_state")
-}
-
-model user_pg_locations {
-  userId       Int          @map("user_id")
-  pgLocationId Int          @map("pg_location_id")
-  users        users        @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "user_pg_locations_ibfk_1")
-  pgLocations  pg_locations @relation(fields: [pgLocationId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "user_pg_locations_ibfk_2")
-
-  @@id([userId, pgLocationId])
-  @@index([pgLocationId], map: "pg_location_id")
 }
 
 model expenses {
@@ -136,21 +129,21 @@ model roles {
 }
 
 model rooms {
-  id          Int          @id @default(autoincrement()) @map("s_no")
-  roomId      String       @unique(map: "room_id") @map("room_id") @db.VarChar(50)
-  pgId        Int          @map("pg_id")
-  roomNumber  String       @map("room_number") @db.VarChar(20)
-  bedCount    Int          @map("bed_count")
-  status      String?      @default("Available") @db.VarChar(20)
-  createdAt   DateTime?    @default(now()) @map("created_at") @db.Timestamp(0)
-  updatedAt   DateTime?    @default(now()) @map("updated_at") @db.Timestamp(0)
-  rentPrice   Decimal      @default(0.00) @map("rent_price") @db.Decimal(10, 2)
+  id          Int           @id @default(autoincrement()) @map("s_no")
+  roomId      String?       @unique(map: "room_id") @map("room_id") @db.VarChar(36)
+  pgId        Int?          @map("pg_id")
+  roomNo     String?       @db.VarChar(20) @map("room_no")
+  bedCount    Int?          @map("bed_count")
+  status      String?       @default("Available") @db.VarChar(20)
+  createdAt   DateTime?     @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt   DateTime?     @default(now()) @map("updated_at") @db.Timestamp(0)
+  rentPrice   Decimal?      @default(0.00) @map("rent_price") @db.Decimal(10, 2)
   images      Json?
   beds        beds[]
-  pgLocations pg_locations @relation(fields: [pgId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "rooms_ibfk_1")
+  pgLocations pg_locations? @relation(fields: [pgId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "rooms_ibfk_1")
   tenants     tenants[]
 
-  @@index([pgId], map: "pg_id")
+  @@unique([pgId, roomNo], map: "unique_pg_room")
 }
 
 model tenants {

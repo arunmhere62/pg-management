@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Image from 'next/image';
@@ -6,9 +6,15 @@ import { X } from 'lucide-react';
 
 const ImageUploader: React.FC<{
   onImagesUpload?: (images: string[]) => void;
-}> = ({ onImagesUpload }) => {
-  const [images, setImages] = useState<string[]>([]);
+  initialImages?: string[];
+}> = ({ onImagesUpload, initialImages = [] }) => {
+  const [images, setImages] = useState<string[]>(initialImages);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Update images when the initialImages prop changes
+  useEffect(() => {
+    setImages(initialImages);
+  }, [initialImages]);
 
   const handleFileChange = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -30,8 +36,6 @@ const ImageUploader: React.FC<{
       const updatedImages = [...images, ...base64Images];
       setImages(updatedImages);
       if (onImagesUpload) onImagesUpload(updatedImages);
-
-      // Reset file input to allow re-uploading of the same file
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
@@ -44,15 +48,13 @@ const ImageUploader: React.FC<{
     const updatedImages = images.filter((_, i) => i !== index);
     setImages(updatedImages);
     if (onImagesUpload) onImagesUpload(updatedImages);
-
-    // Reset file input when all images are removed
     if (updatedImages.length === 0 && fileInputRef.current) {
       fileInputRef.current.value = '';
     }
   };
 
   return (
-    <div className='grid w-full max-w-sm items-center gap-3'>
+    <div className='grid w-full max-w-sm items-center gap-1'>
       <Input
         ref={fileInputRef}
         id='picture'
@@ -61,25 +63,28 @@ const ImageUploader: React.FC<{
         accept='image/*'
         onChange={handleFileChange}
       />
-      <div className='mt-2 grid grid-cols-3 gap-2'>
-        {images.map((image, index) => (
-          <div key={index} className='relative'>
-            <Image
-              width={1000}
-              height={1000}
-              src={image}
-              alt={`uploaded-${index}`}
-              className='h-20 w-20 rounded-md object-cover'
-            />
-            <button
-              onClick={() => removeImage(index)}
-              className='absolute right-0 top-0 rounded-full bg-black bg-opacity-50 p-1 text-white'
-            >
-              <X size={16} />
-            </button>
-          </div>
-        ))}
-      </div>
+      {images.length > 0 && (
+        <div className='mt-2 grid grid-cols-3 gap-2'>
+          {images.map((image, index) => (
+            <div key={index} className='relative'>
+              <Image
+                width={1000}
+                height={1000}
+                src={image}
+                alt={`uploaded-${index}`}
+                className='h-20 w-20 rounded-md object-cover'
+              />
+              <button
+                type='button'
+                onClick={() => removeImage(index)}
+                className='absolute right-0 top-0 m-1 rounded-full bg-black bg-opacity-50 p-1 text-white'
+              >
+                <X size={16} />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

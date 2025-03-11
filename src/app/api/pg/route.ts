@@ -18,11 +18,7 @@ export const GET = async (req: NextRequest) => {
         { status: 400 }
       );
     }
-    console.log('userId', userId);
-
     const pgList = await getPgListService(Number(userId));
-    console.log('pgList', pgList);
-
     return NextResponse.json(pgList, { status: 200 });
   } catch (error: any) {
     if (error.name === 'PrismaClientKnownRequestError') {

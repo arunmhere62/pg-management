@@ -181,6 +181,7 @@ const GridTable: React.FC<GridTableProps> = ({
               color: theme === 'dark' ? '#a1a1aa' : '#000'
             },
             '& .MuiDataGrid-toolbarQuickFilter': {
+              marginBottom: '20px',
               backgroundColor: theme === 'dark' ? '#06040b' : '#f5f5f5',
               borderRadius: '8px',
               border: theme === 'dark' ? '1px solid #1f2937' : '1px solid #000',
