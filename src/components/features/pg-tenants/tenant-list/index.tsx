@@ -1,61 +1,48 @@
 'use client';
-import HeaderButton from '@/components/ui/large/HeaderButton';
-import GridTable from '@/components/ui/mui-grid-table/GridTable';
 import axiosService from '@/services/utils/axios';
-import { EditIcon, Eye, Trash2 } from 'lucide-react';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
+import { EditIcon, Eye, Trash2 } from 'lucide-react';
+import Image from 'next/image';
+import HeaderButton from '@/components/ui/large/HeaderButton';
+import GridTable from '@/components/ui/mui-grid-table/GridTable';
+import { width } from '@mui/system';
 
-export interface IRoomListProps {
+interface ITenantListProps {
   id: number;
-  roomId: number;
+  bedId: number;
+  tenantId: string;
   pgId: number;
-  roomNo: string;
-  bedCount: string;
+  roomId: number;
+  checkInDate: string;
+  checkOutDate: string;
+  email: string;
+  images: string;
+  name: string;
+  phoneNo: string;
+  proofDocuments: string;
   status: string;
-  rentPrice: string;
   createdAt: string;
-  locationNam?: string;
-  pgLocations?: {
-    locationName: string;
-  };
   updatedAt: string;
-  images: string[];
 }
-
-const RoomsList = () => {
+const TenantList = () => {
   const router = useRouter();
-  const [roomsList, setRoomsList] = useState<IRoomListProps[]>([]);
+  const [tenantList, setTenantList] = useState<ITenantListProps[]>([]);
   useEffect(() => {
-    const getPgList = async () => {
+    const getTenants = async () => {
       try {
-        const res = await axiosService.get<IRoomListProps[]>('/api/room');
+        const res = await axiosService.get('api/tenant');
         if (res.data) {
-          const resModel = res.data.map((data: IRoomListProps) => ({
-            id: data.id,
-            roomId: data.roomId,
-            roomNo: data.roomNo,
-            pgId: data.pgId,
-            bedCount: data.bedCount,
-            status: data.status,
-            rentPrice: data.rentPrice,
-            locationName: data.pgLocations?.locationName,
-            images: data.images,
-            createdAt: data.createdAt,
-            updatedAt: data.updatedAt
-          }));
-          setRoomsList(resModel);
+          setTenantList(res.data);
         }
       } catch (error) {
-        console.log(error);
+        throw new Error('Fetching the tenant list failed');
       }
     };
-    getPgList();
+    getTenants();
   }, []);
 
   const columns = [
-    // { field: 'id', headerName: 'S No', width: 50 },
     {
       field: 'images',
       headerName: 'Profile',
@@ -77,13 +64,24 @@ const RoomsList = () => {
         );
       }
     },
-    { field: 'locationName', headerName: 'Location Name', flex: 1 },
-    { field: 'roomNo', headerName: 'Room No', flex: 1 },
-    { field: 'bedCount', headerName: 'No of Beds', flex: 1 },
-    { field: 'rentPrice', headerName: 'Price', flex: 1 },
-    { field: 'status', headerName: 'Status', flex: 1 },
-    { field: 'createdAt', headerName: 'Created At', flex: 1 },
-    { field: 'updatedAt', headerName: 'Updated At', flex: 1 },
+    { field: 'name', headerName: 'Name', minWidth: 100, flex: 1 },
+    { field: 'email', headerName: 'Email', minWidth: 130, flex: 1 },
+    { field: 'phoneNo', headerName: 'Phone No', minWidth: 100, flex: 1 },
+    { field: 'status', headerName: 'Status', minWidth: 100, flex: 1 },
+    {
+      field: 'checkInDate',
+      headerName: 'Check In Date',
+      minWidth: 100,
+      flex: 1
+    },
+    {
+      field: 'checkOutDate',
+      headerName: 'Check Out Date',
+      minWidth: 100,
+      flex: 1
+    },
+    { field: 'createdAt', headerName: 'Created At', minWidth: 100, flex: 1 },
+    { field: 'updatedAt', headerName: 'Updated At', minWidth: 100, flex: 1 },
     {
       field: 'actions',
       headerName: 'Actions',
@@ -92,7 +90,7 @@ const RoomsList = () => {
         <div className='ml-3 mt-3 flex gap-3'>
           <EditIcon
             onClick={() => {
-              router.push(`/room/${params.row.id}`);
+              router.push(`/tenant/${params.row.id}`);
             }}
             className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]'
           />
@@ -104,7 +102,7 @@ const RoomsList = () => {
           />
           <Eye
             onClick={() => {
-              router.push(`/room/details/${params.row.id}`);
+              router.push(`/tenant/details/${params.row.id}`);
             }}
             className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]'
           />
@@ -115,12 +113,12 @@ const RoomsList = () => {
   return (
     <>
       <HeaderButton
-        title='Rooms List'
+        title='Tenants List'
         buttons={[
           {
             label: 'Create New',
             onClick: () => {
-              router.push('/room/new');
+              router.push('/tenant/new');
             },
             variant: 'default'
           }
@@ -129,7 +127,7 @@ const RoomsList = () => {
       <div className='mt-6'>
         <GridTable
           columns={columns}
-          rows={roomsList}
+          rows={tenantList}
           loading={false}
           rowHeight={80}
           showToolbar={true}
@@ -140,4 +138,4 @@ const RoomsList = () => {
   );
 };
 
-export default RoomsList;
+export default TenantList;

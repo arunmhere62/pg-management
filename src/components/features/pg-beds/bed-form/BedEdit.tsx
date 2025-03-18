@@ -21,7 +21,6 @@ const BedEdit = ({ id }: { id: string }) => {
           images: res.data.images,
           status: res.data.status
         };
-        console.log('bed res data', res.data);
         setBedData(formattedRes);
       } catch (error) {
         console.error('Error fetching bed data:', error);
@@ -31,7 +30,6 @@ const BedEdit = ({ id }: { id: string }) => {
       getBed();
     }
   }, [id]);
-
   return (
     <div>
       {bedData && <MainRoomForm mode='edit' initialData={bedData} id={id} />}

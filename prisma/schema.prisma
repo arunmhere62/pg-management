@@ -132,7 +132,7 @@ model rooms {
   id          Int           @id @default(autoincrement()) @map("s_no")
   roomId      String?       @unique(map: "room_id") @map("room_id") @db.VarChar(36)
   pgId        Int?          @map("pg_id")
-  roomNo     String?       @db.VarChar(20) @map("room_no")
+  roomNo      String?       @map("room_no") @db.VarChar(20)
   bedCount    Int?          @map("bed_count")
   status      String?       @default("Available") @db.VarChar(20)
   createdAt   DateTime?     @default(now()) @map("created_at") @db.Timestamp(0)
@@ -147,27 +147,27 @@ model rooms {
 }
 
 model tenants {
-  id            Int             @id @default(autoincrement()) @map("s_no")
-  tenantId      String          @unique(map: "tenant_id") @map("tenant_id") @db.VarChar(50)
-  name          String          @db.VarChar(100)
-  phoneNumber   String          @map("phone_number") @db.VarChar(15)
-  email         String?         @db.VarChar(100)
-  pgLocationId  Int?            @map("pg_location_id")
-  roomId        Int?            @map("room_id")
-  bedId         Int?            @map("bed_id")
-  checkInDate   DateTime        @map("check_in_date") @db.Date
-  checkOutDate  DateTime?       @map("check_out_date") @db.Date
-  status        tenants_status? @default(ACTIVE)
-  createdAt     DateTime?       @default(now()) @map("created_at") @db.Timestamp(0)
-  updatedAt     DateTime?       @default(now()) @map("updated_at") @db.Timestamp(0)
-  image         Bytes?          @db.Blob
-  proofDocument Bytes?          @map("proof_document") @db.Blob
-  pgLocations   pg_locations?   @relation(fields: [pgLocationId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "tenants_ibfk_1")
-  rooms         rooms?          @relation(fields: [roomId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "tenants_ibfk_2")
-  beds          beds?           @relation(fields: [bedId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "tenants_ibfk_3")
+  id             Int             @id @default(autoincrement()) @map("s_no")
+  tenantId       String          @unique(map: "tenant_id") @map("tenant_id") @db.VarChar(50)
+  name           String          @db.VarChar(100)
+  phoneNo        String?         @map("phone_no") @db.VarChar(15)
+  email          String?         @db.VarChar(100)
+  pgId           Int?            @map("pg_id")
+  roomId         Int?            @map("room_id")
+  bedId          Int?            @map("bed_id")
+  checkInDate    String          @map("check_in_date") @db.VarChar(10)
+  checkOutDate   String?         @map("check_out_date") @db.VarChar(10)
+  status         tenants_status? @default(ACTIVE)
+  createdAt      DateTime?       @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt      DateTime?       @default(now()) @map("updated_at") @db.Timestamp(0)
+  images         Json?
+  proofDocuments Json?           @map("proof_documents")
+  pgLocations    pg_locations?   @relation(fields: [pgId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "tenants_ibfk_1")
+  rooms          rooms?          @relation(fields: [roomId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "tenants_ibfk_2")
+  beds           beds?           @relation(fields: [bedId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "tenants_ibfk_3")
 
   @@index([bedId], map: "bed_id")
-  @@index([pgLocationId], map: "pg_location_id")
+  @@index([pgId], map: "pg_location_id")
   @@index([roomId], map: "room_id")
 }
 

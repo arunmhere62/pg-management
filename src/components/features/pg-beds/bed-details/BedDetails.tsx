@@ -35,8 +35,6 @@ const BedDetails = ({ id }: { id: string }) => {
       getBed();
     }
   }, [id]);
-  console.log('bedDetails', bedDetails);
-
   return (
     <div className='grid grid-cols-12 gap-x-8 rounded-xl border p-5'>
       <div className='col-span-12'>

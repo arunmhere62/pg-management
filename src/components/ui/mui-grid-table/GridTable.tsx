@@ -142,6 +142,7 @@ const GridTable: React.FC<GridTableProps> = ({
             border: theme === 'dark' ? '1px solid #1f2937' : ''
           }}
           sx={{
+            //  overflowX: 'scroll',
             '& .MuiDataGrid-columnHeaders': {
               backgroundColor: theme === 'dark' ? '#1E293B' : '#f5f5f5',
               color: theme === 'dark' ? '#E5E7EB' : '#000',

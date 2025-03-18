@@ -18,8 +18,8 @@ export const POST = async (req: NextRequest) => {
     const cookies = req.cookies;
     const pgLocationId = cookies.get('pgLocationId')?.value;
     const body = await req.json();
-
     const parsedBody = roomSchema.safeParse(body.data);
+
     if (!parsedBody.success) {
       return NextResponse.json(
         { error: 'Validation error', details: parsedBody.error.errors },

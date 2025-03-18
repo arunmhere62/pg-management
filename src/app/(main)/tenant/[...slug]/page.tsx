@@ -1,9 +1,10 @@
 'use client';
 
 import RoomDetails from '@/components/features/pg-rooms/room-details';
-import MainRoomForm from '@/components/features/pg-rooms/room-form';
 import RoomEdit from '@/components/features/pg-rooms/room-form/RoomEdit';
 import TenantDetails from '@/components/features/pg-tenants/tenant-list/tenant-details/TenantDetails';
+import MainTenantForm from '@/components/features/pg-tenants/tenant-list/tenant-form';
+import TenantEdit from '@/components/features/pg-tenants/tenant-list/tenant-form/TenantEdit';
 import { useParams } from 'next/navigation';
 import React from 'react';
 
@@ -16,11 +17,11 @@ const Page = () => {
     [type, id] = slug;
   }
   if (slug[0] === 'new') {
-    return <MainRoomForm mode='create' />;
+    return <MainTenantForm mode='create' />;
   }
   return (
     <div>
-      {type === 'details' ? <RoomDetails id={id} /> : <RoomEdit id={id} />}
+      {type === 'details' ? <TenantDetails id={id} /> : <TenantEdit id={id} />}
     </div>
   );
 };

@@ -67,6 +67,7 @@ export default function RoomForm({
             </FormItem>
           )}
         />
+
         <FormField
           control={control}
           name='bedCount'

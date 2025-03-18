@@ -85,13 +85,11 @@ const MainBedForm = ({ mode, initialData, id }: IMainBedFormProps) => {
           status: values.status,
           pgId: Number(pgLocationId)
         };
-        console.log('payload', payload);
-
         const res = await axiosService.post('/api/bed', {
           data: payload
         });
         if (res.status === 201) {
-          toast.success('PG created successfully!');
+          toast.success('Bed created successfully!');
           form.reset({
             bedNo: '',
             roomNo: '',
@@ -110,7 +108,7 @@ const MainBedForm = ({ mode, initialData, id }: IMainBedFormProps) => {
           data: payload
         });
         if (res.status === 200) {
-          toast.success('PG updated successfully!');
+          toast.success('Bed updated successfully!');
           form.reset({
             bedNo: '',
             roomNo: '',

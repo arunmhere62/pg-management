@@ -48,7 +48,7 @@ export const navItems: NavItem[] = [
 
   {
     title: 'Tenants',
-    url: '/dashboard/tenants',
+    url: '/tenant',
     icon: 'dashboard',
     isActive: false,
     shortcut: ['tn', 'tn'],
