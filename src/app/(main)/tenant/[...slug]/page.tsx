@@ -1,10 +1,7 @@
 'use client';
-
-import RoomDetails from '@/components/features/pg-rooms/room-details';
-import RoomEdit from '@/components/features/pg-rooms/room-form/RoomEdit';
-import TenantDetails from '@/components/features/pg-tenants/tenant-list/tenant-details/TenantDetails';
-import MainTenantForm from '@/components/features/pg-tenants/tenant-list/tenant-form';
-import TenantEdit from '@/components/features/pg-tenants/tenant-list/tenant-form/TenantEdit';
+import TenantDetails from '@/components/features/pg-tenants/tenant-details/TenantDetails';
+import MainTenantForm from '@/components/features/pg-tenants/tenant-form';
+import TenantEdit from '@/components/features/pg-tenants/tenant-form/TenantEdit';
 import { useParams } from 'next/navigation';
 import React from 'react';
 

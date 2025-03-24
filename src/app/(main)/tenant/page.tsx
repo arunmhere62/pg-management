@@ -1,4 +1,4 @@
-import TenantList from '@/components/features/pg-tenants/tenant-list';
+import TenantList from '@/components/features/pg-tenants/tenant-list/TenantTable';
 import React from 'react';
 
 const Page = () => {

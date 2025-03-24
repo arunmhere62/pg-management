@@ -4,7 +4,7 @@ import prisma from '@/lib/prisma'; // Adjust path if needed
 export const GET = async (req: NextRequest) => {
   try {
     // ✅ Extract stateCode from query parameters
-    const stateCode = req.nextUrl.searchParams.get('stateCode');
+    const stateCode = req.nextUrl.searchParams.get('stateIsoCode');
 
     if (!stateCode) {
       return NextResponse.json(

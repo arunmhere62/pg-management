@@ -25,13 +25,15 @@ type SelectComboBoxProps = {
   placeholder?: string;
   value: string;
   onChange: (value: string) => void;
+  disabled?: boolean;
 };
 
 export function SelectComboBox({
   options,
   placeholder = 'Select an option',
   value,
-  onChange
+  onChange,
+  disabled = false
 }: SelectComboBoxProps) {
   const [open, setOpen] = React.useState(false);
 
@@ -43,6 +45,7 @@ export function SelectComboBox({
           role='combobox'
           aria-expanded={open}
           className='w-full justify-between'
+          disabled={disabled}
         >
           {value
             ? options.find((opt) => opt.value === value)?.label

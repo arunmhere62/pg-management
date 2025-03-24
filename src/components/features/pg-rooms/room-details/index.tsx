@@ -89,7 +89,9 @@ const RoomDetails = ({ id }: { id: string }) => {
           <p
             className={cn(
               'w-fit rounded-lg px-3 py-0.5 text-[14px]',
-              roomDetails?.status === 'ACTIVE' ? 'bg-[#95cf20]' : 'bg-[#fb5656]'
+              roomDetails?.status === 'AVAILABLE'
+                ? 'bg-[#95cf20]'
+                : 'bg-[#fb5656]'
             )}
           >
             {roomDetails?.status.toLocaleUpperCase()}

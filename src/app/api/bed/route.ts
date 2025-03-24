@@ -2,6 +2,7 @@ import prisma from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 import { Prisma } from '@prisma/client';
 import { z } from 'zod';
+import { AppError, ConflictError, errorHandler } from '@/services/utils/error';
 
 export const GET = async (req: NextRequest) => {
   try {
@@ -66,12 +67,41 @@ export const POST = async (req: NextRequest) => {
       );
     }
     const body = await req.json();
+
     const parsedBody = bedCreateSchema.safeParse(body.data);
+
     if (!parsedBody.success) {
       return NextResponse.json(
         { error: 'Validation error', details: parsedBody.error.errors },
         { status: 400 }
       );
+    }
+    const room = await prisma.rooms.findUnique({
+      where: {
+        id: Number(parsedBody.data.roomNo)
+      },
+      include: {
+        beds: true
+      }
+    });
+
+    if (!room) {
+      throw new AppError(
+        `Room with ID ${parsedBody.data.roomNo} not found`,
+        404,
+        'ROOM_NOT_FOUND'
+      );
+    }
+    const existingBed = room.beds.find(
+      (bed) => bed.bedNo === parsedBody.data.bedNo
+    );
+    if (existingBed) {
+      throw new ConflictError(
+        `A bed with number ${parsedBody.data.bedNo} already exists in room ${parsedBody.data.roomNo}`
+      );
+    }
+    if (room.bedCount !== null && room.beds.length >= room.bedCount) {
+      throw new ConflictError('Cannot add more beds, limit reached');
     }
     const res = await prisma.beds.create({
       data: {
@@ -83,15 +113,6 @@ export const POST = async (req: NextRequest) => {
     });
     return NextResponse.json(res, { status: 201 });
   } catch (error: any) {
-    if (error.name === 'PrismaClientKnownRequestError') {
-      return NextResponse.json(
-        { error: 'Database query error', details: error.message },
-        { status: 500 }
-      );
-    }
-    return NextResponse.json(
-      { error: 'Internal server error', details: error.message },
-      { status: 500 }
-    );
+    return errorHandler(error);
   }
 };

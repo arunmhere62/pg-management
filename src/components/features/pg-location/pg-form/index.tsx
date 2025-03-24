@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import CreatePgForm from './PgForm'; // Import the child component
 import axiosService from '@/services/utils/axios';
 import * as z from 'zod';
@@ -8,15 +8,7 @@ import { toast } from 'sonner';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage
-} from '@/components/ui/form';
+import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 export const formSchema = z.object({
   images: z
@@ -31,99 +23,101 @@ export const formSchema = z.object({
   pincode: z.string().min(4, 'Pincode must be at least 4 digits'),
   address: z.string().min(5, 'Address must be at least 5 characters')
 });
-
 export interface IStateListProps {
-  id: string;
+  label: string;
+  value: string;
+}
+
+export interface ICitiesListProps {
+  label: string;
+  value: string;
+}
+
+interface IStateData {
+  id: number;
   name: string;
   isoCode: string;
 }
-export interface ICitiesListProps {
-  id: string;
+
+interface ICityData {
+  id: number;
   name: string;
-  countryCode: string;
-  stateCode: string;
 }
+
 interface IMainPgFormProps {
   id?: string;
   mode: 'create' | 'edit';
   initialData?: Partial<z.infer<typeof formSchema>>;
 }
 const MainPgForm = ({ mode, initialData, id }: IMainPgFormProps) => {
-  const [states, setStates] = useState<IStateListProps[]>([]);
-  const [cities, setCities] = useState<ICitiesListProps[]>([]);
-  const [selectedState, setSelectedState] = useState<string | undefined>(
-    initialData?.state
-  );
-  const [selectedCity, setSelectedCity] = useState<string | undefined>(
-    initialData?.city
-  );
+  console.log('initialData', initialData);
+
+  const [statesList, setStatesList] = useState<IStateListProps[]>([]);
+  const [citiesList, setCitiesList] = useState<ICitiesListProps[]>([]);
+  const [stateData, setStateData] = useState<IStateData[]>([]);
+  const [cityData, setCityData] = useState<ICityData[]>([]);
+
   const pageTitle = mode === 'create' ? 'Create New PG' : 'Edit PG';
 
   const defaultValues = {
     images: [],
     locationName: '',
     city: '',
-    state: initialData?.state?.toString() || '',
+    state: '',
     pincode: '',
     address: '',
     ...initialData
   };
+  console.log('defaultValues', defaultValues);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues
   });
 
+  // Fetch states only once
   useEffect(() => {
     const getStates = async () => {
       try {
-        const res = await axiosService.post<IStateListProps[]>('/api/states', {
+        const res = await axiosService.post('/api/states', {
           countryCode: 'IN'
         });
         if (res.status === 200) {
-          setStates(res.data);
-          if (initialData?.state) {
-            const stateExists = res.data.find(
-              (state) => Number(state.id) === Number(initialData.state)
-            );
-            if (stateExists) setSelectedState(stateExists.id);
-          }
+          const formattedStateRes = res.data.map((state: IStateData) => ({
+            label: String(state.name),
+            value: String(state.id)
+          }));
+          setStatesList(formattedStateRes);
+          setStateData(res.data);
         }
       } catch (error) {
         console.error('Failed to fetch states:', error);
       }
     };
+
     getStates();
   }, [initialData?.state]);
 
-  useEffect(() => {
-    if (!selectedState) return;
-    const getCities = async () => {
-      try {
-        const res = await axiosService.get<ICitiesListProps[]>('/api/cities', {
-          params: {
-            stateCode: states.find(
-              (state) => Number(state.id) === Number(selectedState)
-            )?.isoCode
-          }
-        });
-        if (res.status === 200) {
-          setCities(res.data);
-          if (initialData?.city) {
-            const cityExists = res.data.find(
-              (city) => Number(city.id) === Number(initialData.city)
-            );
-            if (cityExists) {
-              setSelectedCity(cityExists.id);
-            }
-          }
-        }
-      } catch (error) {
-        console.error('Failed to fetch cities:', error);
+  console.log('statesList', statesList);
+
+  // Fetch cities when state changes
+  const fetchCities = useCallback(async (stateIsoCode: string) => {
+    try {
+      const res = await axiosService.get('/api/cities', {
+        params: { stateIsoCode }
+      });
+      if (res.status === 200) {
+        const formattedCitiesRes = res.data.map((city: ICityData) => ({
+          label: city.name,
+          value: city.id.toString()
+        }));
+        setCitiesList(formattedCitiesRes);
+        setCityData(res.data);
       }
-    };
-    getCities();
-  }, [selectedState, states, initialData?.city]);
+    } catch (error) {
+      console.error('Failed to fetch cities:', error);
+    }
+  }, []);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
@@ -155,12 +149,7 @@ const MainPgForm = ({ mode, initialData, id }: IMainPgFormProps) => {
         }
       }
     } catch (error: any) {
-      console.error('Error submitting form:', error);
-      if (error.response?.status === 409) {
-        toast.error('Conflict occurred. Please check your input.');
-      } else {
-        toast.error('Something went wrong. Please try again.');
-      }
+      toast.error('Something went wrong. Please try again.');
     }
   };
 
@@ -169,13 +158,31 @@ const MainPgForm = ({ mode, initialData, id }: IMainPgFormProps) => {
       form.reset({
         images: initialData.images || [],
         locationName: initialData.locationName || '',
-        city: initialData.city?.toString() || '',
-        state: initialData.state?.toString() || '',
+        state: initialData.state,
+        city: initialData.city,
         pincode: initialData.pincode || '',
         address: initialData.address || ''
       });
     }
-  }, [initialData, form]);
+  }, [initialData]);
+
+  console.log('stateData here', stateData);
+
+  useEffect(() => {
+    const state = form.watch('state');
+
+    console.log('state', state);
+    if (state && stateData?.length) {
+      const cityCode = stateData.find(
+        (item) => Number(item.id) === Number(state)
+      );
+      console.log('cityCode', cityCode);
+
+      if (cityCode?.isoCode) {
+        fetchCities(cityCode.isoCode);
+      }
+    }
+  }, [form.watch('state')]);
 
   return (
     <Card className='mx-auto w-full'>
@@ -189,13 +196,9 @@ const MainPgForm = ({ mode, initialData, id }: IMainPgFormProps) => {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
             <CreatePgForm
+              statesList={statesList}
               initialValue={defaultValues}
-              states={states}
-              cities={cities}
-              selectedState={selectedState}
-              setSelectedState={setSelectedState}
-              selectedCity={selectedCity}
-              setSelectedCity={setSelectedCity}
+              citiesList={citiesList}
               onSubmit={onSubmit}
               control={form.control}
             />

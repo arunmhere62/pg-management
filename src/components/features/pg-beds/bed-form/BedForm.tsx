@@ -27,12 +27,14 @@ interface IPgLocationFromProps {
   roomList: IRoomListProps[];
   onSubmit: (values: z.infer<typeof roomFormSchema>) => void;
   control: any;
+  mode: 'create' | 'edit';
 }
 export default function BedForm({
   initialValue,
   roomList,
   onSubmit,
-  control
+  control,
+  mode
 }: IPgLocationFromProps) {
   return (
     <>
@@ -55,25 +57,15 @@ export default function BedForm({
       <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
         <FormField
           control={control}
-          name='bedNo'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Bed No</FormLabel>
-              <FormControl>
-                <Input type='text' placeholder='Enter Bed No' {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={control}
           name='roomNo'
           render={({ field }) => (
             <FormItem>
               <FormLabel>Room No</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
+              <Select
+                disabled={mode === 'edit' ? true : false}
+                onValueChange={field.onChange}
+                value={field.value}
+              >
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder='Select' />
@@ -89,6 +81,30 @@ export default function BedForm({
                     ))}
                 </SelectContent>
               </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={control}
+          name='bedNo'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Bed No</FormLabel>
+              <FormControl>
+                <div className='relative'>
+                  <span className='absolute left-3 top-1/2 -translate-y-1/2 transform text-[14px] text-gray-500'>
+                    BED
+                  </span>
+                  <Input
+                    className='pl-[45px]'
+                    type='text'
+                    placeholder='Enter Bed No'
+                    {...field}
+                  />
+                </div>
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}

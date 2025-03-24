@@ -61,7 +61,17 @@ export default function RoomForm({
             <FormItem>
               <FormLabel>Room No</FormLabel>
               <FormControl>
-                <Input type='text' placeholder='Enter Room No' {...field} />
+                <div className='relative'>
+                  <span className='absolute left-3 top-1/2 -translate-y-1/2 transform text-[14px] text-gray-500'>
+                    RM
+                  </span>
+                  <Input
+                    type='text'
+                    placeholder='Enter Room No'
+                    className='pl-10'
+                    {...field}
+                  />
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -113,9 +123,9 @@ export default function RoomForm({
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent className='max-h-[300px] overflow-y-auto'>
-                  <SelectItem value='Available'>Available</SelectItem>
-                  <SelectItem value='Occupied'>Occupied</SelectItem>
-                  <SelectItem value='Maintenance'>Maintenance</SelectItem>
+                  <SelectItem value='AVAILABLE'>AVAILABLE</SelectItem>
+                  <SelectItem value='OCCUPIED'>OCCUPIED</SelectItem>
+                  <SelectItem value='MAINTENANCE'>MAINTENANCE</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />

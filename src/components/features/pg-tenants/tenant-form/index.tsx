@@ -22,7 +22,7 @@ export const tenantFormSchema = z
     roomId: z.string().min(1, 'Room number is required'),
     bedId: z.string().min(1, 'Bed number is required'),
     checkInDate: z.string().min(1, 'Check-in date is required'),
-    checkOutDate: z.string().min(1, 'Check-out date is required'),
+    checkOutDate: z.string().optional(), // Making checkOutDate optional
     status: z.string().min(1, 'Status is required'),
     images: z
       .array(z.string())
@@ -35,6 +35,7 @@ export const tenantFormSchema = z
   })
   .refine(
     (data) => {
+      if (!data.checkOutDate) return true; // If checkOutDate is empty, skip validation
       const checkInDate = parse(data.checkInDate, 'dd-MM-yyyy', new Date());
       const checkOutDate = parse(data.checkOutDate, 'dd-MM-yyyy', new Date());
 
@@ -133,7 +134,7 @@ const MainTenantForm = ({ mode, initialData, id }: IMainTenantFormProps) => {
         phoneNo: values.phoneNo,
         email: values.email,
         checkInDate: values.checkInDate,
-        checkOutDate: values.checkOutDate,
+        checkOutDate: values.checkOutDate ?? '',
         status: values.status,
         images: values.images || [],
         proofDocuments: values.proofDocuments || []
@@ -180,7 +181,12 @@ const MainTenantForm = ({ mode, initialData, id }: IMainTenantFormProps) => {
         }
       }
     } catch (error: any) {
-      toast.error('Something went wrong. Please try again.');
+      const errorMessage =
+        error?.response?.data?.error ||
+        error?.message ||
+        'Something went wrong.';
+
+      toast.error(errorMessage);
     }
   };
 

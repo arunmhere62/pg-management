@@ -53,20 +53,22 @@ const MainRoomForm = ({ mode, initialData, id }: IMainRoomFormProps) => {
 
   const onSubmit = async (values: z.infer<typeof roomFormSchema>) => {
     try {
+      const payload = {
+        images: values.images,
+        roomNo: values.roomNo.startsWith('RM')
+          ? values.roomNo
+          : 'RM' + values.roomNo,
+        bedCount: Number(values.bedCount),
+        status: values.status,
+        rentPrice: Number(values.rentPrice),
+        pgId: Number(pgLocationId)
+      };
       if (mode === 'create') {
-        const payload = {
-          images: values.images,
-          roomNo: values.roomNo,
-          bedCount: Number(values.bedCount),
-          status: values.status,
-          rentPrice: Number(values.rentPrice),
-          pgId: Number(pgLocationId)
-        };
-        const res = await axiosService.post('/api/room/create', {
+        const res = await axiosService.post('/api/room', {
           data: payload
         });
         if (res.status === 201) {
-          toast.success('PG created successfully!');
+          toast.success('PG and its Beds created successfully!');
           form.reset({
             roomNo: '',
             bedCount: '',
@@ -76,14 +78,6 @@ const MainRoomForm = ({ mode, initialData, id }: IMainRoomFormProps) => {
           });
         }
       } else if (mode === 'edit') {
-        const payload = {
-          images: values.images,
-          roomNo: values.roomNo,
-          bedCount: Number(values.bedCount),
-          status: values.status,
-          rentPrice: Number(values.rentPrice),
-          pgId: Number(pgLocationId)
-        };
         const res = await axiosService.put(`/api/room/${id}`, {
           data: payload
         });
@@ -99,11 +93,12 @@ const MainRoomForm = ({ mode, initialData, id }: IMainRoomFormProps) => {
         }
       }
     } catch (error: any) {
-      if (error.response?.status === 409) {
-        toast.error('Conflict occurred. Please check your input.');
-      } else {
-        toast.error('Something went wrong. Please try again.');
-      }
+      const errorMessage =
+        error?.response?.data?.error ||
+        error?.message ||
+        'Something went wrong.';
+
+      toast.error(errorMessage);
     }
   };
 

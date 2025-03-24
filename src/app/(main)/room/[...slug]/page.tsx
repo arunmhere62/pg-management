@@ -3,7 +3,7 @@
 import RoomDetails from '@/components/features/pg-rooms/room-details';
 import MainRoomForm from '@/components/features/pg-rooms/room-form';
 import RoomEdit from '@/components/features/pg-rooms/room-form/RoomEdit';
-import TenantDetails from '@/components/features/pg-tenants/tenant-list/tenant-details/TenantDetails';
+import TenantDetails from '@/components/features/pg-tenants/tenant-details/TenantDetails';
 import { useParams } from 'next/navigation';
 import React from 'react';
 

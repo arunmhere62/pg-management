@@ -125,3 +125,18 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer components {
+  .roomTableBadge {
+    @apply rounded-lg border bg-[#7DD3FC] px-2 py-1 text-[13px] font-bold text-[#0C4A6E] dark:bg-[#7DD3FC] dark:text-[#0C4A6E];
+  }
+  .bedTableBadge {
+    @apply rounded-lg border bg-[#E2E8F0] px-2 py-1 text-[13px] font-bold text-[#0C4A6E] dark:bg-[#E2E8F0] dark:text-[#0C4A6E];
+  }
+  .activeBadge {
+    @apply rounded-lg border bg-[#ebffe2] px-2 py-1 text-[13px] font-bold text-[#328a17] dark:bg-[#ebffe2] dark:text-[#328a17];
+  }
+  .inactiveBadge {
+    @apply rounded-lg border bg-[#fa7171] px-2 py-1 text-[13px] font-bold text-[#fff] dark:bg-[#fa7171] dark:text-[#fff];
+  }
+}

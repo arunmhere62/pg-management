@@ -13,10 +13,7 @@ import { Button } from '@/components/ui/button';
 import BedForm from './BedForm';
 
 export const roomFormSchema = z.object({
-  images: z
-    .array(z.string())
-    .min(1, 'Image is required.')
-    .max(4, 'You can upload up to 4 images.'),
+  images: z.array(z.string()).optional(),
   bedNo: z.string().min(1, 'Bed number is required'),
   status: z.string().min(1, 'Status is required'),
   roomNo: z.string().min(1, { message: 'Room number is required' })
@@ -76,15 +73,17 @@ const MainBedForm = ({ mode, initialData, id }: IMainBedFormProps) => {
   });
 
   const onSubmit = async (values: z.infer<typeof roomFormSchema>) => {
+    const payload = {
+      bedNo: values.bedNo.startsWith('BED')
+        ? values.bedNo
+        : 'BED' + values.bedNo,
+      images: values.images,
+      roomNo: Number(values.roomNo),
+      status: values.status,
+      pgId: Number(pgLocationId)
+    };
     try {
       if (mode === 'create') {
-        const payload = {
-          bedNo: values.bedNo,
-          images: values.images,
-          roomNo: Number(values.roomNo),
-          status: values.status,
-          pgId: Number(pgLocationId)
-        };
         const res = await axiosService.post('/api/bed', {
           data: payload
         });
@@ -97,13 +96,6 @@ const MainBedForm = ({ mode, initialData, id }: IMainBedFormProps) => {
           });
         }
       } else if (mode === 'edit') {
-        const payload = {
-          bedNo: values.bedNo,
-          images: values.images,
-          roomNo: Number(values.roomNo),
-          status: values.status,
-          pgId: Number(pgLocationId)
-        };
         const res = await axiosService.put(`/api/bed/${id}`, {
           data: payload
         });
@@ -118,11 +110,12 @@ const MainBedForm = ({ mode, initialData, id }: IMainBedFormProps) => {
         }
       }
     } catch (error: any) {
-      if (error.response?.status === 409) {
-        toast.error('Conflict occurred. Please check your input.');
-      } else {
-        toast.error('Something went wrong. Please try again.');
-      }
+      const errorMessage =
+        error?.response?.data?.error ||
+        error?.message ||
+        'Something went wrong.';
+
+      toast.error(errorMessage);
     }
   };
 
@@ -149,6 +142,7 @@ const MainBedForm = ({ mode, initialData, id }: IMainBedFormProps) => {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
             <BedForm
+              mode={mode}
               roomList={roomList}
               initialValue={defaultValues}
               onSubmit={onSubmit}

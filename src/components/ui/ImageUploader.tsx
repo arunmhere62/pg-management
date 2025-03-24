@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import Image from 'next/image';
 import { X } from 'lucide-react';
+import imageCompression from 'browser-image-compression';
 
 const ImageUploader: React.FC<{
   onImagesUpload?: (images: string[]) => void;
@@ -11,7 +11,6 @@ const ImageUploader: React.FC<{
   const [images, setImages] = useState<string[]>(initialImages);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Update images when the initialImages prop changes
   useEffect(() => {
     setImages(initialImages);
   }, [initialImages]);
@@ -22,14 +21,30 @@ const ImageUploader: React.FC<{
     const files = event.target.files;
     if (!files) return;
 
-    const imagePromises: Promise<string>[] = Array.from(files).map((file) => {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = (error) => reject(error);
-      });
-    });
+    const imagePromises: Promise<string>[] = Array.from(files).map(
+      async (file) => {
+        try {
+          // **Compress the image**
+          const compressedFile = await imageCompression(file, {
+            maxSizeMB: 0.05, // Reduce file size to 50KB
+            maxWidthOrHeight: 600, // Resize image to a max of 600px
+            useWebWorker: true, // Enable web worker for performance
+            alwaysKeepResolution: false // Allow some quality loss
+          });
+
+          // **Convert compressed file to Base64**
+          return new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(compressedFile);
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = (error) => reject(error);
+          });
+        } catch (error) {
+          console.error('Error compressing image:', error);
+          return Promise.reject(error);
+        }
+      }
+    );
 
     try {
       const base64Images: string[] = await Promise.all(imagePromises);

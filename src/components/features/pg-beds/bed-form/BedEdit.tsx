@@ -16,7 +16,7 @@ const BedEdit = ({ id }: { id: string }) => {
       try {
         const res = await axiosService.get(`/api/bed/${id}`);
         const formattedRes = {
-          bedNo: res.data.bedNo,
+          bedNo: res.data.bedNo.replace(/^BED/, ''),
           roomNo: String(res.data.roomId),
           images: res.data.images,
           status: res.data.status

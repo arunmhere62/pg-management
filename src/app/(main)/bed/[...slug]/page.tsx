@@ -2,7 +2,7 @@
 import BedDetails from '@/components/features/pg-beds/bed-details/BedDetails';
 import MainBedForm from '@/components/features/pg-beds/bed-form';
 import BedEdit from '@/components/features/pg-beds/bed-form/BedEdit';
-import BedsList from '@/components/features/pg-beds/bed-list';
+import BedsList from '@/components/features/pg-beds/bed-list/BedTable';
 import { useParams } from 'next/navigation';
 import React from 'react';
 

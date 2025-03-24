@@ -16,8 +16,8 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
 import { formSchema, ICitiesListProps, IStateListProps } from '.';
+import { SelectComboBox } from '@/components/ui/selectComboBox';
 
 interface IPgLocationFromProps {
   initialValue: {
@@ -28,25 +28,17 @@ interface IPgLocationFromProps {
     pincode: string;
     address: string;
   };
-  states: IStateListProps[];
-  cities: ICitiesListProps[];
-  selectedState: string | undefined;
-  setSelectedState: React.Dispatch<React.SetStateAction<string | undefined>>;
-  selectedCity: string | undefined;
-  setSelectedCity: React.Dispatch<React.SetStateAction<string | undefined>>;
+  citiesList: ICitiesListProps[];
   onSubmit: (values: z.infer<typeof formSchema>) => void;
   control: any;
+  statesList: IStateListProps[];
 }
 export default function CreatePgForm({
   initialValue,
-  states,
-  cities,
-  selectedState,
-  setSelectedState,
-  selectedCity,
-  setSelectedCity,
+  citiesList,
   onSubmit,
-  control
+  control,
+  statesList
 }: IPgLocationFromProps) {
   return (
     <>
@@ -89,78 +81,34 @@ export default function CreatePgForm({
           render={({ field }) => (
             <FormItem>
               <FormLabel>State</FormLabel>
-              <Select
-                onValueChange={(value) => {
-                  setSelectedState(value);
-                  field.onChange(value);
-                }}
-                value={selectedState || field.value || ''}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder='Select state' />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent className='max-h-[300px] overflow-y-auto'>
-                  {states && states.length > 0 ? (
-                    states?.map((state) => (
-                      <SelectItem key={state.id} value={String(state.id)}>
-                        {state.name}
-                      </SelectItem>
-                    ))
-                  ) : (
-                    <p className='p-0 text-center text-sm text-gray-500'>
-                      No states available
-                    </p>
-                  )}
-                </SelectContent>
-              </Select>
+              <SelectComboBox
+                options={statesList || []}
+                placeholder='Select a State'
+                value={field.value}
+                onChange={field.onChange}
+              />
               <FormMessage />
             </FormItem>
           )}
         />
-
-        {/* ✅ Fix: Correct Select Handling */}
         <FormField
           control={control}
           name='city'
           render={({ field }) => (
             <FormItem>
               <FormLabel>City</FormLabel>
-              <Select
-                onValueChange={(value) => {
-                  setSelectedCity(value);
-                  field.onChange(value);
-                }}
-                value={selectedCity || field.value || ''}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue
-                      defaultValue={field.value}
-                      placeholder='Select city'
-                    />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent className='max-h-[300px] overflow-y-auto'>
-                  {cities && cities.length > 0 ? (
-                    cities.map((city) => (
-                      <SelectItem key={city.id} value={String(city.id)}>
-                        {city.name}
-                      </SelectItem>
-                    ))
-                  ) : (
-                    <p className='p-0 text-center text-sm text-gray-500'>
-                      No cities available
-                    </p>
-                  )}
-                </SelectContent>
-              </Select>
+              <SelectComboBox
+                options={citiesList || []}
+                placeholder='Select a City'
+                value={field.value}
+                onChange={field.onChange}
+              />
               <FormMessage />
             </FormItem>
           )}
         />
 
+        {/* ✅ Fix: Correct Select Handling */}
         <FormField
           control={control}
           name='pincode'

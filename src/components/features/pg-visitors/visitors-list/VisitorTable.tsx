@@ -6,34 +6,49 @@ import { EditIcon, Eye, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import HeaderButton from '@/components/ui/large/HeaderButton';
 import GridTable from '@/components/ui/mui-grid-table/GridTable';
-import { width } from '@mui/system';
+import { cn } from '@/lib/utils';
 
-interface ITenantListProps {
+interface IVisitorsListProps {
   id: number;
-  bedId: number;
-  tenantId: string;
-  pgId: number;
-  roomId: number;
-  checkInDate: string;
-  checkOutDate: string;
-  email: string;
-  images: string;
-  name: string;
+  pgLocationId: number;
+  visitedRoomId: number;
+  visitedBedId: number;
+  visitorName: string;
   phoneNo: string;
-  proofDocuments: string;
-  status: string;
+  purpose: string;
+  visitedDate: string;
+  checkInTime: string;
+  checkOutTime: string;
   createdAt: string;
   updatedAt: string;
+  rooms: {
+    roomNo: string;
+  };
+  beds: {
+    bedNo: string;
+  };
+  roomNo?: string;
+  bedNo?: string;
 }
-const TenantList = () => {
+const VisitorsList = () => {
   const router = useRouter();
-  const [tenantList, setTenantList] = useState<ITenantListProps[]>([]);
+  const [visitorsList, setVisitorsList] = useState<IVisitorsListProps[]>([]);
+
   useEffect(() => {
     const getTenants = async () => {
       try {
-        const res = await axiosService.get('api/tenant');
-        if (res.data) {
-          setTenantList(res.data);
+        const res = await axiosService.get('api/visitors');
+        console.log(res.data.data);
+
+        if (res.data.data) {
+          const formattedData = res.data.data.map((d: IVisitorsListProps) => {
+            return {
+              roomNo: d.rooms.roomNo,
+              bedNo: d.beds.bedNo,
+              ...d
+            };
+          });
+          setVisitorsList(formattedData);
         }
       } catch (error) {
         throw new Error('Fetching the tenant list failed');
@@ -43,45 +58,37 @@ const TenantList = () => {
   }, []);
 
   const columns = [
-    {
-      field: 'images',
-      headerName: 'Profile',
-      width: 100,
-      renderCell: (params: any) => {
-        const image = params?.value?.[0] || [];
-        return image ? (
-          <div className='mt-2.5'>
-            <Image
-              src={image}
-              alt='Profile'
-              width={50}
-              height={50}
-              className='h-[40px] w-[60px] rounded-md object-cover'
-            />
-          </div>
-        ) : (
-          <span>No Image</span>
-        );
-      }
-    },
-    { field: 'name', headerName: 'Name', minWidth: 100, flex: 1 },
-    { field: 'email', headerName: 'Email', minWidth: 130, flex: 1 },
+    { field: 'visitorName', headerName: 'Name', minWidth: 100, flex: 1 },
     { field: 'phoneNo', headerName: 'Phone No', minWidth: 100, flex: 1 },
-    { field: 'status', headerName: 'Status', minWidth: 100, flex: 1 },
     {
-      field: 'checkInDate',
-      headerName: 'Check In Date',
+      field: 'roomNo',
+      headerName: 'Room No',
+      minWidth: 130,
+      flex: 1,
+      renderCell: (params: any) => (
+        <span className='roomTableBadge'>{params.value}</span>
+      )
+    },
+    {
+      field: 'bedNo',
+      headerName: 'Bed No',
+      minWidth: 100,
+      flex: 1,
+      renderCell: (params: any) => (
+        <span className='bedTableBadge'>{params.value}</span>
+      )
+    },
+    // { field: 'purpose', headerName: 'Purpose', minWidth: 100, flex: 1 },
+    { field: 'visitedDate', headerName: 'Visit Date', minWidth: 100, flex: 1 },
+    {
+      field: 'checkInTime',
+      headerName: 'Check In Time',
       minWidth: 100,
       flex: 1
     },
-    {
-      field: 'checkOutDate',
-      headerName: 'Check Out Date',
-      minWidth: 100,
-      flex: 1
-    },
+    // { field: 'checkOutTime', headerName: 'Check Out Time', minWidth: 100, flex: 1 },
     { field: 'createdAt', headerName: 'Created At', minWidth: 100, flex: 1 },
-    { field: 'updatedAt', headerName: 'Updated At', minWidth: 100, flex: 1 },
+    // { field: 'updatedAt', headerName: 'Updated At', minWidth: 100, flex: 1 },
     {
       field: 'actions',
       headerName: 'Actions',
@@ -90,7 +97,7 @@ const TenantList = () => {
         <div className='ml-3 mt-3 flex gap-3'>
           <EditIcon
             onClick={() => {
-              router.push(`/tenant/${params.row.id}`);
+              router.push(`/visitor/${params.row.id}`);
             }}
             className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]'
           />
@@ -102,7 +109,7 @@ const TenantList = () => {
           />
           <Eye
             onClick={() => {
-              router.push(`/tenant/details/${params.row.id}`);
+              router.push(`/visitor/details/${params.row.id}`);
             }}
             className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]'
           />
@@ -118,7 +125,7 @@ const TenantList = () => {
           {
             label: 'Create New',
             onClick: () => {
-              router.push('/tenant/new');
+              router.push('/visitor/new');
             },
             variant: 'default'
           }
@@ -127,7 +134,7 @@ const TenantList = () => {
       <div className='mt-6'>
         <GridTable
           columns={columns}
-          rows={tenantList}
+          rows={visitorsList}
           loading={false}
           rowHeight={80}
           showToolbar={true}
@@ -138,4 +145,4 @@ const TenantList = () => {
   );
 };
 
-export default TenantList;
+export default VisitorsList;

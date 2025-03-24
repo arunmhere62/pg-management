@@ -66,7 +66,7 @@ const GridTable: React.FC<GridTableProps> = ({
     document.addEventListener('mousemove', handleUserInteraction);
     document.addEventListener('scroll', handleUserInteraction);
     document.addEventListener('touchstart', handleUserInteraction);
-    window.addEventListener('storage', handleThemeChange); // ✅ Listen for localStorage change
+    window.addEventListener('storage', handleThemeChange);
 
     return () => {
       document.removeEventListener('click', handleUserInteraction);
@@ -79,10 +79,14 @@ const GridTable: React.FC<GridTableProps> = ({
   }, []);
 
   // Create skeleton rows when loading
-  const skeletonRows = Array.from({ length: 5 }, (_, index) => ({
+  const skeletonRows = Array.from({ length: 10 }, (_, index) => ({
     id: index + 1,
     ...columns.reduce((acc, col) => {
-      acc[col.field] = <Skeleton variant='text' width='100%' />;
+      acc[col.field] = (
+        <>
+          <Skeleton variant='text' width='100%' />
+        </>
+      );
       return acc;
     }, {} as any)
   }));
@@ -93,7 +97,8 @@ const GridTable: React.FC<GridTableProps> = ({
         style={{
           padding: '',
           width: `${tableWidth}px`,
-          maxWidth: '100%'
+          maxWidth: '100%',
+          height: '600px'
         }}
       >
         <DataGrid
@@ -117,7 +122,7 @@ const GridTable: React.FC<GridTableProps> = ({
           disableColumnSelector
           disableDensitySelector
           hideFooter={hideFooter}
-          pageSizeOptions={[5, 10, 25, 50]}
+          pageSizeOptions={[10, 25, 50]}
           editMode='cell'
           sortingOrder={['asc', 'desc', null] as GridSortDirection[]}
           loading={loading}
@@ -130,7 +135,7 @@ const GridTable: React.FC<GridTableProps> = ({
           }))}
           initialState={{
             pagination: {
-              paginationModel: { pageSize: 5 }
+              paginationModel: { pageSize: 10 }
             }
           }}
           slots={{

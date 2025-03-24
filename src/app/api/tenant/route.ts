@@ -1,7 +1,8 @@
 import prisma from '@/lib/prisma';
+import { AppError, ConflictError, errorHandler } from '@/services/utils/error';
 import { NextRequest, NextResponse } from 'next/server';
-import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
+import { updateBedStatus } from '../bed/service';
 
 export const GET = async (req: NextRequest) => {
   try {
@@ -16,6 +17,21 @@ export const GET = async (req: NextRequest) => {
     const tenants = await prisma.tenants.findMany({
       where: {
         pgId: Number(pgLocationId)
+      },
+      include: {
+        rooms: {
+          select: {
+            id: true,
+            roomNo: true,
+            roomId: true
+          }
+        },
+        beds: {
+          select: {
+            id: true,
+            bedNo: true
+          }
+        }
       }
     });
     return NextResponse.json(tenants, { status: 200 });
@@ -36,56 +52,64 @@ const tenantSchema = z.object({
   phoneNo: z.string().regex(/^\d{10}$/, 'Phone number must be 10 digits'),
   email: z.string().email('Invalid email format'),
   checkInDate: z.string(),
-  checkOutDate: z.string(),
+  checkOutDate: z.string().optional(),
   status: z.enum(['ACTIVE', 'INACTIVE']),
   images: z.array(z.string()).optional(),
   proofDocuments: z.array(z.string()).optional()
 });
+
 export const POST = async (req: NextRequest) => {
   try {
     const cookies = req.cookies;
     const pgLocationId = cookies.get('pgLocationId')?.value;
 
     if (!pgLocationId) {
-      return NextResponse.json(
-        { error: 'PG location data not found in cookies' },
-        { status: 400 }
+      throw new AppError(
+        'PG location data not found in cookies',
+        400,
+        'PG_LOCATION_MISSING'
       );
     }
+
     const body = await req.json();
     const parsedData = tenantSchema.safeParse(body.data);
 
     if (!parsedData.success) {
-      return NextResponse.json(
-        { error: 'Invalid request data', details: parsedData.error.format() },
-        { status: 400 }
-      );
+      throw new AppError('Invalid request data', 400, 'VALIDATION_ERROR');
     }
+
+    console.log('fail 1');
+
     const { roomId, bedId } = parsedData.data;
 
-    // **Check if a tenant already exists with the same roomId and bedId**
+    // Check if a tenant already exists for the given bed
     const existingTenant = await prisma.tenants.findFirst({
       where: { roomId, bedId }
     });
 
+    console.log('fail 2');
+
     if (existingTenant) {
-      return NextResponse.json(
-        { error: 'A tenant already exists for this Room and Bed' },
-        { status: 400 }
-      );
+      throw new ConflictError('A tenant already exists for this Room and Bed');
     }
-    const res = await prisma.tenants.create({
-      data: parsedData.data
+
+    // Start transaction with room update inside
+    await prisma.$transaction(async (prisma) => {
+      // Create a new tenant
+      await prisma.tenants.create({
+        data: parsedData.data
+      });
+
+      console.log('hello`');
+
+      await updateBedStatus(bedId, 'OCCUPIED');
     });
-    return NextResponse.json({
-      message: 'Tenant created successfully',
-      data: res
-    });
-  } catch (error) {
-    console.error('Error creating tenant:', error);
+
     return NextResponse.json(
-      { error: 'Internal Server Error' },
-      { status: 500 }
+      { message: 'Tenant created successfully' },
+      { status: 201 }
     );
+  } catch (error) {
+    return errorHandler(error);
   }
 };
