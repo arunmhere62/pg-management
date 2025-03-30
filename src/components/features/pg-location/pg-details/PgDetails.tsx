@@ -64,7 +64,7 @@ const PgDetails = ({ pgDetails }: { pgDetails: IPgListProps }) => {
           pgDetails.status === 'ACTIVE' ? 'bg-[#95cf20]' : 'bg-[#fb5656]'
         )}
       >
-        {pgDetails.status.toLocaleUpperCase()}
+        {pgDetails?.status?.toLocaleUpperCase()}
       </p>
 
       {/* Updated At */}

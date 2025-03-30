@@ -7,7 +7,6 @@ export const GET = async (req: NextRequest) => {
   try {
     const cookies = req.cookies;
     const pgLocationId = cookies.get('pgLocationId')?.value;
-    console.log('pgLocationId', pgLocationId);
     if (!pgLocationId) {
       return NextResponse.json({
         error: 'PG location data not found in cookies',
@@ -19,50 +18,29 @@ export const GET = async (req: NextRequest) => {
         pgId: Number(pgLocationId)
       },
       include: {
-        tenants: {
-          select: {
-            id: true,
-            tenantId: true,
-            name: true,
-            phoneNo: true,
-            email: true,
-            images: true,
-            pgLocations: {
-              select: {
-                locationName: true
-              }
-            }
+        beds: {
+          omit: {
+            images: true
           }
         },
         rooms: {
-          select: {
-            id: true,
-            roomId: true,
-            roomNo: true,
-            rentPrice: true,
-            status: true
+          omit: {
+            images: true
           }
         },
-        beds: {
-          select: {
-            id: true,
-            bedNo: true,
-            status: true
+        tenants: {
+          omit: {
+            images: true
           }
         }
       }
     });
-    console.log('res data', res);
-
     return NextResponse.json(
       { data: res, message: 'Tenant Payments fetched successfully' },
       { status: 200 }
     );
-  } catch (error: any) {
-    return NextResponse.json(
-      { error: 'Internal Server Error', details: error.message },
-      { status: 500 }
-    );
+  } catch (error) {
+    return errorHandler(error);
   }
 };
 
@@ -118,7 +96,6 @@ export const POST = async (req: NextRequest) => {
       );
     }
     const validatedData = validationResult.data;
-    console.log('Validated Data:', validatedData);
 
     const pgLocationId = cookies.get('pgLocationId')?.value;
     if (!pgLocationId) {
@@ -127,8 +104,6 @@ export const POST = async (req: NextRequest) => {
         { status: 400 }
       );
     }
-    console.log('validatedData', validatedData);
-    // Check if a payment for the same tenant with the same startDate and endDate already exists
     const existingPayment = await prisma.tenant_payments.findFirst({
       where: {
         tenantId: validatedData.tenantId,
@@ -143,7 +118,6 @@ export const POST = async (req: NextRequest) => {
       );
     }
 
-    console.log('Validated Data:', validatedData);
     const res = await prisma.tenant_payments.create({
       data: {
         pgId: validatedData.pgId,

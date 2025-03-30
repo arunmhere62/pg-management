@@ -42,12 +42,11 @@ const TenantList = () => {
     const getTenants = async () => {
       try {
         const res = await axiosService.get('api/tenant');
-        const formattedRes = res.data.map((d: ITenantListProps) => ({
+        const formattedRes = res.data.data.map((d: ITenantListProps) => ({
           roomNo: d.rooms.roomNo,
           bedNo: d.beds.bedNo,
           ...d
         }));
-        console.log('tenant list', formattedRes);
         if (res.data) {
           setTenantList(formattedRes);
         }

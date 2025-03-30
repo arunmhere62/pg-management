@@ -2,11 +2,18 @@ import { NextResponse } from 'next/server';
 class AppError extends Error {
   status: number;
   errorCode: string;
+  cause?: unknown;
 
-  constructor(message: string, status: number, errorCode: string) {
+  constructor(
+    message: string,
+    status: number,
+    errorCode: string,
+    cause?: unknown
+  ) {
     super(message);
     this.status = status;
     this.errorCode = errorCode;
+    this.cause = cause; // Store the original cause
     Object.setPrototypeOf(this, new.target.prototype);
   }
 }
@@ -57,5 +64,8 @@ export const errorHandler = (error: any) => {
       { status: error.status }
     );
   }
-  return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  return NextResponse.json(
+    { error: 'Internal Server Error', details: error.message }, // Include error details
+    { status: 500 }
+  );
 };

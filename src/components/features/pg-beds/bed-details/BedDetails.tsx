@@ -1,9 +1,11 @@
 'use client';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
+import { fetchBedById } from '@/services/utils/api/bed-api';
 import axiosService from '@/services/utils/axios';
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 interface IBedDetailsProps {
   bedNo: string;
@@ -25,10 +27,12 @@ const BedDetails = ({ id }: { id: string }) => {
   useEffect(() => {
     const getBed = async () => {
       try {
-        const res = await axiosService.get<IBedDetailsProps>(`/api/bed/${id}`);
-        setBedDetails(res.data);
+        const res = await fetchBedById(String(id));
+        if (res.data) {
+          setBedDetails(res.data);
+        }
       } catch (error) {
-        console.error('Error fetching Bed data:', error);
+        toast.error('Error fetching Bed data');
       }
     };
     if (id) {
@@ -82,7 +86,7 @@ const BedDetails = ({ id }: { id: string }) => {
         <div className='mb-5 flex justify-between'>
           <p className='font-semibold'>Status:</p>
           <p className={cn('w-fit rounded-lg px-3 py-0.5 text-[14px]')}>
-            {bedDetails?.status.toLocaleUpperCase()}
+            {bedDetails?.status?.toLocaleUpperCase()}
           </p>
         </div>
         <div className='mb-5 flex justify-between'>

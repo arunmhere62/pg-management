@@ -1,7 +1,8 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import axiosService from '@/services/utils/axios';
 import MainRoomForm from '.';
+import { toast } from 'sonner';
+import { fetchBedById } from '@/services/utils/api/bed-api';
 
 interface IBedEditFormProps {
   bedNo: string;
@@ -14,7 +15,7 @@ const BedEdit = ({ id }: { id: string }) => {
   useEffect(() => {
     const getBed = async () => {
       try {
-        const res = await axiosService.get(`/api/bed/${id}`);
+        const res = await fetchBedById(id);
         const formattedRes = {
           bedNo: res.data.bedNo.replace(/^BED/, ''),
           roomNo: String(res.data.roomId),
@@ -23,7 +24,7 @@ const BedEdit = ({ id }: { id: string }) => {
         };
         setBedData(formattedRes);
       } catch (error) {
-        console.error('Error fetching bed data:', error);
+        toast.error('Error fetching bed data');
       }
     };
     if (id) {

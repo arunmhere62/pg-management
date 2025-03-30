@@ -1,5 +1,5 @@
 import prisma from '@/lib/prisma';
-import { BadRequestError } from '@/services/utils/error';
+import { BadRequestError, errorHandler } from '@/services/utils/error';
 import { NextRequest, NextResponse } from 'next/server';
 
 export const GET = async (
@@ -21,10 +21,6 @@ export const GET = async (
 
     return NextResponse.json(beds, { status: 200 });
   } catch (error) {
-    console.error('Error fetching beds:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return errorHandler(error);
   }
 };

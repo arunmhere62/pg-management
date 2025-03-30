@@ -44,7 +44,7 @@ interface IPaymentFromProps {
     amountPaid: string;
   };
 }
-export default function PaymentForm({
+export default function AdvanceForm({
   initialValue,
   onSubmit,
   control,
@@ -277,8 +277,21 @@ export default function PaymentForm({
                 {paymentDetails.remarks || 'N/A'}
               </p>
             </div>
-            <div className='mt-5 flex justify-between rounded-lg border border-[#000] p-2'>
-              <p className='font-semibold dark:text-black'>Total Amount:</p>
+            <p className='mt-5 font-semibold dark:text-[#696969]'>
+              The room and its bed prize:
+            </p>
+            <div className='mt-2 flex justify-between rounded-lg border border-[#000] p-2'>
+              <p className='font-semibold dark:text-black'>Rent Amount:</p>
+              <p className='flex dark:text-black'>
+                <IndianRupee className='w-4' />{' '}
+                {tenantDetails?.rooms.rentPrice || '0'}
+              </p>
+            </div>
+            <p className='mt-5 font-semibold dark:text-[#696969]'>
+              Tenant paid amount :
+            </p>
+            <div className='mt-2 flex justify-between rounded-lg border border-[#000] p-2'>
+              <p className='font-semibold dark:text-black'>Paid Amount:</p>
               <p className='flex dark:text-black'>
                 <IndianRupee className='w-4' />{' '}
                 {paymentDetails.amountPaid || '0'}

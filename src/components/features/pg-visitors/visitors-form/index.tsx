@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { v4 as uuidv4 } from 'uuid';
 import { parse } from 'date-fns';
 import TenantForm from './VisitorsForm';
+import { fetchRoomsList } from '@/services/utils/api/rooms-api';
 
 export const tenantFormSchema = z.object({
   visitorName: z.string().min(1, 'Visitor Name is required'),
@@ -48,7 +49,7 @@ const MainVisitorsForm = ({ mode, initialData, id }: IMainTenantFormProps) => {
   useEffect(() => {
     const fetchRooms = async () => {
       try {
-        const res = await axiosService.get('/api/room');
+        const res = await fetchRoomsList();
         if (res.data) {
           setRoomList(
             res.data.map((room: any) => ({
@@ -58,7 +59,7 @@ const MainVisitorsForm = ({ mode, initialData, id }: IMainTenantFormProps) => {
           );
         }
       } catch (error) {
-        console.error('Error fetching rooms:', error);
+        toast.error('Error fetching rooms:');
       }
     };
     fetchRooms();
@@ -75,7 +76,7 @@ const MainVisitorsForm = ({ mode, initialData, id }: IMainTenantFormProps) => {
         })) || []
       );
     } catch (error) {
-      console.error('Error fetching beds:', error);
+      toast.error('Error fetching beds:');
       return [];
     }
   }, []);
@@ -98,7 +99,6 @@ const MainVisitorsForm = ({ mode, initialData, id }: IMainTenantFormProps) => {
   });
 
   const onSubmit = async (values: z.infer<typeof tenantFormSchema>) => {
-    console.log('values payload', values);
     try {
       const payload = {
         pgId: Number(pgLocationId),
@@ -111,7 +111,6 @@ const MainVisitorsForm = ({ mode, initialData, id }: IMainTenantFormProps) => {
         bedId: Number(values.bedId),
         roomId: Number(values.roomId)
       };
-      console.log('payload pg', payload);
 
       if (mode === 'create') {
         const res = await axiosService.post('/api/visitors', {

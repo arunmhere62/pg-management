@@ -18,6 +18,7 @@ import axiosService from '@/services/utils/axios';
 import { formatDateToDDMMYYYY } from '@/services/utils/formaters';
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 interface IRoomDetailsProps {
   id: number;
@@ -85,15 +86,13 @@ const RoomDetails = ({ id }: { id: string }) => {
         );
         setRoomDetails(res.data);
       } catch (error) {
-        console.error('Error fetching room data:', error);
+        toast.error('Error fetching room data:');
       }
     };
     if (id) {
       getRoom();
     }
   }, [id]);
-  console.log('roomDetails', roomDetails);
-
   return (
     <div className='grid grid-cols-12 gap-x-8 rounded-xl border p-5'>
       <div className='col-span-12'>
@@ -176,7 +175,7 @@ const RoomDetails = ({ id }: { id: string }) => {
               roomDetails?.status === 'ACTIVE' ? 'activeBadge' : 'inActiveBadge'
             )}
           >
-            {roomDetails?.status.toLocaleUpperCase()}
+            {roomDetails?.status?.toLocaleUpperCase()}
           </p>
         </div>
 

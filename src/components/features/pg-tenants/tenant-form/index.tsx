@@ -14,6 +14,7 @@ import TenantForm from './TenantForm';
 import { v4 as uuidv4 } from 'uuid';
 import { formatDate } from '@/services/utils/formaters';
 import { parse } from 'date-fns';
+import { fetchRoomsList } from '@/services/utils/api/rooms-api';
 export const tenantFormSchema = z
   .object({
     tenantName: z.string().min(1, 'Tenant name is required'),
@@ -71,7 +72,7 @@ const MainTenantForm = ({ mode, initialData, id }: IMainTenantFormProps) => {
   useEffect(() => {
     const fetchRooms = async () => {
       try {
-        const res = await axiosService.get('/api/room');
+        const res = await fetchRoomsList();
         if (res.data) {
           setRoomList(
             res.data.map((room: any) => ({
@@ -81,13 +82,11 @@ const MainTenantForm = ({ mode, initialData, id }: IMainTenantFormProps) => {
           );
         }
       } catch (error) {
-        console.error('Error fetching rooms:', error);
+        toast.error('Error fetching rooms:');
       }
     };
     fetchRooms();
   }, []);
-
-  // ✅ **Fetch Beds when roomId changes**
   const fetchBeds = useCallback(async (roomId: string) => {
     try {
       const res = await axiosService.get(`/api/bed/room/${roomId}`);
@@ -98,7 +97,7 @@ const MainTenantForm = ({ mode, initialData, id }: IMainTenantFormProps) => {
         })) || []
       );
     } catch (error) {
-      console.error('Error fetching beds:', error);
+      toast.error('Error fetching beds:');
       return [];
     }
   }, []);
@@ -123,7 +122,6 @@ const MainTenantForm = ({ mode, initialData, id }: IMainTenantFormProps) => {
   });
 
   const onSubmit = async (values: z.infer<typeof tenantFormSchema>) => {
-    console.log('values payload', values);
     try {
       const payload = {
         tenantId: uuidv4(),
@@ -139,8 +137,6 @@ const MainTenantForm = ({ mode, initialData, id }: IMainTenantFormProps) => {
         images: values.images || [],
         proofDocuments: values.proofDocuments || []
       };
-      console.log('payload pg', payload);
-
       if (mode === 'create') {
         const res = await axiosService.post('/api/tenant', {
           data: payload

@@ -2,6 +2,8 @@
 import React, { useEffect, useState } from 'react';
 import axiosService from '@/services/utils/axios';
 import MainRoomForm from '.';
+import { getRoomById } from '@/services/utils/api/rooms-api';
+import { toast } from 'sonner';
 
 interface IRoomEditFormProps {
   roomNo: string;
@@ -15,10 +17,10 @@ const RoomEdit = ({ id }: { id: string }) => {
   useEffect(() => {
     const getRoom = async () => {
       try {
-        const res = await axiosService.get(`/api/room/${id}`);
+        const res = await getRoomById(String(id));
         const formattedRes = {
           images: res.data.images,
-          roomNo: res.data.roomNo.replace(/^RM/, ''),
+          roomNo: res.data.roomNo?.replace(/^RM/, ''),
           bedCount: res.data.bedCount.toString(),
           rentPrice: res.data.rentPrice.toString(),
           status: res.data.status
@@ -27,7 +29,7 @@ const RoomEdit = ({ id }: { id: string }) => {
           setRoomData(formattedRes);
         }
       } catch (error) {
-        console.error('Error fetching room data:', error);
+        toast.error('Error fetching room data:');
       }
     };
     if (id) {

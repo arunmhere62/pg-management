@@ -1,6 +1,7 @@
 import axiosService from '@/services/utils/axios';
 import React, { useEffect, useState } from 'react';
 import MainTenantForm from '.';
+import { toast } from 'sonner';
 
 interface ITenantEditFormProps {
   status: string;
@@ -28,7 +29,7 @@ const TenantEdit = ({ id }: { id: string }) => {
           setTenantData(formattedRes);
         }
       } catch (error) {
-        console.error('Error fetching room data:', error);
+        toast.error('Error fetching room data:');
       }
     };
     if (id) {

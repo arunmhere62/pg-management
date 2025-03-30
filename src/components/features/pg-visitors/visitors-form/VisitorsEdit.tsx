@@ -1,6 +1,7 @@
 import axiosService from '@/services/utils/axios';
 import React, { useEffect, useState } from 'react';
 import MainVisitorsForm from '.';
+import { toast } from 'sonner';
 
 interface IVisitorsEditFormProps {
   visitorName: string;
@@ -20,7 +21,6 @@ const VisitorsEdit = ({ id }: { id: string }) => {
     const getRoom = async () => {
       try {
         const res = await axiosService.get(`/api/visitors/${id}`);
-        console.log('res data', res);
         if (res.data.data) {
           const formattedRes = {
             visitorName: res.data.data.visitorName,
@@ -35,14 +35,13 @@ const VisitorsEdit = ({ id }: { id: string }) => {
           setVisitorsData(formattedRes);
         }
       } catch (error) {
-        console.error('Error fetching room data:', error);
+        toast.error('Error fetching room data:');
       }
     };
     if (id) {
       getRoom();
     }
   }, [id]);
-  console.log('visitorsData', visitorsData);
 
   return <MainVisitorsForm id={id} mode='edit' initialData={visitorsData} />;
 };

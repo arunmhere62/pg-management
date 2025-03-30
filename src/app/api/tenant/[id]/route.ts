@@ -1,4 +1,5 @@
 import prisma from '@/lib/prisma';
+import { errorHandler, NotFoundError } from '@/services/utils/error';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -11,7 +12,6 @@ export const GET = async (
     if (!id) {
       return NextResponse.json({ error: 'Id is required' }, { status: 400 });
     }
-
     const res = await prisma.tenants.findUnique({
       where: {
         id: Number(id)
@@ -51,16 +51,14 @@ export const GET = async (
     });
 
     if (!res) {
-      return NextResponse.json({ error: 'Tenant not found' }, { status: 404 });
+      throw new NotFoundError('Tenant not found');
     }
-
-    return NextResponse.json(res, { status: 200 });
-  } catch (error) {
-    console.error('Error fetching tenant:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
+      { data: res, message: 'Fetched the tenant successfully' },
+      { status: 200 }
     );
+  } catch (error) {
+    return errorHandler(error);
   }
 };
 
@@ -125,9 +123,6 @@ export const PUT = async (
 
     // Determine the new bed status based on tenant status
     const newBedStatus = status === 'ACTIVE' ? 'OCCUPIED' : 'VACANT';
-
-    console.log('check payload', parsedData.data);
-
     // Use a transaction to ensure atomic updates
     const updatedTenant = await prisma.$transaction(async (prisma) => {
       // Update the tenant
@@ -189,14 +184,15 @@ export const PUT = async (
       return tenant;
     });
 
-    return NextResponse.json({
-      message: 'Tenant updated successfully',
-      data: updatedTenant
-    });
-  } catch (error) {
     return NextResponse.json(
-      { error: 'Internal Server Error' },
-      { status: 500 }
+      {
+        message: 'Tenant updated successfully',
+        data: updatedTenant,
+        status: 200
+      },
+      { status: 200 }
     );
+  } catch (error) {
+    return errorHandler(error);
   }
 };

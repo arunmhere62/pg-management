@@ -1,8 +1,10 @@
 'use client';
 import MainPgForm from '@/components/features/pg-location/pg-form';
+import { getPgLocationById } from '@/services/utils/api/pg-location-api';
 import axiosService from '@/services/utils/axios';
 import { useParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 interface IpgLocationDataProps {
   images: string[];
@@ -19,8 +21,8 @@ const Page = () => {
   useEffect(() => {
     const getPgLocation = async () => {
       try {
-        const res = await axiosService.get(`/api/pg/${params.id}`);
-        if (res.status === 200) {
+        const res = await getPgLocationById(String(params.id));
+        if (res.data) {
           const data: IpgLocationDataProps = res.data;
           const pgLocation = {
             images: data.images,
@@ -33,7 +35,7 @@ const Page = () => {
           setPgLocationData(pgLocation);
         }
       } catch (error) {
-        console.error('Failed to fetch PG location data:', error);
+        toast.error('Failed to fetch PG location data');
       }
     };
     getPgLocation();

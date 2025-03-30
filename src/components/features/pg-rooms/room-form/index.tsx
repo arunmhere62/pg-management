@@ -11,6 +11,7 @@ import { useSelector } from '@/store';
 import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import RoomForm from './RoomForm';
+import { createRoom, updateRoom } from '@/services/utils/api/rooms-api';
 
 export const roomFormSchema = z.object({
   images: z
@@ -41,7 +42,7 @@ const MainRoomForm = ({ mode, initialData, id }: IMainRoomFormProps) => {
   const defaultValues = {
     roomNo: '',
     bedCount: '',
-    status: '',
+    status: 'AVAILABLE',
     rentPrice: '',
     images: [],
     ...initialData
@@ -64,9 +65,7 @@ const MainRoomForm = ({ mode, initialData, id }: IMainRoomFormProps) => {
         pgId: Number(pgLocationId)
       };
       if (mode === 'create') {
-        const res = await axiosService.post('/api/room', {
-          data: payload
-        });
+        const res = await createRoom(payload);
         if (res.status === 201) {
           toast.success('PG and its Beds created successfully!');
           form.reset({
@@ -78,9 +77,7 @@ const MainRoomForm = ({ mode, initialData, id }: IMainRoomFormProps) => {
           });
         }
       } else if (mode === 'edit') {
-        const res = await axiosService.put(`/api/room/${id}`, {
-          data: payload
-        });
+        const res = await updateRoom(payload, String(id));
         if (res.status === 200) {
           toast.success('PG updated successfully!');
           form.reset({

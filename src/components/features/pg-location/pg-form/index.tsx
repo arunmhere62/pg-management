@@ -10,6 +10,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
+import {
+  createPgLocation,
+  updatePgLocation
+} from '@/services/utils/api/pg-location-api';
+import {
+  fetchCitiesList,
+  fetchStatesList
+} from '@/services/utils/api/common-api';
+
 export const formSchema = z.object({
   images: z
     .array(z.string())
@@ -23,6 +32,7 @@ export const formSchema = z.object({
   pincode: z.string().min(4, 'Pincode must be at least 4 digits'),
   address: z.string().min(5, 'Address must be at least 5 characters')
 });
+
 export interface IStateListProps {
   label: string;
   value: string;
@@ -50,8 +60,6 @@ interface IMainPgFormProps {
   initialData?: Partial<z.infer<typeof formSchema>>;
 }
 const MainPgForm = ({ mode, initialData, id }: IMainPgFormProps) => {
-  console.log('initialData', initialData);
-
   const [statesList, setStatesList] = useState<IStateListProps[]>([]);
   const [citiesList, setCitiesList] = useState<ICitiesListProps[]>([]);
   const [stateData, setStateData] = useState<IStateData[]>([]);
@@ -68,8 +76,6 @@ const MainPgForm = ({ mode, initialData, id }: IMainPgFormProps) => {
     address: '',
     ...initialData
   };
-  console.log('defaultValues', defaultValues);
-
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues
@@ -79,9 +85,7 @@ const MainPgForm = ({ mode, initialData, id }: IMainPgFormProps) => {
   useEffect(() => {
     const getStates = async () => {
       try {
-        const res = await axiosService.post('/api/states', {
-          countryCode: 'IN'
-        });
+        const res = await fetchStatesList('IN');
         if (res.status === 200) {
           const formattedStateRes = res.data.map((state: IStateData) => ({
             label: String(state.name),
@@ -91,21 +95,16 @@ const MainPgForm = ({ mode, initialData, id }: IMainPgFormProps) => {
           setStateData(res.data);
         }
       } catch (error) {
-        console.error('Failed to fetch states:', error);
+        toast.error('Failed to fetch states:');
       }
     };
-
     getStates();
   }, [initialData?.state]);
-
-  console.log('statesList', statesList);
 
   // Fetch cities when state changes
   const fetchCities = useCallback(async (stateIsoCode: string) => {
     try {
-      const res = await axiosService.get('/api/cities', {
-        params: { stateIsoCode }
-      });
+      const res = await fetchCitiesList(stateIsoCode);
       if (res.status === 200) {
         const formattedCitiesRes = res.data.map((city: ICityData) => ({
           label: city.name,
@@ -115,15 +114,23 @@ const MainPgForm = ({ mode, initialData, id }: IMainPgFormProps) => {
         setCityData(res.data);
       }
     } catch (error) {
-      console.error('Failed to fetch cities:', error);
+      toast.error('Failed to fetch cities:');
     }
   }, []);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
+      const payload = {
+        images: values.images,
+        locationName: values.locationName,
+        address: values.address,
+        pincode: values.pincode,
+        stateId: Number(values.state),
+        cityId: Number(values.city)
+      };
       if (mode === 'create') {
-        const res = await axiosService.post('/api/pg/create', { data: values });
-        if (res.status === 200) {
+        const res = await createPgLocation(payload);
+        if (res.status === 201) {
           toast.success('PG created successfully!');
           form.reset({
             images: [],
@@ -135,7 +142,7 @@ const MainPgForm = ({ mode, initialData, id }: IMainPgFormProps) => {
           });
         }
       } else if (mode === 'edit') {
-        const res = await axiosService.put(`/api/pg/${id}`, { data: values });
+        const res = await updatePgLocation(payload, String(id));
         if (res.status === 200) {
           toast.success('PG updated successfully!');
           form.reset({
@@ -149,7 +156,12 @@ const MainPgForm = ({ mode, initialData, id }: IMainPgFormProps) => {
         }
       }
     } catch (error: any) {
-      toast.error('Something went wrong. Please try again.');
+      const errorMessage =
+        error?.response?.data?.error ||
+        error?.message ||
+        'Something went wrong.';
+
+      toast.error(errorMessage);
     }
   };
 
@@ -166,18 +178,12 @@ const MainPgForm = ({ mode, initialData, id }: IMainPgFormProps) => {
     }
   }, [initialData]);
 
-  console.log('stateData here', stateData);
-
   useEffect(() => {
     const state = form.watch('state');
-
-    console.log('state', state);
     if (state && stateData?.length) {
       const cityCode = stateData.find(
         (item) => Number(item.id) === Number(state)
       );
-      console.log('cityCode', cityCode);
-
       if (cityCode?.isoCode) {
         fetchCities(cityCode.isoCode);
       }

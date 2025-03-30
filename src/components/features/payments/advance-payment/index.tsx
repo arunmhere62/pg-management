@@ -9,9 +9,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
-import TenantForm from './PaymentForm';
 import { useSelector } from '@/store';
 import { formatDateToDateTime } from '@/services/utils/formaters';
+import AdvanceForm from './AdvanceForm';
+import { format } from 'date-fns';
 
 export const paymentFormSchema = z.object({
   tenantId: z.string().min(1, 'Please select a tenant.'),
@@ -24,7 +25,7 @@ export const paymentFormSchema = z.object({
   remarks: z.string().min(1, 'Please enter remarks.')
 });
 
-interface IMainPaymentFormProps {
+interface IMainAdvancePaymentProps {
   id?: string;
   mode: 'create' | 'edit';
   initialData?: Partial<z.infer<typeof paymentFormSchema>>;
@@ -61,6 +62,7 @@ export interface TenantDataProps {
     id: number;
     roomId: number;
     roomNo: string;
+    rentPrice: string;
   };
   beds: {
     id: number;
@@ -68,12 +70,12 @@ export interface TenantDataProps {
   };
 }
 
-const MainPaymentForm = ({
+const MainAdvancePayment = ({
   mode,
   initialData,
   id,
   previousPaymentData
-}: IMainPaymentFormProps) => {
+}: IMainAdvancePaymentProps) => {
   const [tenantList, setTenantList] = useState<ITenantListSelectProps[]>([]);
   const [tenantData, setTenantData] = useState<TenantDataProps[]>([]);
   const [tenantDetails, setTenantDetails] = useState<TenantDataProps | null>(
@@ -91,34 +93,39 @@ const MainPaymentForm = ({
   const { pgLocationId, pgLocationName } = useSelector(
     (state) => state.pgLocation
   );
-  const pageTitle = mode === 'create' ? 'Add New Payment' : 'Edit Payment';
-
+  const pageTitle =
+    mode === 'create' ? 'Add Advance Payment' : 'Edit Advance Payment';
   useEffect(() => {
     const fetchTenants = async () => {
       try {
         const res = await axiosService.get('/api/tenant');
+
         if (res.data) {
           setTenantData(res.data.data);
           setTenantList(
-            res.data.data.map((tenant: any) => ({
+            res.data.map((tenant: any) => ({
               value: String(tenant.id),
               label: tenant.name
             }))
           );
         }
       } catch (error) {
-        toast.error('Error fetching rooms');
+        toast.error('Error fetching rooms:');
       }
     };
     fetchTenants();
   }, []);
+
   const defaultValues = {
     tenantId: '',
-    paymentDate: '',
+    paymentDate:
+      new Date().toString() !== 'Invalid Date'
+        ? format(new Date(), 'dd-MM-yyyy')
+        : '',
     startDate: '',
     endDate: '',
     paymentMethod: '',
-    status: '',
+    status: 'PAID',
     remarks: '',
     amountPaid: '',
     ...initialData
@@ -144,6 +151,7 @@ const MainPaymentForm = ({
         remarks: values.remarks,
         amountPaid: Number(values.amountPaid)
       };
+
       if (mode === 'create') {
         const res = await axiosService.post('/api/payment', {
           data: payload
@@ -216,7 +224,7 @@ const MainPaymentForm = ({
       const tenantDetails = tenantData?.find(
         (t) => String(t.id) === String(tenantId)
       );
-
+      form.setValue('startDate', tenantDetails?.checkInDate ?? '');
       setTenantDetails(tenantDetails || null);
     }
   }, [form.watch('tenantId'), tenantData]);
@@ -241,7 +249,7 @@ const MainPaymentForm = ({
             onSubmit={form.handleSubmit(onSubmit)}
             className='space-y-8'
           >
-            <TenantForm
+            <AdvanceForm
               mode={mode}
               paymentDetails={paymentDetails}
               tenantDetails={tenantDetails || null}
@@ -257,4 +265,4 @@ const MainPaymentForm = ({
   );
 };
 
-export default MainPaymentForm;
+export default MainAdvancePayment;

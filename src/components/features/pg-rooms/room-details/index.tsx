@@ -8,9 +8,11 @@ import {
 } from '@/components/ui/Carousel';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
+import { getRoomById } from '@/services/utils/api/rooms-api';
 import axiosService from '@/services/utils/axios';
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 interface IRoomDetailsProps {
   pgId: number;
@@ -28,12 +30,14 @@ const RoomDetails = ({ id }: { id: string }) => {
   useEffect(() => {
     const getRoom = async () => {
       try {
-        const res = await axiosService.get<IRoomDetailsProps>(
-          `/api/room/${id}`
-        );
-        setRoomDetails(res.data);
+        if (id) {
+          const res = await getRoomById(id);
+          if (res?.data) {
+            setRoomDetails(res.data);
+          }
+        }
       } catch (error) {
-        console.error('Error fetching room data:', error);
+        toast.error('Error fetching room data:');
       }
     };
     if (id) {
@@ -94,7 +98,7 @@ const RoomDetails = ({ id }: { id: string }) => {
                 : 'bg-[#fb5656]'
             )}
           >
-            {roomDetails?.status.toLocaleUpperCase()}
+            {roomDetails?.status?.toLocaleUpperCase()}
           </p>
         </div>
 

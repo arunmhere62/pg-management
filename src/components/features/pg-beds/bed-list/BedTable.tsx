@@ -2,11 +2,13 @@ import HeaderButton from '@/components/ui/large/HeaderButton';
 import { Modal } from '@/components/ui/modal';
 import GridTable from '@/components/ui/mui-grid-table/GridTable';
 import { cn } from '@/lib/utils';
+import { fetchBedsList } from '@/services/utils/api/bed-api';
 import axiosService from '@/services/utils/axios';
 import { EditIcon, Eye, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 interface IBedsProps {
   id: number;
@@ -30,9 +32,7 @@ const BedsList = () => {
       setLoading(true);
 
       try {
-        const res = await axiosService.get('/api/bed');
-        console.log('tenants data', res.data);
-
+        const res = await fetchBedsList();
         if (res.data) {
           const formattedRes = res.data.map((data: any) => ({
             id: data.id,
@@ -48,7 +48,7 @@ const BedsList = () => {
           setBedsData(formattedRes);
         }
       } catch (error) {
-        console.log(error);
+        toast.error('fetching failed');
       } finally {
         setLoading(false);
       }

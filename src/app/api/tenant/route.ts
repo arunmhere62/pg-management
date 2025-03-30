@@ -23,23 +23,29 @@ export const GET = async (req: NextRequest) => {
           select: {
             id: true,
             roomNo: true,
-            roomId: true
+            roomId: true,
+            rentPrice: true,
+            images: false
           }
         },
         beds: {
           select: {
             id: true,
-            bedNo: true
+            bedNo: true,
+            images: false
           }
         }
       }
     });
-    return NextResponse.json(tenants, { status: 200 });
-  } catch (error) {
     return NextResponse.json(
-      { error: 'Internal Server Error' },
-      { status: 500 }
+      {
+        message: 'Visitors fetched successfully',
+        data: tenants
+      },
+      { status: 200 }
     );
+  } catch (error) {
+    return errorHandler(error);
   }
 };
 
@@ -62,7 +68,6 @@ export const POST = async (req: NextRequest) => {
   try {
     const cookies = req.cookies;
     const pgLocationId = cookies.get('pgLocationId')?.value;
-
     if (!pgLocationId) {
       throw new AppError(
         'PG location data not found in cookies',
@@ -70,38 +75,26 @@ export const POST = async (req: NextRequest) => {
         'PG_LOCATION_MISSING'
       );
     }
-
     const body = await req.json();
     const parsedData = tenantSchema.safeParse(body.data);
 
     if (!parsedData.success) {
       throw new AppError('Invalid request data', 400, 'VALIDATION_ERROR');
     }
-
-    console.log('fail 1');
-
     const { roomId, bedId } = parsedData.data;
-
     // Check if a tenant already exists for the given bed
     const existingTenant = await prisma.tenants.findFirst({
       where: { roomId, bedId }
     });
-
-    console.log('fail 2');
-
     if (existingTenant) {
       throw new ConflictError('A tenant already exists for this Room and Bed');
     }
-
     // Start transaction with room update inside
     await prisma.$transaction(async (prisma) => {
       // Create a new tenant
       await prisma.tenants.create({
         data: parsedData.data
       });
-
-      console.log('hello`');
-
       await updateBedStatus(bedId, 'OCCUPIED');
     });
 

@@ -38,7 +38,6 @@ const VisitorsList = () => {
     const getTenants = async () => {
       try {
         const res = await axiosService.get('api/visitors');
-        console.log(res.data.data);
 
         if (res.data.data) {
           const formattedData = res.data.data.map((d: IVisitorsListProps) => {

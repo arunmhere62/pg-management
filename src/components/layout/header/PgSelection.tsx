@@ -10,6 +10,7 @@ import React, { useEffect, useState } from 'react';
 import { setPgLocation } from '@/store/slices/pgLocationSlice';
 import { useDispatch } from '@/store';
 import { useSelector } from '@/store';
+import { fetchPgLocationsList } from '@/services/utils/api/pg-location-api';
 interface IPgListProps {
   id: number;
   locationName: string;
@@ -26,7 +27,7 @@ const PgSelection = () => {
   useEffect(() => {
     const getPgList = async () => {
       try {
-        const res = await axiosService.get<IPgListProps[]>('/api/pg');
+        const res = await fetchPgLocationsList();
         setPgListData(res.data);
       } catch (error) {}
     };

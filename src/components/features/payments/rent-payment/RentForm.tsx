@@ -1,5 +1,4 @@
 'use client';
-import * as z from 'zod';
 import {
   FormControl,
   FormField,
@@ -13,11 +12,9 @@ import { SelectComboBox } from '@/components/ui/selectComboBox';
 import { ITenantListSelectProps, TenantDataProps } from '.';
 import Image from 'next/image';
 import { Separator } from '@/components/ui/separator';
-import { useState } from 'react';
-import { format } from 'date-fns';
 import { IndianRupee } from 'lucide-react';
 
-interface IPaymentFromProps {
+interface IRentPaymentFromProps {
   initialValue: {
     tenantName?: string;
     phoneNo?: string;
@@ -44,7 +41,7 @@ interface IPaymentFromProps {
     amountPaid: string;
   };
 }
-export default function PaymentForm({
+export default function RentForm({
   initialValue,
   onSubmit,
   control,
@@ -52,7 +49,7 @@ export default function PaymentForm({
   tenantDetails,
   paymentDetails,
   mode
-}: IPaymentFromProps) {
+}: IRentPaymentFromProps) {
   return (
     <>
       <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
@@ -88,32 +85,34 @@ export default function PaymentForm({
               </FormItem>
             )}
           />
-          <FormField
-            control={control}
-            name='startDate'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Start Date</FormLabel>
-                <FormControl>
-                  <DatePicker value={field.value} onChange={field.onChange} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={control}
-            name='endDate'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>End Date</FormLabel>
-                <FormControl>
-                  <DatePicker value={field.value} onChange={field.onChange} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
+            <FormField
+              control={control}
+              name='startDate'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Start Date</FormLabel>
+                  <FormControl>
+                    <DatePicker value={field.value} onChange={field.onChange} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={control}
+              name='endDate'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>End Date</FormLabel>
+                  <FormControl>
+                    <DatePicker value={field.value} onChange={field.onChange} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
 
           <FormField
             control={control}
@@ -277,8 +276,21 @@ export default function PaymentForm({
                 {paymentDetails.remarks || 'N/A'}
               </p>
             </div>
-            <div className='mt-5 flex justify-between rounded-lg border border-[#000] p-2'>
-              <p className='font-semibold dark:text-black'>Total Amount:</p>
+            <p className='mt-5 font-semibold dark:text-[#696969]'>
+              The room and its bed prize:
+            </p>
+            <div className='mt-2 flex justify-between rounded-lg border border-[#000] p-2'>
+              <p className='font-semibold dark:text-black'>Rent Amount:</p>
+              <p className='flex dark:text-black'>
+                <IndianRupee className='w-4' />{' '}
+                {tenantDetails?.rooms.rentPrice || '0'}
+              </p>
+            </div>
+            <p className='mt-5 font-semibold dark:text-[#696969]'>
+              Tenant paid amount :
+            </p>
+            <div className='mt-2 flex justify-between rounded-lg border border-[#000] p-2'>
+              <p className='font-semibold dark:text-black'>Paid Amount:</p>
               <p className='flex dark:text-black'>
                 <IndianRupee className='w-4' />{' '}
                 {paymentDetails.amountPaid || '0'}

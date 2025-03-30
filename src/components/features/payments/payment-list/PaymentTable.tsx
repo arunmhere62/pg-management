@@ -8,6 +8,7 @@ import GridTable from '@/components/ui/mui-grid-table/GridTable';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { formatDateToDDMMYYYY } from '@/services/utils/formaters';
+import { toast } from 'sonner';
 
 interface IPaymentListProps {
   id: number;
@@ -35,29 +36,25 @@ const PaymentList = () => {
     const getPayments = async () => {
       try {
         const res = await axiosService.get('api/payment');
-        console.log(res.data.data);
-
-        if (res.data.data) {
+        if (res.data) {
           const formattedData = res.data.data.map((d: any) => {
             return {
               ...d,
-              roomNo: d.rooms.roomNo,
-              bedNo: d.beds.bedNo,
-              name: d.tenants?.name,
-              paymentDate: formatDateToDDMMYYYY(d.paymentDate),
-              phoneNo: d.tenants?.phoneNo
+              roomNo: d?.rooms?.roomNo ?? '',
+              bedNo: d?.beds?.bedNo ?? '',
+              name: d?.tenants?.name ?? '',
+              paymentDate: formatDateToDDMMYYYY(d.paymentDate) ?? '',
+              phoneNo: d?.tenants?.phoneNo ?? ''
             };
           });
           setPaymentList(formattedData);
         }
       } catch (error) {
-        throw new Error('Fetching the tenant list failed');
+        toast.error('Fetching the payments list failed try again later');
       }
     };
     getPayments();
   }, []);
-
-  console.log('paymentList', paymentList);
 
   const columns = [
     { field: 'name', headerName: 'Name', minWidth: 100 },
@@ -128,7 +125,7 @@ const PaymentList = () => {
         <div className='ml-3 mt-3 flex gap-3'>
           <EditIcon
             onClick={() => {
-              router.push(`/payment/${params.row.id}`);
+              router.push(`/payment/rent/${params.row.id}`);
             }}
             className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]'
           />
@@ -156,7 +153,7 @@ const PaymentList = () => {
           {
             label: 'Create New',
             onClick: () => {
-              router.push('/payment/new');
+              router.push('/payment/rent/new');
             },
             variant: 'default'
           }

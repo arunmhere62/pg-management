@@ -1,4 +1,5 @@
 import prisma from '@/lib/prisma';
+import { errorHandler } from '@/services/utils/error';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -40,10 +41,7 @@ export const GET = async (
       status: 200
     });
   } catch (error) {
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return errorHandler(error);
   }
 };
 
@@ -65,10 +63,7 @@ export const PUT = async (
 ) => {
   try {
     const body = await req.json();
-    console.log('body here', body);
-
     const parsedData = visitorsSchema.safeParse(body.data);
-    console.log('parsedData', parsedData);
     if (!parsedData.success) {
       return NextResponse.json(
         { error: 'Invalid request data', details: parsedData.error.format() },
@@ -105,11 +100,7 @@ export const PUT = async (
       message: 'Visitor updated successfully',
       data: res
     });
-  } catch (error: any) {
-    console.error('Error updating visitor:', error);
-    return NextResponse.json(
-      { error: 'Internal server error', details: error.message },
-      { status: 500 }
-    );
+  } catch (error) {
+    return errorHandler(error);
   }
 };

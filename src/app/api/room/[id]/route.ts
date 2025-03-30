@@ -24,22 +24,22 @@ export const GET = async (
       }
     });
 
-    return NextResponse.json(res, { status: 200 });
-  } catch (error) {
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
+      { data: res, message: 'Successfully fetched the room' },
+      { status: 200 }
     );
+  } catch (error) {
+    return errorHandler(error);
   }
 };
 
 const roomSchema = z.object({
-  images: z.array(z.string()).optional(), // Array of image URLs (optional)
-  roomNo: z.string().min(1, 'Room number is required'), // Room number as a string
-  bedCount: z.number().int().min(0, 'Bed count must be at least 0'), // Non-negative integer
-  status: z.string().min(1, 'Status is required'), // Status as a string
-  rentPrice: z.number().min(0, 'Rent price must be a positive number'), // Rent price (>= 0)
-  pgId: z.number().int().positive('PG ID must be a positive integer') // Positive integer for pgId
+  images: z.array(z.string()).optional(),
+  roomNo: z.string().min(1, 'Room number is required'),
+  bedCount: z.number().int().min(0, 'Bed count must be at least 0'),
+  status: z.string().min(1, 'Status is required'),
+  rentPrice: z.number().min(0, 'Rent price must be a positive number'),
+  pgId: z.number().int().positive('PG ID must be a positive integer')
 });
 
 export const PUT = async (
@@ -52,14 +52,10 @@ export const PUT = async (
     const { id } = await params;
 
     if (!pgLocationId) {
-      return NextResponse.json({
-        error: 'PG location data not found in cookies',
-        status: 400
-      });
+      throw new BadRequestError('Location ID is required');
     }
-
     const body = await req.json();
-    const validatedData = roomSchema.safeParse(body.data);
+    const validatedData = roomSchema.safeParse(body);
     if (!validatedData.success) {
       return NextResponse.json(
         { error: 'Invalid input', details: validatedData.error.errors },
@@ -68,10 +64,7 @@ export const PUT = async (
     }
     const { roomNo, bedCount, status, rentPrice, images } = validatedData.data;
     if (!id) {
-      return NextResponse.json(
-        { error: 'Room ID is required' },
-        { status: 400 }
-      );
+      throw new BadRequestError('RoomId is required');
     }
     const existingRoom = await prisma.rooms.findUnique({
       where: {
@@ -102,15 +95,18 @@ export const PUT = async (
     const updatedRoom = await prisma.rooms.update({
       where: { id: Number(id) },
       data: {
-        roomNo: body.data.roomNo,
-        bedCount: Number(body.data.bedCount),
-        status: body.data.status,
-        rentPrice: Number(body.data.rentPrice),
-        images: body.data.images
+        roomNo: body.roomNo,
+        bedCount: Number(body.bedCount),
+        status: body.status,
+        rentPrice: Number(body.rentPrice),
+        images: body.images
       }
     });
 
-    return NextResponse.json(updatedRoom, { status: 200 });
+    return NextResponse.json(
+      { data: updatedRoom, message: 'updated the room', status: 200 },
+      { status: 200 }
+    );
   } catch (error: any) {
     return errorHandler(error);
   }

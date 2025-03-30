@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import SignInViewPage from '@/features/auth/components/sigin-view';
+import { toast } from 'sonner';
 
 export const metadata: Metadata = {
   title: 'Authentication | Sign In',
@@ -22,7 +23,7 @@ export default async function Page() {
       stars = data.stargazers_count || stars; // Update stars if API response is valid
     }
   } catch (error) {
-    console.error('Error fetching GitHub stars:', error);
+    toast.error('Error fetching GitHub stars:');
   }
   return <SignInViewPage stars={stars} />;
 }

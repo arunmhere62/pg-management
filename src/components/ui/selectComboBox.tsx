@@ -62,7 +62,7 @@ export function SelectComboBox({
               {options.map((option) => (
                 <CommandItem
                   key={option.value}
-                  value={option.value}
+                  value={option.label} // ✅ Fix: Use option.label instead of option.value
                   onSelect={() => {
                     onChange(option.value);
                     setOpen(false);

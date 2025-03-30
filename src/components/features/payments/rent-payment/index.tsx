@@ -9,11 +9,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
-import TenantForm from './PaymentForm';
 import { useSelector } from '@/store';
 import { formatDateToDateTime } from '@/services/utils/formaters';
+import { format } from 'date-fns';
+import RentForm from './RentForm';
 
-export const paymentFormSchema = z.object({
+export const rentPaymentFormSchema = z.object({
   tenantId: z.string().min(1, 'Please select a tenant.'),
   paymentDate: z.string().min(1, 'Please select a payment date.'),
   startDate: z.string().min(1, 'Please select a start date.'),
@@ -24,10 +25,10 @@ export const paymentFormSchema = z.object({
   remarks: z.string().min(1, 'Please enter remarks.')
 });
 
-interface IMainPaymentFormProps {
+interface IMainRentPaymentProps {
   id?: string;
   mode: 'create' | 'edit';
-  initialData?: Partial<z.infer<typeof paymentFormSchema>>;
+  initialData?: Partial<z.infer<typeof rentPaymentFormSchema>>;
   previousPaymentData?: {
     paymentId: number | null;
     pgId: number | null;
@@ -61,6 +62,7 @@ export interface TenantDataProps {
     id: number;
     roomId: number;
     roomNo: string;
+    rentPrice: string;
   };
   beds: {
     id: number;
@@ -68,12 +70,12 @@ export interface TenantDataProps {
   };
 }
 
-const MainPaymentForm = ({
+const MainRentPayment = ({
   mode,
   initialData,
   id,
   previousPaymentData
-}: IMainPaymentFormProps) => {
+}: IMainRentPaymentProps) => {
   const [tenantList, setTenantList] = useState<ITenantListSelectProps[]>([]);
   const [tenantData, setTenantData] = useState<TenantDataProps[]>([]);
   const [tenantDetails, setTenantDetails] = useState<TenantDataProps | null>(
@@ -91,8 +93,8 @@ const MainPaymentForm = ({
   const { pgLocationId, pgLocationName } = useSelector(
     (state) => state.pgLocation
   );
-  const pageTitle = mode === 'create' ? 'Add New Payment' : 'Edit Payment';
-
+  const pageTitle =
+    mode === 'create' ? 'Add Rent Payment' : 'Edit Rent Payment';
   useEffect(() => {
     const fetchTenants = async () => {
       try {
@@ -100,36 +102,39 @@ const MainPaymentForm = ({
         if (res.data) {
           setTenantData(res.data.data);
           setTenantList(
-            res.data.data.map((tenant: any) => ({
+            res?.data?.data?.map((tenant: any) => ({
               value: String(tenant.id),
               label: tenant.name
             }))
           );
         }
       } catch (error) {
-        toast.error('Error fetching rooms');
+        toast.error('Error fetching rooms:');
       }
     };
     fetchTenants();
   }, []);
   const defaultValues = {
     tenantId: '',
-    paymentDate: '',
+    paymentDate:
+      new Date().toString() !== 'Invalid Date'
+        ? format(new Date(), 'dd-MM-yyyy')
+        : '',
     startDate: '',
     endDate: '',
     paymentMethod: '',
-    status: '',
+    status: 'PAID',
     remarks: '',
     amountPaid: '',
     ...initialData
   };
 
-  const form = useForm<z.infer<typeof paymentFormSchema>>({
-    resolver: zodResolver(paymentFormSchema),
+  const form = useForm<z.infer<typeof rentPaymentFormSchema>>({
+    resolver: zodResolver(rentPaymentFormSchema),
     defaultValues
   });
 
-  const onSubmit = async (values: z.infer<typeof paymentFormSchema>) => {
+  const onSubmit = async (values: z.infer<typeof rentPaymentFormSchema>) => {
     try {
       const payload = {
         tenantId: Number(values.tenantId),
@@ -144,6 +149,7 @@ const MainPaymentForm = ({
         remarks: values.remarks,
         amountPaid: Number(values.amountPaid)
       };
+
       if (mode === 'create') {
         const res = await axiosService.post('/api/payment', {
           data: payload
@@ -168,15 +174,17 @@ const MainPaymentForm = ({
             previousPayment: previousPaymentData
           }
         });
-        if (res.status === 200) {
+        if (res.status === 201) {
           toast.success('Tenant Payment updated successfully!');
           form.reset({
-            // tenantId: '',
-            // paymentDate: '',
-            // paymentMethod: '',
-            // status: '',
-            // remarks: '',
-            // amountPaid: ''
+            tenantId: '',
+            paymentDate: '',
+            startDate: '',
+            endDate: '',
+            paymentMethod: '',
+            status: '',
+            remarks: '',
+            amountPaid: ''
           });
         }
       }
@@ -216,7 +224,6 @@ const MainPaymentForm = ({
       const tenantDetails = tenantData?.find(
         (t) => String(t.id) === String(tenantId)
       );
-
       setTenantDetails(tenantDetails || null);
     }
   }, [form.watch('tenantId'), tenantData]);
@@ -241,7 +248,7 @@ const MainPaymentForm = ({
             onSubmit={form.handleSubmit(onSubmit)}
             className='space-y-8'
           >
-            <TenantForm
+            <RentForm
               mode={mode}
               paymentDetails={paymentDetails}
               tenantDetails={tenantDetails || null}
@@ -257,4 +264,4 @@ const MainPaymentForm = ({
   );
 };
 
-export default MainPaymentForm;
+export default MainRentPayment;

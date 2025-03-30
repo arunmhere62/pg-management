@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import PgDetails from '../pg-details/PgDetails';
+import { fetchPgLocationsList } from '@/services/utils/api/pg-location-api';
 
 export interface IPgListProps {
   id: number;
@@ -30,7 +31,7 @@ const PgList = () => {
   useEffect(() => {
     const getPgList = async () => {
       try {
-        const res = await axiosService.get<IPgListProps[]>('/api/pg');
+        const res = await fetchPgLocationsList();
         const formattedRes = res.data.map((data: IPgListProps) => ({
           id: data.id,
           userId: data.userId,

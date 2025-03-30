@@ -3,6 +3,7 @@ import { Input } from '@/components/ui/input';
 import Image from 'next/image';
 import { X } from 'lucide-react';
 import imageCompression from 'browser-image-compression';
+import { toast } from 'sonner';
 
 const ImageUploader: React.FC<{
   onImagesUpload?: (images: string[]) => void;
@@ -40,7 +41,7 @@ const ImageUploader: React.FC<{
             reader.onerror = (error) => reject(error);
           });
         } catch (error) {
-          console.error('Error compressing image:', error);
+          toast.error('Error compressing image:');
           return Promise.reject(error);
         }
       }
@@ -55,7 +56,7 @@ const ImageUploader: React.FC<{
         fileInputRef.current.value = '';
       }
     } catch (error) {
-      console.error('Error converting images to Base64:', error);
+      toast.error('Error converting images to Base64:');
     }
   };
 

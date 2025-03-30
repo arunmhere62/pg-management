@@ -1,4 +1,5 @@
 import prisma from '@/lib/prisma';
+import { errorHandler } from '@/services/utils/error';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -85,10 +86,6 @@ export const POST = async (req: NextRequest) => {
       data: res
     });
   } catch (error) {
-    console.error('Error creating visitor:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return errorHandler(error);
   }
 };

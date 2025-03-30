@@ -2,16 +2,18 @@ import prisma from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 import { Prisma } from '@prisma/client';
 import { z } from 'zod';
-import { AppError, ConflictError, errorHandler } from '@/services/utils/error';
+import {
+  AppError,
+  BadRequestError,
+  ConflictError,
+  errorHandler
+} from '@/services/utils/error';
 
 export const GET = async (req: NextRequest) => {
   try {
     const pgLocationId = req.cookies.get('pgLocationId')?.value;
     if (!pgLocationId) {
-      return NextResponse.json(
-        { error: 'PG location data not found in cookies' },
-        { status: 400 }
-      );
+      throw new BadRequestError('pg location not found');
     }
     const beds = await prisma.beds.findMany({
       where: {
@@ -20,7 +22,7 @@ export const GET = async (req: NextRequest) => {
       select: {
         id: true,
         bedNo: true,
-        images: true,
+        images: false,
         pgId: true,
         roomId: true,
         status: true,
@@ -34,19 +36,12 @@ export const GET = async (req: NextRequest) => {
         }
       }
     });
-    return NextResponse.json(beds, { status: 200 });
-  } catch (error: any) {
-    console.error('Error fetching beds:', error);
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      return NextResponse.json(
-        { error: 'Database query error', details: error.message },
-        { status: 500 }
-      );
-    }
     return NextResponse.json(
-      { error: 'Internal server error', details: error.message },
-      { status: 500 }
+      { data: beds, status: 200, message: 'Fetched the beds successfully' },
+      { status: 200 }
     );
+  } catch (error: any) {
+    return errorHandler(error);
   }
 };
 
@@ -68,7 +63,7 @@ export const POST = async (req: NextRequest) => {
     }
     const body = await req.json();
 
-    const parsedBody = bedCreateSchema.safeParse(body.data);
+    const parsedBody = bedCreateSchema.safeParse(body);
 
     if (!parsedBody.success) {
       return NextResponse.json(
@@ -111,7 +106,10 @@ export const POST = async (req: NextRequest) => {
         roomId: parsedBody.data?.roomNo
       }
     });
-    return NextResponse.json(res, { status: 201 });
+    return NextResponse.json(
+      { data: res, message: 'created the bed successfully', status: 201 },
+      { status: 201 }
+    );
   } catch (error: any) {
     return errorHandler(error);
   }

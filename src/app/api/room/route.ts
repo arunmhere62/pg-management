@@ -1,5 +1,10 @@
 import prisma from '@/lib/prisma';
-import { ConflictError, errorHandler } from '@/services/utils/error';
+import {
+  BadRequestError,
+  ConflictError,
+  errorHandler,
+  NotFoundError
+} from '@/services/utils/error';
 import { BedStatus } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
@@ -10,22 +15,35 @@ export const GET = async (req: NextRequest) => {
     const cookies = req.cookies;
     const pgLocationId = cookies.get('pgLocationId')?.value;
     if (!pgLocationId) {
-      return NextResponse.json(
-        { error: 'PG location data not found in cookies' },
-        { status: 400 }
-      );
+      throw new BadRequestError('Pg location is necessary');
     }
     const rooms = await prisma.rooms.findMany({
       where: {
         pgId: Number(pgLocationId)
       },
-      include: {
+      select: {
+        id: true,
+        roomId: true,
+        pgId: true,
+        bedCount: true,
+        roomNo: true,
+        status: true,
+        updatedAt: true,
+        createdAt: true,
+        rentPrice: true,
+        images: false,
         pgLocations: {
           select: {
+            images: false,
             locationName: true
           }
         },
-        beds: true
+        beds: {
+          select: {
+            id: true,
+            bedNo: true
+          }
+        }
       }
     });
     const formattedRooms = rooms.map((room) => ({
@@ -33,26 +51,18 @@ export const GET = async (req: NextRequest) => {
       ...room
     }));
     if (!rooms || rooms.length === 0) {
-      return NextResponse.json(
-        { error: 'No rooms found for the given pgId' },
-        { status: 404 }
-      );
-    }
-
-    console.log('rooms', formattedRooms);
-
-    return NextResponse.json(formattedRooms, { status: 200 });
-  } catch (error: any) {
-    if (error.name === 'PrismaClientKnownRequestError') {
-      return NextResponse.json(
-        { error: 'Database query error', details: error.message },
-        { status: 500 }
-      );
+      throw new NotFoundError('No room found');
     }
     return NextResponse.json(
-      { error: 'Internal server error', details: error.message },
-      { status: 500 }
+      {
+        data: formattedRooms,
+        message: 'Rooms fetched successfully',
+        status: 200
+      },
+      { status: 200 }
     );
+  } catch (error) {
+    return errorHandler(error);
   }
 };
 
@@ -119,7 +129,14 @@ export const POST = async (req: NextRequest) => {
       return newRoom;
     });
 
-    return NextResponse.json(result, { status: 201 });
+    return NextResponse.json(
+      {
+        data: result,
+        message: 'successfully created the room and its beds',
+        status: 201
+      },
+      { status: 201 }
+    );
   } catch (error: any) {
     return errorHandler(error);
   }

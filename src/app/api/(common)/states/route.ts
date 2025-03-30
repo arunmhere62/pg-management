@@ -1,9 +1,10 @@
 import prisma from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
-export const POST = async (req: Request) => {
+export const GET = async (req: Request) => {
   try {
-    const { countryCode } = await req.json();
+    const { searchParams } = new URL(req.url);
+    const countryCode = searchParams.get('countryCode');
     if (!countryCode) {
       return NextResponse.json(
         { error: 'countryCode is required' },
@@ -15,7 +16,10 @@ export const POST = async (req: Request) => {
         countryCode: countryCode
       }
     });
-    return NextResponse.json(states, { status: 200 });
+    return NextResponse.json(
+      { data: states, message: 'states fetched successfully', status: 200 },
+      { status: 200 }
+    );
   } catch (error: any) {
     if (error.name === 'PrismaClientKnownRequestError') {
       return NextResponse.json(

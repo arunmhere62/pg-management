@@ -10,6 +10,8 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import MainBedForm from '../../pg-beds/bed-form';
+import { fetchRoomsList } from '@/services/utils/api/rooms-api';
+import { toast } from 'sonner';
 
 export interface IRoomListProps {
   id: number;
@@ -39,7 +41,7 @@ const RoomsList = () => {
     const getPgList = async () => {
       setLoading(true);
       try {
-        const res = await axiosService.get<IRoomListProps[]>('/api/room');
+        const res = await fetchRoomsList();
         if (res.data) {
           const resModel = res.data.map((data: IRoomListProps) => ({
             id: data.id,
@@ -58,7 +60,7 @@ const RoomsList = () => {
           setRoomsList(resModel);
         }
       } catch (error) {
-        console.log(error);
+        toast.error('failed to fetch rooms list');
       } finally {
         setLoading(false);
       }

@@ -11,6 +11,8 @@ import { useSelector } from '@/store';
 import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import BedForm from './BedForm';
+import { fetchRoomsList } from '@/services/utils/api/rooms-api';
+import { createBed, updateBed } from '@/services/utils/api/bed-api';
 
 export const roomFormSchema = z.object({
   images: z.array(z.string()).optional(),
@@ -45,18 +47,18 @@ const MainBedForm = ({ mode, initialData, id }: IMainBedFormProps) => {
     (state) => state.pgLocation
   );
   const [roomList, setRoomList] = useState<IRoomListProps[]>([]);
-  const pageTitle = mode === 'create' ? 'Create New Bed' : 'Edit Room';
+  const pageTitle = mode === 'create' ? 'Create New Bed' : 'Edit Bed';
 
   useEffect(() => {
-    const fetchRoomList = async () => {
+    const getRoomList = async () => {
       try {
-        const res = await axiosService.get<IRoomListProps[]>('/api/room');
+        const res = await fetchRoomsList();
         if (res.data) setRoomList(res.data);
-      } catch (error: unknown) {
-        console.error('Failed to fetch room list:', error);
+      } catch (error) {
+        toast.error('Failed to fetch room list:');
       }
     };
-    fetchRoomList();
+    getRoomList();
   }, []);
 
   const defaultValues = {
@@ -84,9 +86,7 @@ const MainBedForm = ({ mode, initialData, id }: IMainBedFormProps) => {
     };
     try {
       if (mode === 'create') {
-        const res = await axiosService.post('/api/bed', {
-          data: payload
-        });
+        const res = await createBed(payload);
         if (res.status === 201) {
           toast.success('Bed created successfully!');
           form.reset({
@@ -96,9 +96,10 @@ const MainBedForm = ({ mode, initialData, id }: IMainBedFormProps) => {
           });
         }
       } else if (mode === 'edit') {
-        const res = await axiosService.put(`/api/bed/${id}`, {
-          data: payload
-        });
+        // const res = await axiosService.put(`/api/bed/${id}`, {
+        //   data: payload
+        // });
+        const res = await updateBed(payload, String(id));
         if (res.status === 200) {
           toast.success('Bed updated successfully!');
           form.reset({

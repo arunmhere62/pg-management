@@ -1,4 +1,10 @@
 import prisma from '@/lib/prisma';
+import {
+  BadRequestError,
+  ConflictError,
+  errorHandler,
+  NotFoundError
+} from '@/services/utils/error';
 import { BedStatus } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
@@ -34,14 +40,14 @@ export const GET = async (
       }
     });
     if (!bed) {
-      return NextResponse.json({ message: 'Bed not found' }, { status: 404 });
+      throw new NotFoundError('Bed Not Found');
     }
-    return NextResponse.json(bed, { status: 200 });
-  } catch (error) {
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
+      { data: bed, message: 'Bed list fetched successfully' },
+      { status: 200 }
     );
+  } catch (error) {
+    return errorHandler(error);
   }
 };
 const bedEditSchema = z.object({
@@ -60,25 +66,35 @@ export const PUT = async (
     const { id } = await params;
     const pgLocationId = req.cookies.get('pgLocationId')?.value;
     if (!pgLocationId) {
-      return NextResponse.json(
-        { error: 'PG location data not found in cookies' },
-        { status: 400 }
-      );
+      throw new BadRequestError('PG location data not found');
     }
     if (!id) {
-      return NextResponse.json(
-        { error: ' Bed Id is required' },
-        { status: 400 }
-      );
+      throw new BadRequestError('Bed Id is required');
     }
     const body = await req.json();
-    const parsedBody = bedEditSchema.safeParse(body.data);
+    const parsedBody = bedEditSchema.safeParse(body);
     if (!parsedBody.success) {
       return NextResponse.json(
         { error: 'Validation error', details: parsedBody.error.errors },
         { status: 400 }
       );
     }
+    console.log('parsedBody', parsedBody);
+    const existingBed = await prisma.beds.findFirst({
+      where: {
+        bedNo: parsedBody.data.bedNo,
+        pgId: Number(pgLocationId),
+        roomId: parsedBody.data.roomNo,
+        id: { not: Number(id) }
+      }
+    });
+
+    console.log('existingBed', existingBed);
+
+    if (existingBed) {
+      throw new ConflictError(`Bed No ${parsedBody.data.bedNo} already exists`);
+    }
+
     const res = await prisma.beds.update({
       where: {
         id: Number(id)
@@ -91,11 +107,11 @@ export const PUT = async (
         pgId: Number(pgLocationId)
       }
     });
-    return NextResponse.json(res, { status: 200 });
-  } catch (error) {
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
+      { data: res, message: 'successfully updated the bed', status: 200 },
+      { status: 200 }
     );
+  } catch (error) {
+    return errorHandler(error);
   }
 };

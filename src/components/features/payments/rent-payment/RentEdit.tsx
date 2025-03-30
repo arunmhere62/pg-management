@@ -2,11 +2,12 @@ import axiosService from '@/services/utils/axios';
 import React, { useEffect, useState } from 'react';
 import MainPaymentForm from '.';
 import { formatDateToDDMMYYYY } from '@/services/utils/formaters';
+import MainRentPayment from '.';
 import { toast } from 'sonner';
 
-interface PaymentEditFormProps {}
-const PaymentEdit = ({ id }: { id: string }) => {
-  const [paymentData, setPaymentData] = useState<PaymentEditFormProps>();
+interface RentEditFormProps {}
+export const RentEdit = ({ id }: { id: string }) => {
+  const [paymentData, setPaymentData] = useState<RentEditFormProps>();
   const [previousPaymentData, setPreviousPaymentData] = useState({
     paymentId: null,
     pgId: null,
@@ -43,7 +44,7 @@ const PaymentEdit = ({ id }: { id: string }) => {
     }
   }, [id]);
   return (
-    <MainPaymentForm
+    <MainRentPayment
       id={id}
       mode='edit'
       initialData={paymentData}
@@ -51,5 +52,3 @@ const PaymentEdit = ({ id }: { id: string }) => {
     />
   );
 };
-
-export default PaymentEdit;

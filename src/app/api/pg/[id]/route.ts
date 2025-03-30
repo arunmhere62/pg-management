@@ -1,5 +1,11 @@
 import prisma from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
+import {
+  BadRequestError,
+  errorHandler,
+  NotFoundError
+} from '@/services/utils/error';
+import { z } from 'zod';
 
 export const GET = async (
   req: NextRequest,
@@ -7,9 +13,8 @@ export const GET = async (
 ) => {
   try {
     const { id } = await params;
-
     if (!id) {
-      return NextResponse.json({ error: 'Id is required' }, { status: 400 });
+      throw new BadRequestError('Id not found');
     }
     const pgLocation = await prisma.pg_locations.findUnique({
       where: {
@@ -17,25 +22,25 @@ export const GET = async (
       }
     });
     if (!pgLocation) {
-      return NextResponse.json(
-        { error: 'pg location not fount' },
-        { status: 404 }
-      );
-    }
-    return NextResponse.json(pgLocation, { status: 200 });
-  } catch (error: any) {
-    if (error.name === 'PrismaClientKnownRequestError') {
-      NextResponse.json(
-        { error: 'Database query error', details: error.message },
-        { status: 500 }
-      );
+      throw new NotFoundError('pg Location not found');
     }
     return NextResponse.json(
-      { error: 'Internal server error', details: error.message },
-      { status: 500 }
+      { data: pgLocation, message: 'Pg Locations fetched successful' },
+      { status: 200 }
     );
+  } catch (error: any) {
+    return errorHandler(error);
   }
 };
+
+const pgLocationSchema = z.object({
+  locationName: z.string().min(1, 'Location name is required'),
+  images: z.array(z.string()).nonempty('At least one image is required'),
+  address: z.string().min(1, 'Address is required'),
+  pincode: z.string().min(4, 'Pincode must be at least 4 characters'),
+  stateId: z.number().positive('Invalid state ID'),
+  cityId: z.number().positive('Invalid city ID')
+});
 
 export const PUT = async (
   req: NextRequest,
@@ -43,35 +48,21 @@ export const PUT = async (
 ) => {
   try {
     const { id } = await params;
-
     const body = await req.json();
+    const validatedData = pgLocationSchema.parse(body);
     const updatedPG = await prisma.pg_locations.update({
       where: {
         id: Number(id)
       },
       data: {
-        address: body.data.address,
-        cityId: Number(body.data.city),
-        stateId: Number(body.data.state),
-        pincode: body.data.pincode,
-        locationName: body.data.locationName,
-        images: body.data.images
+        ...validatedData
       }
     });
     return NextResponse.json(
-      { message: 'PG updated successfully', updatedPG },
+      { message: 'PG updated successfully', data: updatedPG },
       { status: 200 }
     );
-  } catch (error: any) {
-    if (error.name === 'PrismaClientKnownRequestError') {
-      NextResponse.json(
-        { error: 'Database query error', details: error.message },
-        { status: 500 }
-      );
-    }
-    return NextResponse.json(
-      { error: 'Internal server error', details: error.message },
-      { status: 500 }
-    );
+  } catch (error) {
+    return errorHandler(error);
   }
 };

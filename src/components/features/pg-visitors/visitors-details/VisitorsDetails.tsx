@@ -3,6 +3,7 @@ import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import axiosService from '@/services/utils/axios';
 import React, { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 interface IVisitorDetailsProps {
   id: number;
@@ -30,11 +31,9 @@ const VisitorDetails = ({ id }: { id: string }) => {
     const getRoom = async () => {
       try {
         const res = await axiosService.get(`/api/visitors/${id}`);
-        console.log('visitors data', res);
-
         setVisitorDetails(res.data.data);
       } catch (error) {
-        console.error('Error fetching room data:', error);
+        toast.error('Error fetching room data:');
       }
     };
     if (id) {
