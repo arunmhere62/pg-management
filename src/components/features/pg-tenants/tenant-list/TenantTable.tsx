@@ -1,14 +1,23 @@
 'use client';
-import axiosService from '@/services/utils/axios';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
-import { EditIcon, Eye, Trash2 } from 'lucide-react';
-import Image from 'next/image';
+import { EditIcon, Eye, MessageCircle } from 'lucide-react';
 import HeaderButton from '@/components/ui/large/HeaderButton';
 import GridTable from '@/components/ui/mui-grid-table/GridTable';
-import { width } from '@mui/system';
 import { cn } from '@/lib/utils';
 import { fetchTenantsList } from '@/services/utils/api/tenant-api';
+import { formatDateToDDMMYYYY } from '@/services/utils/formaters';
+
+import { DotsVerticalIcon } from '@radix-ui/react-icons';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
+import axios from 'axios';
 
 interface ITenantListProps {
   id: number;
@@ -26,6 +35,7 @@ interface ITenantListProps {
   status: string;
   createdAt: string;
   updatedAt: string;
+  isPending: boolean;
   rooms: {
     id: number;
     roomId: string;
@@ -46,6 +56,7 @@ const TenantList = () => {
         const formattedRes = res.data.map((d: ITenantListProps) => ({
           roomNo: d.rooms.roomNo,
           bedNo: d.beds.bedNo,
+
           ...d
         }));
         if (res.data) {
@@ -118,45 +129,135 @@ const TenantList = () => {
       )
     },
     {
+      field: 'isPending',
+      headerName: 'Payment Status',
+      minWidth: 120,
+      flex: 1,
+      renderCell: (params: any) => (
+        <span className={cn(!params.value ? 'activeBadge' : 'inactiveBadge')}>
+          {!params.value ? 'Paid' : 'Pending'}
+        </span>
+      )
+    },
+    {
       field: 'checkInDate',
-      headerName: 'Check In Date',
+      headerName: 'Check In ',
       minWidth: 120,
       flex: 1
     },
     {
       field: 'checkOutDate',
-      headerName: 'Check Out Date',
+      headerName: 'Check Out ',
       minWidth: 120,
-      flex: 1
+      flex: 1,
+      renderCell: (params: any) => (
+        <span>{params.value ? formatDateToDDMMYYYY(params.value) : 'N/A'}</span>
+      )
     },
-    { field: 'createdAt', headerName: 'Created At', minWidth: 130, flex: 1 },
-    { field: 'updatedAt', headerName: 'Updated At', minWidth: 130, flex: 1 },
+    {
+      field: 'createdAt',
+      headerName: 'Created At',
+      minWidth: 130,
+      flex: 1,
+
+      renderCell: (params: any) => (
+        <span>{formatDateToDDMMYYYY(params.value)}</span>
+      )
+    },
+    {
+      field: 'updatedAt',
+      headerName: 'Updated At',
+      minWidth: 130,
+      flex: 1,
+      renderCell: (params: any) => (
+        <span>{formatDateToDDMMYYYY(params.value)}</span>
+      )
+    },
     {
       field: 'actions',
       headerName: 'Actions',
-      width: 150,
-      renderCell: (params: any) => (
-        <div className='ml-3 mt-3 flex gap-3'>
-          <EditIcon
-            onClick={() => {
-              router.push(`/tenant/${params.row.id}`);
-            }}
-            className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]'
-          />
-          <Trash2
-            onClick={() => {
-              alert(JSON.stringify(params.row));
-            }}
-            className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]'
-          />
-          <Eye
-            onClick={() => {
-              router.push(`/tenant/details/${params.row.id}`);
-            }}
-            className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]'
-          />
-        </div>
-      )
+      width: 100,
+      renderCell: (params: any) => {
+        const sendWhatsAppMessage = () => {
+          const phone = params.row.phoneNo;
+          const message = encodeURIComponent(
+            `Hello ${params.row.name}, your rent is due.`
+          );
+          if (phone) {
+            window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
+          } else {
+            alert('Phone number is missing');
+          }
+        };
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger className='h-fit w-fit'>
+              <DotsVerticalIcon />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align='end'>
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <div className='flex flex-col gap-2'>
+                <div className='flex gap-2'>
+                  <Button
+                    variant='outline'
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      router.push(`/tenant/${params.row.id}`);
+                    }}
+                  >
+                    <EditIcon className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]' />
+                  </Button>
+                  <Button
+                    variant='outline'
+                    onClick={() => alert(JSON.stringify(params.row))}
+                  >
+                    <EditIcon className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]' />
+                  </Button>
+                  <Button
+                    variant='outline'
+                    onClick={() =>
+                      router.push(`/tenant/details/${params.row.id}`)
+                    }
+                  >
+                    <Eye className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]' />
+                  </Button>
+                </div>
+                <Button
+                  variant='outline'
+                  onClick={() => {
+                    console.log('hello');
+                    router.push('/payment/rent/new');
+                  }}
+                >
+                  Add Rent
+                </Button>
+                <Button
+                  variant='outline'
+                  onClick={() => {
+                    console.log('hello');
+                    router.push('/payment/advance/new');
+                  }}
+                >
+                  Add Advance
+                </Button>
+                <Button
+                  variant='outline'
+                  onClick={() => {
+                    console.log('hello');
+                    router.push('/payment/refund/new');
+                  }}
+                >
+                  Add Refund
+                </Button>
+                <Button variant='outline' onClick={sendWhatsAppMessage}>
+                  <MessageCircle className='mr-2 w-4' /> Whats App
+                </Button>
+              </div>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      }
     }
   ];
   return (

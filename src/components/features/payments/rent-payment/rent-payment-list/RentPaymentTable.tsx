@@ -2,13 +2,37 @@
 import axiosService from '@/services/utils/axios';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
-import { EditIcon, Eye, Trash2 } from 'lucide-react';
+import {
+  EditIcon,
+  Eye,
+  FileText,
+  MessageCircle,
+  SheetIcon,
+  Trash2
+} from 'lucide-react';
 import HeaderButton from '@/components/ui/large/HeaderButton';
 import GridTable from '@/components/ui/mui-grid-table/GridTable';
 import { cn } from '@/lib/utils';
 import { formatDateToDDMMYYYY } from '@/services/utils/formaters';
 import { toast } from 'sonner';
 import { fetchRentsList } from '@/services/utils/api/payment/rent-api';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
+import { DotsVerticalIcon } from '@radix-ui/react-icons';
+import { Modal } from '@/components/ui/modal';
+import InvoiceReceipt from '../receipt/RentRecepit';
+import {
+  IBedProps,
+  IPgLocationProps,
+  IRoomProps,
+  ITenantProps
+} from '@/services/types/common-types';
 
 interface IRentPaymentListProps {
   id: number;
@@ -28,12 +52,36 @@ interface IRentPaymentListProps {
   name: string;
   phoneNo: string;
 }
+
+export interface IPaymentProps {
+  id: number;
+  tenantId: number;
+  pgId: number;
+  roomId: number;
+  bedId: number;
+  amountPaid: string;
+  paymentDate: string;
+  paymentMethod: string;
+  status: string;
+  remarks: string;
+  createdAt: string;
+  updatedAt: string;
+  startDate: string;
+  endDate: string;
+  beds: IBedProps;
+  pgLocations: IPgLocationProps;
+  rooms: IRoomProps;
+  tenants: ITenantProps;
+}
+
 const RentPaymentList = () => {
   const router = useRouter();
   const [rentPaymentList, setRentPaymentList] = useState<
     IRentPaymentListProps[]
   >([]);
-
+  const [openBedModal, setOpenBedModal] = useState<boolean>(false);
+  const [tenantPaymentDetails, setTenantPaymentDetails] =
+    useState<IPaymentProps>();
   useEffect(() => {
     const getPayments = async () => {
       try {
@@ -122,29 +170,56 @@ const RentPaymentList = () => {
     {
       field: 'actions',
       headerName: 'Actions',
-      width: 150,
-      renderCell: (params: any) => (
-        <div className='ml-3 mt-3 flex gap-3'>
-          <EditIcon
-            onClick={() => {
-              router.push(`/payment/rent/${params.row.id}`);
-            }}
-            className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]'
-          />
-          <Trash2
-            onClick={() => {
-              alert(JSON.stringify(params.row));
-            }}
-            className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]'
-          />
-          <Eye
-            onClick={() => {
-              router.push(`/payment/details/${params.row.id}`);
-            }}
-            className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]'
-          />
-        </div>
-      )
+      width: 100,
+      renderCell: (params: any) => {
+        const handleReceipt = () => {
+          console.log('params', params);
+          setTenantPaymentDetails(params.row);
+          setOpenBedModal(true);
+        };
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger className='h-fit w-fit'>
+              <DotsVerticalIcon />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align='end'>
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <div className='flex flex-col gap-2'>
+                <div className='flex gap-2'>
+                  <Button
+                    variant='outline'
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      router.push(`/payment/rent/${params.row.id}`);
+                    }}
+                  >
+                    <EditIcon className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]' />
+                  </Button>
+                  <Button
+                    variant='outline'
+                    onClick={() => alert(JSON.stringify(params.row))}
+                  >
+                    <Trash2 className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]' />
+                  </Button>
+                  <Button
+                    variant='outline'
+                    onClick={() =>
+                      router.push(`/payment/details/${params.row.id}`)
+                    }
+                  >
+                    <Eye className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]' />
+                  </Button>
+                </div>
+
+                <Button variant='outline' onClick={handleReceipt}>
+                  <FileText className='mr-2 w-4' /> Send Receipt
+                </Button>
+              </div>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      }
     }
   ];
   return (
@@ -171,6 +246,17 @@ const RentPaymentList = () => {
           hideFooter={false}
         />
       </div>
+      <Modal
+        contentClassName='max-w-[800px] rounded-lg sm:w-full'
+        isOpen={openBedModal}
+        title=''
+        onClose={() => {
+          setOpenBedModal(false);
+        }}
+        description=''
+      >
+        <InvoiceReceipt tenantPaymentDetails={tenantPaymentDetails} />
+      </Modal>
     </>
   );
 };

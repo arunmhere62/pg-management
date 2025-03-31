@@ -20,6 +20,7 @@ interface IBedsProps {
   createdAt: string;
   updatedAt: string;
   roomNo: string;
+  name: string;
 }
 
 const BedsList = () => {
@@ -43,7 +44,8 @@ const BedsList = () => {
             images: data.images,
             createdAt: data.createdAt,
             updatedAt: data.updatedAt,
-            roomNo: data.rooms.roomNo
+            roomNo: data.rooms.roomNo,
+            name: data?.tenants[0]?.name ?? 'N/A'
           }));
           setBedsData(formattedRes);
         }
@@ -81,6 +83,7 @@ const BedsList = () => {
     //   }
     // },
     // { field: 'tenantName', headerName: 'Name', flex: 1 },
+    { field: 'name', headerName: 'Name', flex: 1 },
 
     {
       field: 'roomNo',

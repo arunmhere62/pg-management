@@ -27,6 +27,7 @@ export interface IRoomListProps {
   pgLocations?: {
     locationName: string;
   };
+  totalAmount?: number;
   updatedAt: string;
   images: string[];
 }
@@ -55,7 +56,8 @@ const RoomsList = () => {
             images: data.images,
             createdAt: data.createdAt,
             updatedAt: data.updatedAt,
-            totalBeds: data.totalBeds
+            totalBeds: data.totalBeds,
+            totalAmount: data.totalAmount
           }));
           setRoomsList(resModel);
         }
@@ -119,7 +121,18 @@ const RoomsList = () => {
     },
     {
       field: 'rentPrice',
-      headerName: 'Price',
+      headerName: 'Bed Price',
+      minWidth: 100,
+      flex: 1,
+      renderCell: (params: any) => (
+        <span className='rounded-lg bg-[#ebffe2] px-2 py-1 font-bold text-[#328a17]'>
+          ₹{params.value}
+        </span>
+      )
+    },
+    {
+      field: 'totalAmount',
+      headerName: 'Total Amount',
       minWidth: 100,
       flex: 1,
       renderCell: (params: any) => (

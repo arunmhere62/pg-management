@@ -36,7 +36,8 @@ export const GET = async (req: NextRequest) => {
         },
         tenants: {
           select: {
-            id: true
+            id: true,
+            name: true
           }
         }
       }

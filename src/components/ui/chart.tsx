@@ -77,11 +77,10 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
     return null;
   }
 
-  return (
-    <style
-      dangerouslySetInnerHTML={{
-        __html: Object.entries(THEMES).map(
-          ([theme, prefix]) => `
+  // Convert the array to a single string
+  const styles = Object.entries(THEMES)
+    .map(
+      ([theme, prefix]) => `
 ${prefix} [data-chart=${id}] {
 ${colorConfig
   .map(([key, itemConfig]) => {
@@ -90,13 +89,14 @@ ${colorConfig
       itemConfig.color;
     return color ? `  --color-${key}: ${color};` : null;
   })
+  .filter(Boolean)
   .join('\n')}
 }
 `
-        )
-      }}
-    />
-  );
+    )
+    .join('\n');
+
+  return <style dangerouslySetInnerHTML={{ __html: styles }} />;
 };
 
 const ChartTooltip = RechartsPrimitive.Tooltip;

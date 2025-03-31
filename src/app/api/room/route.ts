@@ -8,6 +8,7 @@ import {
 import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
+
 export const GET = async (req: NextRequest) => {
   try {
     const cookies = req.cookies;
@@ -41,7 +42,10 @@ export const GET = async (req: NextRequest) => {
             id: true,
             bedNo: true,
             tenants: {
-              select: { id: true }
+              select: {
+                id: true,
+                name: true
+              }
             }
           }
         }
@@ -53,7 +57,7 @@ export const GET = async (req: NextRequest) => {
       const occupiedBeds = room.beds.filter(
         (bed) => bed.tenants.length > 0
       ).length;
-
+      const totalAmount = (room.rentPrice?.toNumber() || 0) * totalBeds || 0;
       // Room is FULL if all beds are occupied, otherwise AVAILABLE
       const status = occupiedBeds === totalBeds ? 'FULL' : 'AVAILABLE';
 
@@ -61,7 +65,8 @@ export const GET = async (req: NextRequest) => {
         ...room,
         totalBeds,
         occupiedBeds,
-        status
+        status,
+        totalAmount
       };
     });
 

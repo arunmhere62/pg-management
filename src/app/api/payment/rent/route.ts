@@ -23,6 +23,8 @@ export const GET = async (req: NextRequest) => {
             images: true
           }
         },
+
+        pgLocations: true,
         rooms: {
           omit: {
             images: true
@@ -30,7 +32,11 @@ export const GET = async (req: NextRequest) => {
         },
         tenants: {
           omit: {
-            images: true
+            images: true,
+            proofDocuments: true
+          },
+          include: {
+            tenantPayments: true
           }
         }
       }
@@ -84,7 +90,7 @@ export const POST = async (req: NextRequest) => {
     const cookies = req.cookies;
     const body = await req.json();
 
-    const validationResult = paymentSchema.safeParse(body.data);
+    const validationResult = paymentSchema.safeParse(body);
 
     if (!validationResult.success) {
       return NextResponse.json(
@@ -96,6 +102,7 @@ export const POST = async (req: NextRequest) => {
       );
     }
     const validatedData = validationResult.data;
+    console.log('validatedData', validatedData);
 
     const pgLocationId = cookies.get('pgLocationId')?.value;
     if (!pgLocationId) {

@@ -2,6 +2,7 @@ import prisma from '@/lib/prisma';
 import { AppError, ConflictError, errorHandler } from '@/services/utils/error';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { isAfter, parseISO } from 'date-fns';
 
 export const GET = async (req: NextRequest) => {
   try {
@@ -13,6 +14,9 @@ export const GET = async (req: NextRequest) => {
         status: 400
       });
     }
+
+    const currentDate = new Date();
+
     const tenants = await prisma.tenants.findMany({
       where: {
         pgId: Number(pgLocationId)
@@ -26,33 +30,71 @@ export const GET = async (req: NextRequest) => {
         status: true,
         pgId: true,
         roomId: true,
-        checkInDate: true,
+        checkInDate: true, // Stored as DD-MM-YYYY
         checkOutDate: true,
         createdAt: true,
         updatedAt: true,
-        images: false,
         rooms: {
           select: {
             id: true,
             roomNo: true,
-            roomId: true,
-            rentPrice: true,
-            images: false
+            rentPrice: true
           }
         },
         beds: {
           select: {
             id: true,
-            bedNo: true,
-            images: false
+            bedNo: true
+          }
+        },
+        tenantPayments: {
+          orderBy: {
+            paymentDate: 'desc'
+          },
+          take: 1, // Get the latest payment
+          select: {
+            paymentDate: true,
+            amountPaid: true,
+            startDate: true, // YYYY-MM-DD HH:MM:SS
+            endDate: true // YYYY-MM-DD HH:MM:SS
           }
         }
       }
     });
+
+    const formattedTenants = tenants.map((tenant) => {
+      const lastPayment = tenant.tenantPayments[0];
+      let isPending = false;
+
+      if (lastPayment) {
+        const paymentEnd = new Date(lastPayment.endDate); // Already in YYYY-MM-DD format
+
+        // If last payment end date has passed, mark as pending
+        if (isAfter(currentDate, paymentEnd)) {
+          isPending = true;
+        }
+      } else {
+        // No payment history → mark as pending
+        isPending = true;
+      }
+
+      // Convert Check-in Date from DD-MM-YYYY to YYYY-MM-DD
+      let formattedCheckInDate = tenant.checkInDate;
+      if (formattedCheckInDate.includes('-')) {
+        const [day, month, year] = formattedCheckInDate.split('-');
+        formattedCheckInDate = `${year}-${month}-${day}`;
+      }
+
+      return {
+        ...tenant,
+        isPending
+      };
+    });
+
     return NextResponse.json(
       {
-        message: 'Visitors fetched successfully',
-        data: tenants,
+        message: 'Tenants fetched successfully',
+        data: formattedTenants,
         status: 200
       },
       { status: 200 }

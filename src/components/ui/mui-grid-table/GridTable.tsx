@@ -121,6 +121,7 @@ const GridTable: React.FC<GridTableProps> = ({
           disableColumnFilter
           disableColumnSelector
           disableDensitySelector
+          disableRowSelectionOnClick
           hideFooter={hideFooter}
           pageSizeOptions={[10, 25, 50]}
           editMode='cell'
