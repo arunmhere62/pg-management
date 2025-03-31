@@ -10,20 +10,12 @@ import {
 import ImageUploader from '@/components/ui/ImageUploader';
 import { Input } from '@/components/ui/input';
 import { roomFormSchema } from '.';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
 
 interface IPgLocationFromProps {
   initialValue: {
     roomNo: string;
     bedCount: string | '';
     rentPrice: string | '';
-    status: string;
     images: string[];
   };
   onSubmit: (values: z.infer<typeof roomFormSchema>) => void;
@@ -105,29 +97,6 @@ export default function RoomForm({
               <FormControl>
                 <Input type='number' placeholder='Enter price' {...field} />
               </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={control}
-          name='status'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Room Status</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder='Select' />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent className='max-h-[300px] overflow-y-auto'>
-                  <SelectItem value='AVAILABLE'>AVAILABLE</SelectItem>
-                  <SelectItem value='OCCUPIED'>OCCUPIED</SelectItem>
-                  <SelectItem value='MAINTENANCE'>MAINTENANCE</SelectItem>
-                </SelectContent>
-              </Select>
               <FormMessage />
             </FormItem>
           )}

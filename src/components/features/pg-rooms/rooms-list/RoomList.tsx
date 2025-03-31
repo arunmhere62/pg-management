@@ -59,8 +59,13 @@ const RoomsList = () => {
           }));
           setRoomsList(resModel);
         }
-      } catch (error) {
-        toast.error('failed to fetch rooms list');
+      } catch (error: any) {
+        const errorMessage =
+          error?.response?.data?.error ||
+          error?.message ||
+          'Something went wrong.';
+
+        toast.error(errorMessage);
       } finally {
         setLoading(false);
       }

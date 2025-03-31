@@ -12,10 +12,19 @@ export const API_ENDPOINT = {
   },
   BED: {
     bed: '/api/bed',
-    bed_ById: '/api/bed/:id'
+    bed_ById: '/api/bed/:id',
+    beds_ByRoomId: '/api/room/:id/bed'
   },
   TENANT: {
     tenant: '/api/tenant',
     tenant_ById: '/api/tenant/:id'
+  },
+  PAYMENT: {
+    payment_rent: '/api/payment/rent',
+    payment_rent_byId: '/api/payment/rent/:id',
+    payment_advance: '/api/payment/advance',
+    payment_advance_byId: '/api/payment/advance/:id',
+    payment_refund: '/api/payment/refund',
+    payment_refund_byId: '/api/payment/refund/:id'
   }
 };

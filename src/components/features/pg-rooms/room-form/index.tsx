@@ -20,8 +20,7 @@ export const roomFormSchema = z.object({
     .max(4, 'You can upload up to 4 images.'),
   roomNo: z.string().min(1, 'Room number is required'),
   bedCount: z.string().min(1, { message: 'Bed count is required' }),
-  rentPrice: z.string().min(1, { message: 'Rent price is required' }),
-  status: z.string().min(1, 'Status is required')
+  rentPrice: z.string().min(1, { message: 'Rent price is required' })
 });
 
 interface IMainRoomFormProps {
@@ -42,7 +41,6 @@ const MainRoomForm = ({ mode, initialData, id }: IMainRoomFormProps) => {
   const defaultValues = {
     roomNo: '',
     bedCount: '',
-    status: 'AVAILABLE',
     rentPrice: '',
     images: [],
     ...initialData
@@ -60,7 +58,6 @@ const MainRoomForm = ({ mode, initialData, id }: IMainRoomFormProps) => {
           ? values.roomNo
           : 'RM' + values.roomNo,
         bedCount: Number(values.bedCount),
-        status: values.status,
         rentPrice: Number(values.rentPrice),
         pgId: Number(pgLocationId)
       };
@@ -71,7 +68,6 @@ const MainRoomForm = ({ mode, initialData, id }: IMainRoomFormProps) => {
           form.reset({
             roomNo: '',
             bedCount: '',
-            status: '',
             rentPrice: '',
             images: []
           });
@@ -83,7 +79,6 @@ const MainRoomForm = ({ mode, initialData, id }: IMainRoomFormProps) => {
           form.reset({
             roomNo: '',
             bedCount: '',
-            status: '',
             rentPrice: '',
             images: []
           });
@@ -104,7 +99,6 @@ const MainRoomForm = ({ mode, initialData, id }: IMainRoomFormProps) => {
       form.reset({
         roomNo: initialData.roomNo || '',
         bedCount: initialData.bedCount || '',
-        status: initialData.status || '',
         rentPrice: initialData.rentPrice || '',
         images: initialData.images || []
       });

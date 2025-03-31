@@ -5,12 +5,13 @@ import React, { useEffect, useState } from 'react';
 import { EditIcon, Eye, Trash2 } from 'lucide-react';
 import HeaderButton from '@/components/ui/large/HeaderButton';
 import GridTable from '@/components/ui/mui-grid-table/GridTable';
-import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { formatDateToDDMMYYYY } from '@/services/utils/formaters';
 import { toast } from 'sonner';
+import { fetchAdvanceList } from '@/services/utils/api/payment/advance-api';
+import { fetchRefundList } from '@/services/utils/api/payment/refund-api';
 
-interface IPaymentListProps {
+interface IRefundPaymentListProps {
   id: number;
   amountPaid: number;
   paymentDate: number;
@@ -28,16 +29,18 @@ interface IPaymentListProps {
   name: string;
   phoneNo: string;
 }
-const PaymentList = () => {
+export const RefundPaymentTable = () => {
   const router = useRouter();
-  const [paymentList, setPaymentList] = useState<IPaymentListProps[]>([]);
+  const [refundPaymentList, setRefundPaymentList] = useState<
+    IRefundPaymentListProps[]
+  >([]);
 
   useEffect(() => {
-    const getPayments = async () => {
+    const getRefunds = async () => {
       try {
-        const res = await axiosService.get('api/payment');
+        const res = await fetchRefundList();
         if (res.data) {
-          const formattedData = res.data.data.map((d: any) => {
+          const formattedData = res.data.map((d: any) => {
             return {
               ...d,
               roomNo: d?.rooms?.roomNo ?? '',
@@ -47,13 +50,13 @@ const PaymentList = () => {
               phoneNo: d?.tenants?.phoneNo ?? ''
             };
           });
-          setPaymentList(formattedData);
+          setRefundPaymentList(formattedData);
         }
       } catch (error) {
-        toast.error('Fetching the payments list failed try again later');
+        toast.error('Fetching the Refunds list failed try again later');
       }
     };
-    getPayments();
+    getRefunds();
   }, []);
 
   const columns = [
@@ -87,7 +90,7 @@ const PaymentList = () => {
     },
     {
       field: 'paymentDate',
-      headerName: 'Payment Date',
+      headerName: 'Refund Date',
       minWidth: 150
     },
     {
@@ -125,7 +128,7 @@ const PaymentList = () => {
         <div className='ml-3 mt-3 flex gap-3'>
           <EditIcon
             onClick={() => {
-              router.push(`/payment/rent/${params.row.id}`);
+              router.push(`/payment/refund/${params.row.id}`);
             }}
             className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]'
           />
@@ -148,12 +151,12 @@ const PaymentList = () => {
   return (
     <>
       <HeaderButton
-        title='Payments List'
+        title='Refund Amount List'
         buttons={[
           {
             label: 'Create New',
             onClick: () => {
-              router.push('/payment/rent/new');
+              router.push('/payment/refund/new');
             },
             variant: 'default'
           }
@@ -162,7 +165,7 @@ const PaymentList = () => {
       <div className='mt-6'>
         <GridTable
           columns={columns}
-          rows={paymentList}
+          rows={refundPaymentList}
           loading={false}
           rowHeight={80}
           showToolbar={true}
@@ -172,5 +175,3 @@ const PaymentList = () => {
     </>
   );
 };
-
-export default PaymentList;

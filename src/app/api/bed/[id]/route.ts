@@ -5,7 +5,6 @@ import {
   errorHandler,
   NotFoundError
 } from '@/services/utils/error';
-import { BedStatus } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -17,7 +16,7 @@ export const GET = async (
     const { id } = await params;
     if (!id) {
       return NextResponse.json(
-        { error: ' Bed Id is required' },
+        { error: 'Bed Id is required' },
         { status: 400 }
       );
     }
@@ -36,23 +35,33 @@ export const GET = async (
           select: {
             roomNo: true
           }
+        },
+        tenants: {
+          select: {
+            id: true // Checking if tenant exists
+          }
         }
       }
     });
+
     if (!bed) {
       throw new NotFoundError('Bed Not Found');
     }
+
+    // Determine bed status dynamically
+    const status = bed.tenants.length > 0 ? 'OCCUPIED' : 'VACANT';
+
     return NextResponse.json(
-      { data: bed, message: 'Bed list fetched successfully' },
+      { data: { ...bed, status }, message: 'Bed list fetched successfully' },
       { status: 200 }
     );
   } catch (error) {
     return errorHandler(error);
   }
 };
+
 const bedEditSchema = z.object({
   bedNo: z.string().min(1, 'Bed number is required'),
-  status: z.string().min(1, 'Status is required'),
   images: z.any().optional(),
   roomNo: z.number().min(1, 'Room number is required'),
   pgId: z.number().min(1, 'PG ID is required')
@@ -103,7 +112,6 @@ export const PUT = async (
         bedNo: parsedBody.data.bedNo,
         images: parsedBody.data.images,
         roomId: parsedBody.data.roomNo,
-        status: parsedBody.data.status.toUpperCase() as BedStatus,
         pgId: Number(pgLocationId)
       }
     });

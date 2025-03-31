@@ -42,7 +42,7 @@ interface IPaymentFromProps {
     amountPaid: string;
   };
 }
-export default function AdvanceForm({
+export default function RefundForm({
   initialValue,
   onSubmit,
   control,
@@ -257,7 +257,7 @@ export default function AdvanceForm({
               </p>
             </div>
             <p className='mt-5 font-semibold dark:text-[#696969]'>
-              Tenant Advance amount :
+              Tenant Refund amount :
             </p>
             <div className='mt-2 flex justify-between rounded-lg border border-[#000] p-2'>
               <p className='font-semibold dark:text-black'>Paid Amount:</p>

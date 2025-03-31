@@ -8,7 +8,6 @@ interface IBedEditFormProps {
   bedNo: string;
   roomNo: string;
   images: string[];
-  status: string;
 }
 const BedEdit = ({ id }: { id: string }) => {
   const [bedData, setBedData] = useState<IBedEditFormProps>();
@@ -19,8 +18,7 @@ const BedEdit = ({ id }: { id: string }) => {
         const formattedRes = {
           bedNo: res.data.bedNo.replace(/^BED/, ''),
           roomNo: String(res.data.roomId),
-          images: res.data.images,
-          status: res.data.status
+          images: res.data.images
         };
         setBedData(formattedRes);
       } catch (error) {

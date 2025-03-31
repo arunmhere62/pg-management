@@ -5,16 +5,10 @@ import {
   AccordionItem,
   AccordionTrigger
 } from '@/components/ui/accordion';
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious
-} from '@/components/ui/Carousel';
+
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
-import axiosService from '@/services/utils/axios';
+import { fetchTenantById } from '@/services/utils/api/tenant-api';
 import { formatDateToDDMMYYYY } from '@/services/utils/formaters';
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
@@ -52,10 +46,32 @@ interface IRoomDetailsProps {
     tenantPaymentId: number;
     createdAt: string;
     modifiedAt: string;
+    startDate: string;
+    endDate: string;
     paymentDate: string;
     paymentMethod: string;
     remarks: string;
     status: string;
+    updatedAt: string;
+  }[];
+  advancePayments: {
+    id: number;
+    amountPaid: string;
+    paymentDate: string;
+    paymentMethod: string;
+    status: string;
+    remarks: string;
+    createdAt: string;
+    updatedAt: string;
+  }[];
+  refundPayments: {
+    id: number;
+    amountPaid: string;
+    paymentDate: string;
+    paymentMethod: string;
+    status: string;
+    remarks: string;
+    createdAt: string;
     updatedAt: string;
   }[];
   tenantPaymentHistory: {
@@ -81,9 +97,7 @@ const RoomDetails = ({ id }: { id: string }) => {
   useEffect(() => {
     const getRoom = async () => {
       try {
-        const res = await axiosService.get<IRoomDetailsProps>(
-          `/api/tenant/${id}`
-        );
+        const res = await fetchTenantById(String(id));
         setRoomDetails(res.data);
       } catch (error) {
         toast.error('Error fetching room data:');
@@ -165,7 +179,7 @@ const RoomDetails = ({ id }: { id: string }) => {
           </div>
           <div className='mb-5 flex justify-between'>
             <p className='w-[120px] font-semibold'>Check Out Date</p>
-            <p className=''>{roomDetails?.checkOutDate}</p>
+            <p className=''>{roomDetails?.checkOutDate || 'N/A'}</p>
           </div>
         </div>
         <div className='mb-5 flex justify-between'>
@@ -191,9 +205,60 @@ const RoomDetails = ({ id }: { id: string }) => {
 
       <div className='col-span-5 h-fit space-y-2'>
         <div className='rounded-xl border p-3'>
-          <h1 className='text-[20px] font-bold'>Tenant Payment</h1>
+          <h1 className='text-[20px] font-bold'>Rent Payments</h1>
           <Accordion type='single' collapsible className='w-full'>
             {roomDetails?.tenantPayments?.map((payment, index) => (
+              <AccordionItem key={index} value={`payment-${index}`}>
+                <AccordionTrigger>Payment #{index + 1}</AccordionTrigger>
+                <AccordionContent>
+                  <div className='space-y-2'>
+                    <div className='flex justify-between'>
+                      <p className='font-semibold'>Amount Paid:</p>
+                      <p>{payment.amountPaid}</p>
+                    </div>
+                    <div className='flex justify-between'>
+                      <p className='font-semibold'>Payment Date:</p>
+                      <p>{formatDateToDDMMYYYY(payment.paymentDate)}</p>
+                    </div>
+                    <div className='flex justify-between'>
+                      <p className='font-semibold'>Start Date:</p>
+                      <p>{formatDateToDDMMYYYY(payment.startDate)}</p>
+                    </div>
+                    <div className='flex justify-between'>
+                      <p className='font-semibold'>End Date:</p>
+                      <p>{formatDateToDDMMYYYY(payment.endDate)}</p>
+                    </div>
+                    <div className='flex justify-between'>
+                      <p className='font-semibold'>Payment Method:</p>
+                      <p>{payment.paymentMethod}</p>
+                    </div>
+                    <div className='flex justify-between'>
+                      <p className='font-semibold'>Remarks:</p>
+                      <p>{payment.remarks || 'N/A'}</p>
+                    </div>
+                    <div className='flex justify-between'>
+                      <p className='font-semibold'>Status:</p>
+                      <p
+                        className={cn(
+                          payment.status === 'PAID'
+                            ? 'text-green-500'
+                            : 'text-red-500'
+                        )}
+                      >
+                        {payment.status}
+                      </p>
+                    </div>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
+
+        <div className='rounded-xl border p-3'>
+          <h1 className='text-[20px] font-bold'>Advance Payment</h1>
+          <Accordion type='single' collapsible className='w-full'>
+            {roomDetails?.advancePayments?.map((payment, index) => (
               <AccordionItem key={index} value={`payment-${index}`}>
                 <AccordionTrigger>Payment #{index + 1}</AccordionTrigger>
                 <AccordionContent>
@@ -232,48 +297,49 @@ const RoomDetails = ({ id }: { id: string }) => {
             ))}
           </Accordion>
         </div>
-        {/* <div className='border p-3 rounded-xl'>
-       <h1 className='text-[20px] font-bold'>Payment History</h1>
-        <Accordion type='single' collapsible className='w-full'>
-          {roomDetails?.tenantPaymentHistory?.map((payment, index) => (
-            <AccordionItem key={payment.id} value={`payment-${index}`}>
-              <AccordionTrigger>Payment #{index + 1}</AccordionTrigger>
-              <AccordionContent>
-                <div className='space-y-2'>
-                  <div className='flex justify-between'>
-                    <p className='font-semibold'>Amount Paid:</p>
-                    <p>{payment.amountPaid}</p>
+
+        <div className='rounded-xl border p-3'>
+          <h1 className='text-[20px] font-bold'>Refund Payment</h1>
+          <Accordion type='single' collapsible className='w-full'>
+            {roomDetails?.refundPayments?.map((payment, index) => (
+              <AccordionItem key={index} value={`payment-${index}`}>
+                <AccordionTrigger>Payment #{index + 1}</AccordionTrigger>
+                <AccordionContent>
+                  <div className='space-y-2'>
+                    <div className='flex justify-between'>
+                      <p className='font-semibold'>Amount Paid:</p>
+                      <p>{payment.amountPaid}</p>
+                    </div>
+                    <div className='flex justify-between'>
+                      <p className='font-semibold'>Payment Date:</p>
+                      <p>{formatDateToDDMMYYYY(payment.paymentDate)}</p>
+                    </div>
+                    <div className='flex justify-between'>
+                      <p className='font-semibold'>Payment Method:</p>
+                      <p>{payment.paymentMethod}</p>
+                    </div>
+                    <div className='flex justify-between'>
+                      <p className='font-semibold'>Remarks:</p>
+                      <p>{payment.remarks || 'N/A'}</p>
+                    </div>
+                    <div className='flex justify-between'>
+                      <p className='font-semibold'>Status:</p>
+                      <p
+                        className={cn(
+                          payment.status === 'PAID'
+                            ? 'text-green-500'
+                            : 'text-red-500'
+                        )}
+                      >
+                        {payment.status}
+                      </p>
+                    </div>
                   </div>
-                  <div className='flex justify-between'>
-                    <p className='font-semibold'>Payment Date:</p>
-                    <p>{payment.paymentDate}</p>
-                  </div>
-                  <div className='flex justify-between'>
-                    <p className='font-semibold'>Payment Method:</p>
-                    <p>{payment.paymentMethod}</p>
-                  </div>
-                  <div className='flex justify-between'>
-                    <p className='font-semibold'>Remarks:</p>
-                    <p>{payment.remarks || 'N/A'}</p>
-                  </div>
-                  <div className='flex justify-between'>
-                    <p className='font-semibold'>Status:</p>
-                    <p
-                      className={cn(
-                        payment.status === 'PAID'
-                          ? 'text-green-500'
-                          : 'text-red-500'
-                      )}
-                    >
-                      {payment.status}
-                    </p>
-                  </div>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
-       </div> */}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
       </div>
     </div>
   );

@@ -1,31 +1,28 @@
-import axiosService from '@/services/utils/axios';
 import React, { useEffect, useState } from 'react';
-import MainPaymentForm from '.';
 import { formatDateToDDMMYYYY } from '@/services/utils/formaters';
-import MainRentPayment from '.';
 import { toast } from 'sonner';
-import { fetchRentById } from '@/services/utils/api/payment/rent-api';
+import MainRefundPayment from '.';
+import { fetchRefundById } from '@/services/utils/api/payment/refund-api';
 
-interface RentEditFormProps {}
-export const RentEdit = ({ id }: { id: string }) => {
-  const [paymentData, setPaymentData] = useState<RentEditFormProps>();
+interface RefundEditFormProps {}
+export const RefundEdit = ({ id }: { id: string }) => {
+  const [paymentData, setPaymentData] = useState<RefundEditFormProps>();
   const [previousPaymentData, setPreviousPaymentData] = useState({
     paymentId: null,
     pgId: null,
     bedId: null,
     roomId: null
   });
+
   useEffect(() => {
     const getRoom = async () => {
       try {
-        const res = await fetchRentById(String(id));
+        const res = await fetchRefundById(String(id));
         if (res.data) {
           const formattedRes = {
             tenantId: String(res.data.tenantId),
             status: res.data.status,
             paymentDate: formatDateToDDMMYYYY(res.data.paymentDate),
-            startDate: formatDateToDDMMYYYY(res.data.startDate),
-            endDate: formatDateToDDMMYYYY(res.data.endDate),
             paymentMethod: res.data.paymentMethod,
             remarks: res.data.remarks,
             amountPaid: res.data.amountPaid
@@ -47,7 +44,7 @@ export const RentEdit = ({ id }: { id: string }) => {
     }
   }, [id]);
   return (
-    <MainRentPayment
+    <MainRefundPayment
       id={id}
       mode='edit'
       initialData={paymentData}

@@ -13,17 +13,24 @@ import { useSelector } from '@/store';
 import { formatDateToDateTime } from '@/services/utils/formaters';
 import { format } from 'date-fns';
 import RentForm from './RentForm';
+import { createRent, updateRent } from '@/services/utils/api/payment/rent-api';
+import { fetchTenantsList } from '@/services/utils/api/tenant-api';
 
-export const rentPaymentFormSchema = z.object({
-  tenantId: z.string().min(1, 'Please select a tenant.'),
-  paymentDate: z.string().min(1, 'Please select a payment date.'),
-  startDate: z.string().min(1, 'Please select a start date.'),
-  endDate: z.string().min(1, 'Please select a end date.'),
-  paymentMethod: z.string().min(1, 'Please select a payment method.'),
-  status: z.string().min(1, 'Please select a status.'),
-  amountPaid: z.string().min(1, 'Please enter the amount paid.'),
-  remarks: z.string().min(1, 'Please enter remarks.')
-});
+export const rentPaymentFormSchema = z
+  .object({
+    tenantId: z.string().min(1, 'Please select a tenant.'),
+    paymentDate: z.string().min(1, 'Please select a payment date.'),
+    startDate: z.string().min(1, 'Please select a start date.'),
+    endDate: z.string().min(1, 'Please select a end date.'),
+    paymentMethod: z.string().min(1, 'Please select a payment method.'),
+    status: z.string().min(1, 'Please select a status.'),
+    amountPaid: z.string().min(1, 'Please enter the amount paid.'),
+    remarks: z.string().min(1, 'Please enter remarks.')
+  })
+  .refine((data) => data.startDate !== data.endDate, {
+    message: 'Start date and end date cannot be the same.',
+    path: ['endDate']
+  });
 
 interface IMainRentPaymentProps {
   id?: string;
@@ -95,14 +102,15 @@ const MainRentPayment = ({
   );
   const pageTitle =
     mode === 'create' ? 'Add Rent Payment' : 'Edit Rent Payment';
+
   useEffect(() => {
-    const fetchTenants = async () => {
+    const getTenants = async () => {
       try {
-        const res = await axiosService.get('/api/tenant');
+        const res = await fetchTenantsList();
         if (res.data) {
-          setTenantData(res.data.data);
+          setTenantData(res.data);
           setTenantList(
-            res?.data?.data?.map((tenant: any) => ({
+            res?.data?.map((tenant: any) => ({
               value: String(tenant.id),
               label: tenant.name
             }))
@@ -112,8 +120,9 @@ const MainRentPayment = ({
         toast.error('Error fetching rooms:');
       }
     };
-    fetchTenants();
+    getTenants();
   }, []);
+
   const defaultValues = {
     tenantId: '',
     paymentDate:
@@ -139,7 +148,7 @@ const MainRentPayment = ({
       const payload = {
         tenantId: Number(values.tenantId),
         pgId: Number(pgLocationId),
-        bedId: Number(tenantDetails?.bedId),
+        bedId: Number(tenantDetails?.beds.id),
         roomId: Number(tenantDetails?.roomId),
         paymentDate: formatDateToDateTime(values.paymentDate),
         startDate: formatDateToDateTime(values.startDate),
@@ -150,10 +159,10 @@ const MainRentPayment = ({
         amountPaid: Number(values.amountPaid)
       };
 
+      console.log('payload', payload);
+
       if (mode === 'create') {
-        const res = await axiosService.post('/api/payment', {
-          data: payload
-        });
+        const res = await createRent(payload);
         if (res.status === 201) {
           toast.success('Tenant Payment added successfully!');
           form.reset({
@@ -168,13 +177,12 @@ const MainRentPayment = ({
           });
         }
       } else {
-        const res = await axiosService.put(`/api/payment/${id}`, {
-          data: {
-            currentPayment: payload,
-            previousPayment: previousPaymentData
-          }
-        });
-        if (res.status === 201) {
+        const data = {
+          currentPayment: payload,
+          previousPayment: previousPaymentData
+        };
+        const res = await updateRent(data, String(id));
+        if (res.status === 200) {
           toast.success('Tenant Payment updated successfully!');
           form.reset({
             tenantId: '',
@@ -228,6 +236,7 @@ const MainRentPayment = ({
     }
   }, [form.watch('tenantId'), tenantData]);
 
+  console.log('tenantDetails', tenantDetails);
   return (
     <Card className='mx-auto w-full'>
       <CardHeader>

@@ -109,28 +109,6 @@ export default function BedForm({
             </FormItem>
           )}
         />
-
-        <FormField
-          control={control}
-          name='status'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Status</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder='Select' />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent className='max-h-[300px] overflow-y-auto'>
-                  <SelectItem value='VACANT'>VACANT</SelectItem>
-                  <SelectItem value='OCCUPIED'>OCCUPIED</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
       </div>
     </>
   );

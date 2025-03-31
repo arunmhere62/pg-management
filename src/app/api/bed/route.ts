@@ -15,6 +15,7 @@ export const GET = async (req: NextRequest) => {
     if (!pgLocationId) {
       throw new BadRequestError('pg location not found');
     }
+
     const beds = await prisma.beds.findMany({
       where: {
         pgId: Number(pgLocationId)
@@ -25,7 +26,6 @@ export const GET = async (req: NextRequest) => {
         images: false,
         pgId: true,
         roomId: true,
-        status: true,
         createdAt: true,
         updatedAt: true,
         rooms: {
@@ -33,11 +33,27 @@ export const GET = async (req: NextRequest) => {
             roomId: true,
             roomNo: true
           }
+        },
+        tenants: {
+          select: {
+            id: true
+          }
         }
       }
     });
+
+    // Determine bed status dynamically
+    const formattedBeds = beds.map((bed) => ({
+      ...bed,
+      status: bed.tenants.length > 0 ? 'OCCUPIED' : 'VACANT'
+    }));
+
     return NextResponse.json(
-      { data: beds, status: 200, message: 'Fetched the beds successfully' },
+      {
+        data: formattedBeds,
+        status: 200,
+        message: 'Fetched the beds successfully'
+      },
       { status: 200 }
     );
   } catch (error: any) {

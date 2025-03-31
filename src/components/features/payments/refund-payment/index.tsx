@@ -11,13 +11,18 @@ import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import { useSelector } from '@/store';
 import { formatDateToDateTime } from '@/services/utils/formaters';
-import AdvanceForm from './AdvanceForm';
+import AdvanceForm from './RefundForm';
 import { format } from 'date-fns';
 import { fetchTenantsList } from '@/services/utils/api/tenant-api';
 import {
   createAdvance,
   updateAdvance
 } from '@/services/utils/api/payment/advance-api';
+import RefundForm from './RefundForm';
+import {
+  createRefund,
+  updateRefund
+} from '@/services/utils/api/payment/refund-api';
 
 export const paymentFormSchema = z.object({
   tenantId: z.string().min(1, 'Please select a tenant.'),
@@ -73,7 +78,7 @@ export interface TenantDataProps {
   };
 }
 
-const MainAdvancePayment = ({
+const MainRefundPayment = ({
   mode,
   initialData,
   id,
@@ -97,7 +102,7 @@ const MainAdvancePayment = ({
     (state) => state.pgLocation
   );
   const pageTitle =
-    mode === 'create' ? 'Add Advance Payment' : 'Edit Advance Payment';
+    mode === 'create' ? 'Add Refund Payment' : 'Edit Refund Payment';
 
   useEffect(() => {
     const getTenants = async () => {
@@ -156,7 +161,7 @@ const MainAdvancePayment = ({
       if (mode === 'create') {
         console.log('payload', payload);
 
-        const res = await createAdvance(payload);
+        const res = await createRefund(payload);
         if (res.status === 201) {
           toast.success('Tenant Advance added successfully!');
           form.reset({
@@ -169,7 +174,7 @@ const MainAdvancePayment = ({
           });
         }
       } else {
-        const res = await updateAdvance(payload, String(id));
+        const res = await updateRefund(payload, String(id));
         if (res.status === 200) {
           toast.success('Tenant Payment updated successfully!');
           form.reset({
@@ -242,7 +247,7 @@ const MainAdvancePayment = ({
             onSubmit={form.handleSubmit(onSubmit)}
             className='space-y-8'
           >
-            <AdvanceForm
+            <RefundForm
               mode={mode}
               paymentDetails={paymentDetails}
               tenantDetails={tenantDetails || null}
@@ -258,4 +263,4 @@ const MainAdvancePayment = ({
   );
 };
 
-export default MainAdvancePayment;
+export default MainRefundPayment;

@@ -8,6 +8,7 @@ import HeaderButton from '@/components/ui/large/HeaderButton';
 import GridTable from '@/components/ui/mui-grid-table/GridTable';
 import { width } from '@mui/system';
 import { cn } from '@/lib/utils';
+import { fetchTenantsList } from '@/services/utils/api/tenant-api';
 
 interface ITenantListProps {
   id: number;
@@ -41,8 +42,8 @@ const TenantList = () => {
   useEffect(() => {
     const getTenants = async () => {
       try {
-        const res = await axiosService.get('api/tenant');
-        const formattedRes = res.data.data.map((d: ITenantListProps) => ({
+        const res = await fetchTenantsList();
+        const formattedRes = res.data.map((d: ITenantListProps) => ({
           roomNo: d.rooms.roomNo,
           bedNo: d.beds.bedNo,
           ...d

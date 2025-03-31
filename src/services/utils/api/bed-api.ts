@@ -38,3 +38,16 @@ export const updateBed = async (data: any, id: string) => {
     throw error;
   }
 };
+
+export const fetchBedsByRoomId = async (roomId: string) => {
+  try {
+    const endpoint = API_ENDPOINT.BED.beds_ByRoomId.replace(
+      ':id',
+      roomId.toString()
+    );
+    const res = await axiosService.get(endpoint);
+    return res.data;
+  } catch (error) {
+    throw error;
+  }
+};

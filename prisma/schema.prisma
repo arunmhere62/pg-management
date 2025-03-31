@@ -18,28 +18,27 @@ model users {
   updatedAt    DateTime?      @default(now()) @map("updated_at") @db.Timestamp(0)
   roleId       Int            @map("role_id")
   pgLocationId Int            @map("pg_location_id")
-  pg_locations pg_locations[]
+  pgLocations  pg_locations[]
   roles        roles          @relation(fields: [roleId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_users_role")
 
   @@index([roleId], map: "fk_users_role")
 }
 
 model beds {
-  id               Int                @id @default(autoincrement()) @map("s_no")
-  bedNo            String             @map("bed_no") @db.VarChar(50)
-  roomId           Int?               @map("room_id")
-  pgId             Int?               @map("pg_id")
-  status           BedStatus?         @default(VACANT)
-  images           Json?
-  createdAt        DateTime?          @default(now()) @map("created_at") @db.Timestamp(0)
-  updatedAt        DateTime?          @default(now()) @map("updated_at") @db.Timestamp(0)
-  advance_payments advance_payments[]
-  rooms            rooms?             @relation(fields: [roomId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "beds_ibfk_1")
-  pgLocations      pg_locations?      @relation(fields: [pgId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_pg_id")
-  refund_payments  refund_payments[]
-  tenant_payments  tenant_payments[]
-  tenants          tenants[]
-  visitors         visitors[]
+  id              Int                @id @default(autoincrement()) @map("s_no")
+  bedNo           String             @map("bed_no") @db.VarChar(50)
+  roomId          Int?               @map("room_id")
+  pgId            Int?               @map("pg_id")
+  images          Json?
+  createdAt       DateTime?          @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt       DateTime?          @default(now()) @map("updated_at") @db.Timestamp(0)
+  advancePayments advance_payments[]
+  rooms           rooms?             @relation(fields: [roomId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "beds_ibfk_1")
+  pgLocations     pg_locations?      @relation(fields: [pgId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_pg_id")
+  refundPayments  refund_payments[]
+  tenantPayments  tenant_payments[]
+  tenants         tenants[]
+  visitors        visitors[]
 
   @@unique([roomId, bedNo], map: "unique_bed_per_room")
   @@index([pgId], map: "fk_pg_id")
@@ -63,32 +62,30 @@ model employees {
 }
 
 model pg_locations {
-  id               Int                  @id @unique(map: "s_no_2") @default(autoincrement()) @map("s_no")
-  userId           Int                  @map("user_id")
-  locationName     String               @map("location_name") @db.VarChar(100)
-  address          String               @db.VarChar(255)
-  pincode          String?              @db.VarChar(10)
-  status           pg_locations_status? @default(ACTIVE)
-  images           Json?
-  cityId           Int?                 @map("city_id")
-  stateId          Int?                 @map("state_id")
-  createdAt        DateTime?            @default(now()) @map("created_at") @db.Timestamp(0)
-  updatedAt        DateTime?            @default(now()) @map("updated_at") @db.Timestamp(0)
-  
-  // relationships
-  advance_payments advance_payments[]
-  beds             beds[]
-  employees        employees[]
-  expenses         expenses[]
-  income           income[]
-  city             city?                @relation(fields: [cityId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_city")
-  state            state?               @relation(fields: [stateId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_state")
-  users            users                @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pg_locations_ibfk_1")
-  refund_payments  refund_payments[]
-  rooms            rooms[]
-  tenant_payments  tenant_payments[]
-  tenants          tenants[]
-  visitors         visitors[]
+  id              Int                  @id @unique(map: "s_no_2") @default(autoincrement()) @map("s_no")
+  userId          Int                  @map("user_id")
+  locationName    String               @map("location_name") @db.VarChar(100)
+  address         String               @db.VarChar(255)
+  pincode         String?              @db.VarChar(10)
+  createdAt       DateTime?            @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt       DateTime?            @default(now()) @map("updated_at") @db.Timestamp(0)
+  status          pg_locations_status? @default(ACTIVE)
+  images          Json?
+  cityId          Int?                 @map("city_id")
+  stateId         Int?                 @map("state_id")
+  advancePayments advance_payments[]
+  beds            beds[]
+  employees       employees[]
+  expenses        expenses[]
+  income          income[]
+  city            city?                @relation(fields: [cityId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_city")
+  state           state?               @relation(fields: [stateId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_state")
+  users           users                @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pg_locations_ibfk_1")
+  refundPayments  refund_payments[]
+  rooms           rooms[]
+  tenantPayments  tenant_payments[]
+  tenants         tenants[]
+  visitors        visitors[]
 
   @@index([userId], map: "owner_id")
   @@index([id], map: "s_no")
@@ -138,49 +135,48 @@ model roles {
 }
 
 model rooms {
-  id               Int                @id @default(autoincrement()) @map("s_no")
-  roomId           String?            @unique(map: "room_id") @map("room_id") @db.VarChar(36)
-  pgId             Int?               @map("pg_id")
-  roomNo           String?            @map("room_no") @db.VarChar(20)
-  bedCount         Int                @default(0) @map("bed_count")
-  status           rooms_status       @default(AVAILABLE)
-  createdAt        DateTime?          @default(now()) @map("created_at") @db.Timestamp(0)
-  updatedAt        DateTime?          @default(now()) @map("updated_at") @db.Timestamp(0)
-  rentPrice        Decimal?           @default(0.00) @map("rent_price") @db.Decimal(10, 2)
-  images           Json?
-  advance_payments advance_payments[]
-  beds             beds[]
-  refund_payments  refund_payments[]
-  pgLocations      pg_locations?      @relation(fields: [pgId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "rooms_ibfk_1")
-  tenantPayments   tenant_payments[]
-  tenants          tenants[]
-  visitors         visitors[]
+  id              Int                @id @default(autoincrement()) @map("s_no")
+  roomId          String?            @unique(map: "room_id") @map("room_id") @db.VarChar(36)
+  pgId            Int?               @map("pg_id")
+  roomNo          String?            @map("room_no") @db.VarChar(20)
+  bedCount        Int                @default(0) @map("bed_count")
+  createdAt       DateTime?          @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt       DateTime?          @default(now()) @map("updated_at") @db.Timestamp(0)
+  rentPrice       Decimal?           @default(0.00) @map("rent_price") @db.Decimal(10, 2)
+  images          Json?
+  advancePayments advance_payments[]
+  beds            beds[]
+  refundPayments  refund_payments[]
+  pgLocations     pg_locations?      @relation(fields: [pgId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "rooms_ibfk_1")
+  tenantPayments  tenant_payments[]
+  tenants         tenants[]
+  visitors        visitors[]
 
   @@unique([pgId, roomNo], map: "unique_pg_room")
 }
 
 model tenants {
-  id               Int                @id @default(autoincrement()) @map("s_no")
-  tenantId         String             @unique(map: "tenant_id") @map("tenant_id") @db.VarChar(50)
-  name             String             @db.VarChar(100)
-  phoneNo          String?            @map("phone_no") @db.VarChar(15)
-  email            String?            @db.VarChar(100)
-  pgId             Int?               @map("pg_id")
-  roomId           Int?               @map("room_id")
-  bedId            Int?               @map("bed_id")
-  checkInDate      String             @map("check_in_date") @db.VarChar(10)
-  checkOutDate     String?            @map("check_out_date") @db.VarChar(10)
-  status           tenants_status?    @default(ACTIVE)
-  createdAt        DateTime?          @default(now()) @map("created_at") @db.Timestamp(0)
-  updatedAt        DateTime?          @default(now()) @map("updated_at") @db.Timestamp(0)
-  images           Json?
-  proofDocuments   Json?              @map("proof_documents")
-  advance_payments advance_payments[]
-  refund_payments  refund_payments[]
-  tenantPayments   tenant_payments[]
-  pgLocations      pg_locations?      @relation(fields: [pgId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "tenants_ibfk_1")
-  rooms            rooms?             @relation(fields: [roomId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "tenants_ibfk_2")
-  beds             beds?              @relation(fields: [bedId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "tenants_ibfk_3")
+  id              Int                @id @default(autoincrement()) @map("s_no")
+  tenantId        String             @unique(map: "tenant_id") @map("tenant_id") @db.VarChar(50)
+  name            String             @db.VarChar(100)
+  phoneNo         String?            @map("phone_no") @db.VarChar(15)
+  email           String?            @db.VarChar(100)
+  pgId            Int?               @map("pg_id")
+  roomId          Int?               @map("room_id")
+  bedId           Int?               @map("bed_id")
+  checkInDate     String             @map("check_in_date") @db.VarChar(10)
+  checkOutDate    String?            @map("check_out_date") @db.VarChar(10)
+  status          tenants_status?    @default(ACTIVE)
+  createdAt       DateTime?          @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt       DateTime?          @default(now()) @map("updated_at") @db.Timestamp(0)
+  images          Json?
+  proofDocuments  Json?              @map("proof_documents")
+  advancePayments advance_payments[]
+  refundPayments  refund_payments[]
+  tenantPayments  tenant_payments[]
+  pgLocations     pg_locations?      @relation(fields: [pgId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "tenants_ibfk_1")
+  rooms           rooms?             @relation(fields: [roomId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "tenants_ibfk_2")
+  beds            beds?              @relation(fields: [bedId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "tenants_ibfk_3")
 
   @@index([bedId], map: "bed_id")
   @@index([pgId], map: "pg_location_id")
@@ -210,24 +206,24 @@ model visitors {
 }
 
 model city {
-  id           Int            @id @default(autoincrement()) @map("s_no")
-  name         String         @db.VarChar(255)
-  countryCode  String         @map("country_code") @db.VarChar(10)
-  stateCode    String         @map("state_code") @db.VarChar(10)
-  latitude     Decimal        @db.Decimal(10, 7)
-  longitude    Decimal        @db.Decimal(10, 7)
-  pg_locations pg_locations[]
+  id          Int            @id @default(autoincrement()) @map("s_no")
+  name        String         @db.VarChar(255)
+  countryCode String         @map("country_code") @db.VarChar(10)
+  stateCode   String         @map("state_code") @db.VarChar(10)
+  latitude    Decimal        @db.Decimal(10, 7)
+  longitude   Decimal        @db.Decimal(10, 7)
+  pgLocations pg_locations[]
 }
 
 model state {
-  id           Int            @id @default(autoincrement()) @map("s_no")
-  name         String         @db.VarChar(255)
-  isoCode      String         @map("iso_code") @db.VarChar(10)
-  countryCode  String         @map("country_code") @db.VarChar(10)
-  latitude     Decimal        @db.Decimal(10, 7)
-  longitude    Decimal        @db.Decimal(10, 7)
-  pg_locations pg_locations[]
-  country      country        @relation(fields: [countryCode], references: [isoCode], onDelete: Cascade, map: "fk_state_country")
+  id          Int            @id @default(autoincrement()) @map("s_no")
+  name        String         @db.VarChar(255)
+  isoCode     String         @map("iso_code") @db.VarChar(10)
+  countryCode String         @map("country_code") @db.VarChar(10)
+  latitude    Decimal        @db.Decimal(10, 7)
+  longitude   Decimal        @db.Decimal(10, 7)
+  pgLocations pg_locations[]
+  country     country        @relation(fields: [countryCode], references: [isoCode], onDelete: Cascade, map: "fk_state_country")
 
   @@index([countryCode], map: "fk_state_country")
 }
@@ -290,21 +286,22 @@ model tenant_payment_history {
 }
 
 model advance_payments {
-  id            Int                            @id @default(autoincrement())
-  tenantId      Int
-  pgId          Int
-  roomId        Int
-  bedId         Int
-  amount_paid   Decimal                        @db.Decimal(10, 2)
-  paymentDate   DateTime?                      @default(now()) @db.DateTime(0)
-  paymentMethod advance_payments_paymentMethod
-  remarks       String?                        @db.VarChar(255)
-  createdAt     DateTime?                      @default(now()) @db.DateTime(0)
-  updatedAt     DateTime?                      @default(now()) @db.DateTime(0)
-  tenants       tenants                        @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "advance_payments_ibfk_1")
-  pg_locations  pg_locations                   @relation(fields: [pgId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "advance_payments_ibfk_2")
-  rooms         rooms                          @relation(fields: [roomId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "advance_payments_ibfk_3")
-  beds          beds                           @relation(fields: [bedId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "advance_payments_ibfk_4")
+  id            Int                             @id @default(autoincrement()) @map("s_no")
+  tenantId      Int                             @map("tenant_id")
+  pgId          Int                             @map("pg_id")
+  roomId        Int                             @map("room_id")
+  bedId         Int                             @map("bed_id")
+  amountPaid    Decimal                         @map("amount_paid") @db.Decimal(10, 2)
+  paymentDate   DateTime?                       @default(now()) @map("payment_date") @db.DateTime(0)
+  paymentMethod advance_payments_payment_method @map("payment_method")
+  remarks       String?                         @db.VarChar(255)
+  createdAt     DateTime?                       @default(now()) @map("created_at") @db.DateTime(0)
+  updatedAt     DateTime?                       @default(now()) @map("updated_at") @db.DateTime(0)
+  status        advance_payments_status         @default(PENDING)
+  tenants       tenants                         @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "advance_payments_ibfk_1")
+  pgLocations   pg_locations                    @relation(fields: [pgId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "advance_payments_ibfk_2")
+  rooms         rooms                           @relation(fields: [roomId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "advance_payments_ibfk_3")
+  beds          beds                            @relation(fields: [bedId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "advance_payments_ibfk_4")
 
   @@index([bedId], map: "bedId")
   @@index([pgId], map: "pgId")
@@ -313,21 +310,22 @@ model advance_payments {
 }
 
 model refund_payments {
-  id            Int                           @id @default(autoincrement())
-  tenantId      Int
-  pgId          Int
-  roomId        Int
-  bedId         Int
-  amount_paid   Decimal                       @db.Decimal(10, 2)
-  refundDate    DateTime?                     @default(now()) @db.DateTime(0)
-  paymentMethod refund_payments_paymentMethod
-  remarks       String?                       @db.VarChar(255)
-  createdAt     DateTime?                     @default(now()) @db.DateTime(0)
-  updatedAt     DateTime?                     @default(now()) @db.DateTime(0)
-  tenants       tenants                       @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "refund_payments_ibfk_1")
-  pg_locations  pg_locations                  @relation(fields: [pgId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "refund_payments_ibfk_2")
-  rooms         rooms                         @relation(fields: [roomId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "refund_payments_ibfk_3")
-  beds          beds                          @relation(fields: [bedId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "refund_payments_ibfk_4")
+  id            Int                            @id @default(autoincrement()) @map("s_no")
+  tenantId      Int                            @map("tenant_id")
+  pgId          Int                            @map("pg_id")
+  roomId        Int                            @map("room_id")
+  bedId         Int                            @map("bed_id")
+  amountPaid    Decimal                        @map("amount_paid") @db.Decimal(10, 2)
+  paymentDate   DateTime?                      @default(now()) @map("payment_date") @db.DateTime(0)
+  paymentMethod refund_payments_payment_method @map("payment_method")
+  remarks       String?                        @db.VarChar(255)
+  createdAt     DateTime?                      @default(now()) @map("created_at") @db.DateTime(0)
+  updatedAt     DateTime?                      @default(now()) @map("updated_at") @db.DateTime(0)
+  status        refund_payments_status         @default(PENDING)
+  tenants       tenants                        @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "refund_payments_ibfk_1")
+  pg_locations  pg_locations                   @relation(fields: [pgId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "refund_payments_ibfk_2")
+  rooms         rooms                          @relation(fields: [roomId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "refund_payments_ibfk_3")
+  beds          beds                           @relation(fields: [bedId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "refund_payments_ibfk_4")
 
   @@index([bedId], map: "bedId")
   @@index([pgId], map: "pgId")
@@ -338,11 +336,6 @@ model refund_payments {
 enum roles_status {
   ACTIVE
   INACTIVE
-}
-
-enum BedStatus {
-  OCCUPIED
-  VACANT
 }
 
 enum users_status {
@@ -372,12 +365,6 @@ enum tenant_payments_payment_method {
   BANK_TRANSFER
 }
 
-enum rooms_status {
-  AVAILABLE
-  OCCUPIED
-  MAINTENANCE
-}
-
 enum tenant_payment_history_payment_method {
   GPAY
   PHONEPE
@@ -398,16 +385,28 @@ enum tenant_payments_status {
   REFUNDED
 }
 
-enum advance_payments_paymentMethod {
+enum advance_payments_payment_method {
+  GPAY
+  PHONEPE
   CASH
-  ONLINE
-  UPI
   BANK_TRANSFER
 }
 
-enum refund_payments_paymentMethod {
+enum refund_payments_payment_method {
+  GPAY
+  PHONEPE
   CASH
-  ONLINE
-  UPI
   BANK_TRANSFER
+}
+
+enum advance_payments_status {
+  PAID
+  PENDING
+  FAILED
+}
+
+enum refund_payments_status {
+  PAID
+  PENDING
+  FAILED
 }

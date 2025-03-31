@@ -2,6 +2,7 @@ import axiosService from '@/services/utils/axios';
 import React, { useEffect, useState } from 'react';
 import MainTenantForm from '.';
 import { toast } from 'sonner';
+import { fetchTenantById } from '@/services/utils/api/tenant-api';
 
 interface ITenantEditFormProps {
   status: string;
@@ -12,7 +13,7 @@ const TenantEdit = ({ id }: { id: string }) => {
   useEffect(() => {
     const getRoom = async () => {
       try {
-        const res = await axiosService.get(`/api/tenant/${id}`);
+        const res = await fetchTenantById(String(id));
         const formattedRes = {
           tenantName: res.data.name,
           phoneNo: res.data.phoneNo,

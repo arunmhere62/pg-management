@@ -12,9 +12,10 @@ import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import TenantForm from './TenantForm';
 import { v4 as uuidv4 } from 'uuid';
-import { formatDate } from '@/services/utils/formaters';
 import { parse } from 'date-fns';
 import { fetchRoomsList } from '@/services/utils/api/rooms-api';
+import { fetchBedsByRoomId } from '@/services/utils/api/bed-api';
+import { createTenant, updateTenant } from '@/services/utils/api/tenant-api';
 export const tenantFormSchema = z
   .object({
     tenantName: z.string().min(1, 'Tenant name is required'),
@@ -89,7 +90,7 @@ const MainTenantForm = ({ mode, initialData, id }: IMainTenantFormProps) => {
   }, []);
   const fetchBeds = useCallback(async (roomId: string) => {
     try {
-      const res = await axiosService.get(`/api/bed/room/${roomId}`);
+      const res = await fetchBedsByRoomId(roomId);
       return (
         res.data?.map((bed: any) => ({
           value: String(bed.id),
@@ -138,9 +139,7 @@ const MainTenantForm = ({ mode, initialData, id }: IMainTenantFormProps) => {
         proofDocuments: values.proofDocuments || []
       };
       if (mode === 'create') {
-        const res = await axiosService.post('/api/tenant', {
-          data: payload
-        });
+        const res = await createTenant(payload);
         if (res.status === 201) {
           toast.success('Tenant added successfully!');
           form.reset({
@@ -157,9 +156,7 @@ const MainTenantForm = ({ mode, initialData, id }: IMainTenantFormProps) => {
           });
         }
       } else {
-        const res = await axiosService.put(`/api/tenant/${id}`, {
-          data: payload
-        });
+        const res = await updateTenant(payload, String(id));
         if (res.status === 200) {
           toast.success('Tenant updated successfully!');
           form.reset({

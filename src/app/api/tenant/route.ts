@@ -2,7 +2,6 @@ import prisma from '@/lib/prisma';
 import { AppError, ConflictError, errorHandler } from '@/services/utils/error';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { updateBedStatus } from '../bed/service';
 
 export const GET = async (req: NextRequest) => {
   try {
@@ -10,7 +9,7 @@ export const GET = async (req: NextRequest) => {
     const pgLocationId = cookies.get('pgLocationId')?.value;
     if (!pgLocationId) {
       return NextResponse.json({
-        error: 'PG location data not found in cookies',
+        error: 'Select PG Location',
         status: 400
       });
     }
@@ -18,7 +17,20 @@ export const GET = async (req: NextRequest) => {
       where: {
         pgId: Number(pgLocationId)
       },
-      include: {
+      select: {
+        id: true,
+        tenantId: true,
+        name: true,
+        email: true,
+        phoneNo: true,
+        status: true,
+        pgId: true,
+        roomId: true,
+        checkInDate: true,
+        checkOutDate: true,
+        createdAt: true,
+        updatedAt: true,
+        images: false,
         rooms: {
           select: {
             id: true,
@@ -40,7 +52,8 @@ export const GET = async (req: NextRequest) => {
     return NextResponse.json(
       {
         message: 'Visitors fetched successfully',
-        data: tenants
+        data: tenants,
+        status: 200
       },
       { status: 200 }
     );
@@ -76,7 +89,8 @@ export const POST = async (req: NextRequest) => {
       );
     }
     const body = await req.json();
-    const parsedData = tenantSchema.safeParse(body.data);
+    const parsedData = tenantSchema.safeParse(body);
+    console.log('parsed data', parsedData);
 
     if (!parsedData.success) {
       throw new AppError('Invalid request data', 400, 'VALIDATION_ERROR');
@@ -89,17 +103,14 @@ export const POST = async (req: NextRequest) => {
     if (existingTenant) {
       throw new ConflictError('A tenant already exists for this Room and Bed');
     }
-    // Start transaction with room update inside
+
     await prisma.$transaction(async (prisma) => {
-      // Create a new tenant
       await prisma.tenants.create({
         data: parsedData.data
       });
-      await updateBedStatus(bedId, 'OCCUPIED');
     });
-
     return NextResponse.json(
-      { message: 'Tenant created successfully' },
+      { message: 'Tenant created successfully', status: 201 },
       { status: 201 }
     );
   } catch (error) {

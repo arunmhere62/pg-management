@@ -5,11 +5,9 @@ import {
   errorHandler,
   NotFoundError
 } from '@/services/utils/error';
-import { BedStatus } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
-
 export const GET = async (req: NextRequest) => {
   try {
     const cookies = req.cookies;
@@ -17,6 +15,7 @@ export const GET = async (req: NextRequest) => {
     if (!pgLocationId) {
       throw new BadRequestError('Pg location is necessary');
     }
+
     const rooms = await prisma.rooms.findMany({
       where: {
         pgId: Number(pgLocationId)
@@ -27,7 +26,6 @@ export const GET = async (req: NextRequest) => {
         pgId: true,
         bedCount: true,
         roomNo: true,
-        status: true,
         updatedAt: true,
         createdAt: true,
         rentPrice: true,
@@ -41,18 +39,36 @@ export const GET = async (req: NextRequest) => {
         beds: {
           select: {
             id: true,
-            bedNo: true
+            bedNo: true,
+            tenants: {
+              select: { id: true }
+            }
           }
         }
       }
     });
-    const formattedRooms = rooms.map((room) => ({
-      totalBeds: room.beds.length,
-      ...room
-    }));
+
+    const formattedRooms = rooms.map((room) => {
+      const totalBeds = room.beds.length;
+      const occupiedBeds = room.beds.filter(
+        (bed) => bed.tenants.length > 0
+      ).length;
+
+      // Room is FULL if all beds are occupied, otherwise AVAILABLE
+      const status = occupiedBeds === totalBeds ? 'FULL' : 'AVAILABLE';
+
+      return {
+        ...room,
+        totalBeds,
+        occupiedBeds,
+        status
+      };
+    });
+
     if (!rooms || rooms.length === 0) {
       throw new NotFoundError('No room found');
     }
+
     return NextResponse.json(
       {
         data: formattedRooms,
@@ -70,7 +86,6 @@ export const GET = async (req: NextRequest) => {
 const roomSchema = z.object({
   bedCount: z.number().int().min(1, 'Bed count must be at least 1'),
   roomNo: z.string().min(1, 'Room number is required'),
-  status: z.enum(['AVAILABLE', 'OCCUPIED', 'MAINTENANCE']),
   rentPrice: z.number().min(0, 'Rent price cannot be negative'),
   pgId: z.number().int().min(1, 'PG ID is required'),
   images: z.any().optional()
@@ -81,7 +96,7 @@ export const POST = async (req: NextRequest) => {
     const cookies = req.cookies;
     const pgLocationId = cookies.get('pgLocationId')?.value;
     const body = await req.json();
-    const parsedBody = roomSchema.safeParse(body.data);
+    const parsedBody = roomSchema.safeParse(body);
 
     if (!parsedBody.success) {
       return NextResponse.json(
@@ -89,13 +104,12 @@ export const POST = async (req: NextRequest) => {
         { status: 400 }
       );
     }
-    const { bedCount, roomNo, status, rentPrice, pgId } = parsedBody.data;
+    const { bedCount, roomNo, rentPrice, pgId } = parsedBody.data;
 
     const roomData = {
       roomId: uuidv4(),
       bedCount: Number(parsedBody.data.bedCount),
       roomNo: parsedBody.data.roomNo,
-      status: parsedBody.data.status,
       rentPrice: Number(parsedBody.data.rentPrice),
       pgId: Number(parsedBody.data.pgId),
       images: parsedBody.data.images
@@ -121,7 +135,6 @@ export const POST = async (req: NextRequest) => {
         bedNo: `BED${index + 1}`,
         roomId: newRoom.id,
         pgId: newRoom.pgId,
-        status: 'VACANT' as BedStatus,
         images: []
       }));
 

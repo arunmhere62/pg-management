@@ -4,22 +4,35 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export const GET = async (
   req: NextRequest,
-  { params }: { params: Promise<{ roomId: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) => {
   try {
-    const { roomId } = await params;
+    const { id } = await params;
+    console.log('room id', id);
     const pgLocationId = req.cookies.get('pgLocationId')?.value;
     if (!pgLocationId) {
       throw new BadRequestError('Select PG location');
     }
-    if (!roomId) {
+    if (!id) {
       throw new BadRequestError('Invalid roomId or room id not provided');
     }
     const beds = await prisma.beds.findMany({
-      where: { roomId: Number(roomId), pgId: Number(pgLocationId) }
+      where: {
+        roomId: Number(id),
+        pgId: Number(pgLocationId)
+      },
+      select: {
+        images: false,
+        bedNo: true,
+        id: true,
+        roomId: true
+      }
     });
 
-    return NextResponse.json(beds, { status: 200 });
+    return NextResponse.json(
+      { data: beds, status: 200, message: 'Fetched the beds successfully' },
+      { status: 200 }
+    );
   } catch (error) {
     return errorHandler(error);
   }

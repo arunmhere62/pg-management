@@ -17,7 +17,6 @@ import { createBed, updateBed } from '@/services/utils/api/bed-api';
 export const roomFormSchema = z.object({
   images: z.array(z.string()).optional(),
   bedNo: z.string().min(1, 'Bed number is required'),
-  status: z.string().min(1, 'Status is required'),
   roomNo: z.string().min(1, { message: 'Room number is required' })
 });
 
@@ -65,7 +64,6 @@ const MainBedForm = ({ mode, initialData, id }: IMainBedFormProps) => {
     bedNo: '',
     roomNo: '',
     images: [],
-    status: '',
     ...initialData
   };
 
@@ -81,7 +79,6 @@ const MainBedForm = ({ mode, initialData, id }: IMainBedFormProps) => {
         : 'BED' + values.bedNo,
       images: values.images,
       roomNo: Number(values.roomNo),
-      status: values.status,
       pgId: Number(pgLocationId)
     };
     try {
@@ -105,7 +102,6 @@ const MainBedForm = ({ mode, initialData, id }: IMainBedFormProps) => {
           form.reset({
             bedNo: '',
             roomNo: '',
-            status: '',
             images: []
           });
         }
@@ -124,7 +120,6 @@ const MainBedForm = ({ mode, initialData, id }: IMainBedFormProps) => {
     if (initialData) {
       form.reset({
         bedNo: initialData.bedNo || '',
-        status: initialData.status || '',
         roomNo: initialData.roomNo || '',
         images: initialData.images || []
       });
