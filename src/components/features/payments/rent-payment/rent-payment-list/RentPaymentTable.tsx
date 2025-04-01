@@ -3,9 +3,11 @@ import axiosService from '@/services/utils/axios';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import {
+  DownloadIcon,
   EditIcon,
   Eye,
   FileText,
+  MailIcon,
   MessageCircle,
   SheetIcon,
   Trash2
@@ -33,6 +35,7 @@ import {
   IRoomProps,
   ITenantProps
 } from '@/services/types/common-types';
+import ReceiptForm from '../receipt/ReceiptForm';
 
 interface IRentPaymentListProps {
   id: number;
@@ -79,7 +82,10 @@ const RentPaymentList = () => {
   const [rentPaymentList, setRentPaymentList] = useState<
     IRentPaymentListProps[]
   >([]);
-  const [openBedModal, setOpenBedModal] = useState<boolean>(false);
+  const [openReceiptDownloadModal, setOpenReceiptDownloadModal] =
+    useState<boolean>(false);
+  const [openReceiptUploadModal, setOpenReceiptUploadModal] =
+    useState<boolean>(false);
   const [tenantPaymentDetails, setTenantPaymentDetails] =
     useState<IPaymentProps>();
   useEffect(() => {
@@ -173,9 +179,11 @@ const RentPaymentList = () => {
       width: 100,
       renderCell: (params: any) => {
         const handleReceipt = () => {
-          console.log('params', params);
           setTenantPaymentDetails(params.row);
-          setOpenBedModal(true);
+          setOpenReceiptDownloadModal(true);
+        };
+        const handleMailReceipt = () => {
+          setOpenReceiptUploadModal(true);
         };
         return (
           <DropdownMenu>
@@ -213,7 +221,10 @@ const RentPaymentList = () => {
                 </div>
 
                 <Button variant='outline' onClick={handleReceipt}>
-                  <FileText className='mr-2 w-4' /> Send Receipt
+                  <DownloadIcon className='mr-2 w-4' /> Download Receipt
+                </Button>
+                <Button variant='outline' onClick={handleMailReceipt}>
+                  <MailIcon className='mr-2 w-4' /> Mail Receipt
                 </Button>
               </div>
             </DropdownMenuContent>
@@ -248,14 +259,25 @@ const RentPaymentList = () => {
       </div>
       <Modal
         contentClassName='max-w-[800px] rounded-lg sm:w-full'
-        isOpen={openBedModal}
+        isOpen={openReceiptDownloadModal}
         title=''
         onClose={() => {
-          setOpenBedModal(false);
+          setOpenReceiptDownloadModal(false);
         }}
         description=''
       >
         <InvoiceReceipt tenantPaymentDetails={tenantPaymentDetails} />
+      </Modal>
+      <Modal
+        contentClassName='w-fit rounded-lg sm:w-full'
+        isOpen={openReceiptUploadModal}
+        title=''
+        onClose={() => {
+          setOpenReceiptUploadModal(false);
+        }}
+        description=''
+      >
+        <ReceiptForm />
       </Modal>
     </>
   );

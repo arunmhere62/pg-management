@@ -154,8 +154,6 @@ const MainAdvancePayment = ({
       };
 
       if (mode === 'create') {
-        console.log('payload', payload);
-
         const res = await createAdvance(payload);
         if (res.status === 201) {
           toast.success('Tenant Advance added successfully!');

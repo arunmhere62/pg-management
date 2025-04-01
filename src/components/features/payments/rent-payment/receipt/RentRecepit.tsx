@@ -58,8 +58,6 @@ const InvoicePdf = ({
 }: {
   tenantPaymentDetails?: IPaymentProps;
 }) => {
-  console.log('Invoice pdf', tenantPaymentDetails);
-
   return (
     <Document>
       <Page
@@ -281,27 +279,24 @@ const InvoicePdf = ({
           <View style={styles.row}>
             <Text style={styles.cell}>
               {formatDateToDDMMYYYY(
-                tenantPaymentDetails?.tenants?.tenantPayments[0]?.paymentDate.toString() ||
-                  ''
+                tenantPaymentDetails?.paymentDate.toString() || ''
               )}
             </Text>
             <Text style={styles.cell}>
               {formatDateToDDMMYYYY(
-                tenantPaymentDetails?.tenants.tenantPayments[0]?.startDate.toString() ||
-                  ''
+                tenantPaymentDetails?.startDate.toString() || ''
               )}
             </Text>
             <Text style={styles.cell}>
               {formatDateToDDMMYYYY(
-                tenantPaymentDetails?.tenants.tenantPayments[0].endDate.toString() ||
-                  ''
+                tenantPaymentDetails?.endDate.toString() || ''
               )}
             </Text>
             <Text style={styles.cell}>
-              {tenantPaymentDetails?.tenants.tenantPayments[0].paymentMethod}
+              {tenantPaymentDetails?.paymentMethod}
             </Text>
             <Text style={styles.cell}>
-              Rs {tenantPaymentDetails?.tenants.tenantPayments[0].amountPaid}/-
+              Rs {tenantPaymentDetails?.amountPaid}/-
             </Text>
           </View>
         </View>
@@ -347,8 +342,6 @@ const InvoiceReceipt = ({
   tenantPaymentDetails?: IPaymentProps;
 }) => {
   const [pdfUrl, setPdfUrl] = useState('');
-
-  console.log('Invoice receipt', tenantPaymentDetails);
 
   useEffect(() => {
     const generatePdf = async () => {

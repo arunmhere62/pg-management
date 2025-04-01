@@ -8,7 +8,6 @@ export const GET = async (
 ) => {
   try {
     const { id } = await params;
-    console.log('room id', id);
     const pgLocationId = req.cookies.get('pgLocationId')?.value;
     if (!pgLocationId) {
       throw new BadRequestError('Select PG location');

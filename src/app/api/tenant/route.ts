@@ -132,13 +132,10 @@ export const POST = async (req: NextRequest) => {
     }
     const body = await req.json();
     const parsedData = tenantSchema.safeParse(body);
-    console.log('parsed data', parsedData);
-
     if (!parsedData.success) {
       throw new AppError('Invalid request data', 400, 'VALIDATION_ERROR');
     }
     const { roomId, bedId } = parsedData.data;
-    // Check if a tenant already exists for the given bed
     const existingTenant = await prisma.tenants.findFirst({
       where: { roomId, bedId }
     });

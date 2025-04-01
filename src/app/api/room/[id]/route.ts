@@ -117,17 +117,6 @@ export const PUT = async (
       throw new NotFoundError('Room not found');
     }
 
-    const duplicateRoom = await prisma.rooms.findFirst({
-      where: {
-        roomNo,
-        id: { not: Number(id) }
-      }
-    });
-
-    if (duplicateRoom) {
-      throw new ConflictError('Room No already exists, try another number');
-    }
-
     const existingBedCount = existingRoom.beds.length;
 
     if (bedCount < existingBedCount) {

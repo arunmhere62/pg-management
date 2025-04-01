@@ -66,9 +66,6 @@ export const PUT = async (
   try {
     const { refundId } = await params;
     const body = await req.json();
-
-    console.log('body rent', body);
-
     const validation = paymentSchema.safeParse(body);
     if (!validation.success) {
       return NextResponse.json(

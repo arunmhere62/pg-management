@@ -88,7 +88,6 @@ export const PUT = async (
         { status: 400 }
       );
     }
-    console.log('parsedBody', parsedBody);
     const existingBed = await prisma.beds.findFirst({
       where: {
         bedNo: parsedBody.data.bedNo,
@@ -97,8 +96,6 @@ export const PUT = async (
         id: { not: Number(id) }
       }
     });
-
-    console.log('existingBed', existingBed);
 
     if (existingBed) {
       throw new ConflictError(`Bed No ${parsedBody.data.bedNo} already exists`);

@@ -159,8 +159,6 @@ const MainRefundPayment = ({
       };
 
       if (mode === 'create') {
-        console.log('payload', payload);
-
         const res = await createRefund(payload);
         if (res.status === 201) {
           toast.success('Tenant Advance added successfully!');

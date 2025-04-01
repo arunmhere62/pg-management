@@ -5,23 +5,21 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
-import axiosService from '@/services/utils/axios';
 import React, { useEffect, useState } from 'react';
 import { setPgLocation } from '@/store/slices/pgLocationSlice';
-import { useDispatch } from '@/store';
-import { useSelector } from '@/store';
+import { useDispatch, useSelector } from '@/store';
 import { fetchPgLocationsList } from '@/services/utils/api/pg-location-api';
+import { toast } from 'sonner';
+
 interface IPgListProps {
   id: number;
   locationName: string;
 }
+
 const PgSelection = () => {
-  const { pgLocationId, pgLocationName } = useSelector(
-    (state) => state.pgLocation
-  );
+  const { pgLocationId } = useSelector((state) => state.pgLocation);
   const [selectedPg, setSelectedPg] = useState<string | undefined>();
   const [pgListData, setPgListData] = useState<IPgListProps[]>([]);
-
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -29,10 +27,20 @@ const PgSelection = () => {
       try {
         const res = await fetchPgLocationsList();
         setPgListData(res.data);
-      } catch (error) {}
+        // Automatically select the first PG if no PG is selected
+        if (res.data.length > 0 && !pgLocationId) {
+          const firstPg = res.data[0];
+          dispatch(
+            setPgLocation({ id: firstPg.id, name: firstPg.locationName })
+          );
+          setSelectedPg(firstPg.id.toString());
+        }
+      } catch (error) {
+        toast.error('Error fetching PG locations');
+      }
     };
     getPgList();
-  }, []);
+  }, [dispatch, pgLocationId]);
 
   useEffect(() => {
     if (pgLocationId) {
@@ -50,6 +58,7 @@ const PgSelection = () => {
           name: selectedPgData.locationName
         })
       );
+      window.location.reload();
     }
   };
 
@@ -59,9 +68,9 @@ const PgSelection = () => {
         <SelectValue placeholder='Select PG' />
       </SelectTrigger>
       <SelectContent>
-        {pgListData?.map((pg) => (
-          <SelectItem key={pg.id} value={pg?.id?.toString()}>
-            {pg?.locationName}
+        {pgListData.map((pg) => (
+          <SelectItem key={pg.id} value={pg.id.toString()}>
+            {pg.locationName}
           </SelectItem>
         ))}
       </SelectContent>

@@ -34,9 +34,6 @@ export const GET = async (req: NextRequest) => {
           omit: {
             images: true,
             proofDocuments: true
-          },
-          include: {
-            tenantPayments: true
           }
         }
       }
@@ -102,8 +99,6 @@ export const POST = async (req: NextRequest) => {
       );
     }
     const validatedData = validationResult.data;
-    console.log('validatedData', validatedData);
-
     const pgLocationId = cookies.get('pgLocationId')?.value;
     if (!pgLocationId) {
       return NextResponse.json(
@@ -141,7 +136,7 @@ export const POST = async (req: NextRequest) => {
       }
     });
     return NextResponse.json(
-      { message: 'Payment recorded successfully' },
+      { message: 'Payment recorded successfully', status: 201 },
       { status: 201 }
     );
   } catch (error: any) {

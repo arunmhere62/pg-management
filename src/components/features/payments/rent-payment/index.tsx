@@ -159,8 +159,6 @@ const MainRentPayment = ({
         amountPaid: Number(values.amountPaid)
       };
 
-      console.log('payload', payload);
-
       if (mode === 'create') {
         const res = await createRent(payload);
         if (res.status === 201) {
@@ -235,8 +233,6 @@ const MainRentPayment = ({
       setTenantDetails(tenantDetails || null);
     }
   }, [form.watch('tenantId'), tenantData]);
-
-  console.log('tenantDetails', tenantDetails);
   return (
     <Card className='mx-auto w-full'>
       <CardHeader>

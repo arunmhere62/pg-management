@@ -70,10 +70,6 @@ export const GET = async (req: NextRequest) => {
       };
     });
 
-    if (!rooms || rooms.length === 0) {
-      throw new NotFoundError('No room found');
-    }
-
     return NextResponse.json(
       {
         data: formattedRooms,

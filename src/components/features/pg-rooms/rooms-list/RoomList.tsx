@@ -5,14 +5,22 @@ import { Modal } from '@/components/ui/modal';
 import GridTable from '@/components/ui/mui-grid-table/GridTable';
 import { cn } from '@/lib/utils';
 import axiosService from '@/services/utils/axios';
-import { EditIcon, Eye, Trash2 } from 'lucide-react';
+import { EditIcon, Eye, MessageCircle, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import MainBedForm from '../../pg-beds/bed-form';
 import { fetchRoomsList } from '@/services/utils/api/rooms-api';
 import { toast } from 'sonner';
-
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
+import { DotsVerticalIcon } from '@radix-ui/react-icons';
+import { formatDateToDDMMYYYY } from '@/services/utils/formaters';
 export interface IRoomListProps {
   id: number;
   roomId: number;
@@ -159,44 +167,74 @@ const RoomsList = () => {
         </span>
       )
     },
-    { field: 'createdAt', headerName: 'Created At', flex: 1 },
-    { field: 'updatedAt', headerName: 'Updated At', flex: 1 },
+    {
+      field: 'createdAt',
+      headerName: 'Created At',
+      flex: 1,
+      renderCell: (params: any) => (
+        <span>{params.value ? formatDateToDDMMYYYY(params.value) : 'N/A'}</span>
+      )
+    },
+    {
+      field: 'updatedAt',
+      headerName: 'Updated At',
+      flex: 1,
+      renderCell: (params: any) => (
+        <span>{params.value ? formatDateToDDMMYYYY(params.value) : 'N/A'}</span>
+      )
+    },
     {
       field: 'actions',
       headerName: 'Actions',
-      width: 200,
-      renderCell: (params: any) => (
-        <div className='ml-3 mt-3 flex gap-3'>
-          <EditIcon
-            onClick={() => {
-              router.push(`/room/${params.row.id}`);
-            }}
-            className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]'
-          />
-          <Trash2
-            onClick={() => {
-              alert(JSON.stringify(params.row));
-            }}
-            className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]'
-          />
-          <Eye
-            onClick={() => {
-              router.push(`/room/details/${params.row.id}`);
-            }}
-            className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]'
-          />
-          <Button
-            onClick={() => {
-              setOpenBedModal(true);
-            }}
-            variant='outline'
-            className=''
-            // disabled={isPending}
-          >
-            Add Bed
-          </Button>
-        </div>
-      )
+      width: 100,
+      renderCell: (params: any) => {
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger className='h-fit w-fit'>
+              <DotsVerticalIcon />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align='end'>
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <div className='flex flex-col gap-2'>
+                <div className='flex gap-2'>
+                  <Button
+                    variant='outline'
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      router.push(`/room/${params.row.id}`);
+                    }}
+                  >
+                    <EditIcon className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]' />
+                  </Button>
+                  <Button
+                    variant='outline'
+                    onClick={() => alert(JSON.stringify(params.row))}
+                  >
+                    <Trash2 className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]' />
+                  </Button>
+                  <Button
+                    variant='outline'
+                    onClick={() =>
+                      router.push(`/room/details/${params.row.id}`)
+                    }
+                  >
+                    <Eye className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]' />
+                  </Button>
+                </div>
+                <Button
+                  variant='outline'
+                  onClick={() => {
+                    setOpenBedModal(true);
+                  }}
+                >
+                  Add Bed
+                </Button>
+              </div>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      }
     }
   ];
   return (

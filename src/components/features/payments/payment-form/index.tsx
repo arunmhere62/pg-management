@@ -220,9 +220,6 @@ const MainPaymentForm = ({
       setTenantDetails(tenantDetails || null);
     }
   }, [form.watch('tenantId'), tenantData]);
-
-  console.log('tenantDetails', tenantDetails);
-
   return (
     <Card className='mx-auto w-full'>
       <CardHeader>
