@@ -24,7 +24,12 @@ export const rentPaymentFormSchema = z
     endDate: z.string().min(1, 'Please select a end date.'),
     paymentMethod: z.string().min(1, 'Please select a payment method.'),
     status: z.string().min(1, 'Please select a status.'),
-    amountPaid: z.string().min(1, 'Please enter the amount paid.'),
+    amountPaid: z
+      .string()
+      .min(1, 'Rent amount is required')
+      .refine((val) => /^\d+$/.test(val) && Number(val) > 0, {
+        message: 'Rent amount must be a positive number'
+      }),
     remarks: z.string().min(1, 'Please enter remarks.')
   })
   .refine((data) => data.startDate !== data.endDate, {
@@ -42,6 +47,7 @@ interface IMainRentPaymentProps {
     bedId: number | null;
     roomId: number | null;
   };
+  tenantId?: string;
 }
 
 export interface ITenantListSelectProps {
@@ -81,6 +87,7 @@ const MainRentPayment = ({
   mode,
   initialData,
   id,
+  tenantId,
   previousPaymentData
 }: IMainRentPaymentProps) => {
   const [tenantList, setTenantList] = useState<ITenantListSelectProps[]>([]);
@@ -124,7 +131,7 @@ const MainRentPayment = ({
   }, []);
 
   const defaultValues = {
-    tenantId: '',
+    tenantId: tenantId || '',
     paymentDate:
       new Date().toString() !== 'Invalid Date'
         ? format(new Date(), 'dd-MM-yyyy')

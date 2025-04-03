@@ -18,7 +18,8 @@ export const GET = async (
     const beds = await prisma.beds.findMany({
       where: {
         roomId: Number(id),
-        pgId: Number(pgLocationId)
+        pgId: Number(pgLocationId),
+        isDeleted: false
       },
       select: {
         images: false,

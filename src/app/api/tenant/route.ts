@@ -30,7 +30,7 @@ export const GET = async (req: NextRequest) => {
         status: true,
         pgId: true,
         roomId: true,
-        checkInDate: true, // Stored as DD-MM-YYYY
+        checkInDate: true,
         checkOutDate: true,
         createdAt: true,
         updatedAt: true,
@@ -51,12 +51,12 @@ export const GET = async (req: NextRequest) => {
           orderBy: {
             paymentDate: 'desc'
           },
-          take: 1, // Get the latest payment
+          take: 1,
           select: {
             paymentDate: true,
             amountPaid: true,
-            startDate: true, // YYYY-MM-DD HH:MM:SS
-            endDate: true // YYYY-MM-DD HH:MM:SS
+            startDate: true,
+            endDate: true
           }
         }
       }
@@ -67,7 +67,7 @@ export const GET = async (req: NextRequest) => {
       let isPending = false;
 
       if (lastPayment) {
-        const paymentEnd = new Date(lastPayment.endDate); // Already in YYYY-MM-DD format
+        const paymentEnd = new Date(lastPayment.endDate);
 
         // If last payment end date has passed, mark as pending
         if (isAfter(currentDate, paymentEnd)) {
@@ -77,14 +77,12 @@ export const GET = async (req: NextRequest) => {
         // No payment history → mark as pending
         isPending = true;
       }
-
       // Convert Check-in Date from DD-MM-YYYY to YYYY-MM-DD
       let formattedCheckInDate = tenant.checkInDate;
       if (formattedCheckInDate.includes('-')) {
         const [day, month, year] = formattedCheckInDate.split('-');
         formattedCheckInDate = `${year}-${month}-${day}`;
       }
-
       return {
         ...tenant,
         isPending

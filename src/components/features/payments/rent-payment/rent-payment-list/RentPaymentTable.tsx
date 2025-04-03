@@ -147,6 +147,24 @@ const RentPaymentList = () => {
       minWidth: 150
     },
     {
+      field: 'startDate',
+      headerName: 'Start Date',
+      minWidth: 150,
+      renderCell: (params: any) => (
+        <span>
+          {params?.value ? formatDateToDDMMYYYY(params?.value) : 'N/A'}
+        </span>
+      )
+    },
+    {
+      field: 'endDate',
+      headerName: 'End Date',
+      minWidth: 150,
+      renderCell: (params: any) => (
+        <span>{formatDateToDDMMYYYY(params?.value)}</span>
+      )
+    },
+    {
       field: 'status',
       headerName: 'Payment Status',
       minWidth: 150,
@@ -213,7 +231,7 @@ const RentPaymentList = () => {
                   <Button
                     variant='outline'
                     onClick={() =>
-                      router.push(`/payment/details/${params.row.id}`)
+                      router.push(`/payment/rent-details/${params.row.id}`)
                     }
                   >
                     <Eye className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]' />

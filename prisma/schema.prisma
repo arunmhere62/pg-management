@@ -18,6 +18,7 @@ model users {
   updatedAt    DateTime?      @default(now()) @map("updated_at") @db.Timestamp(0)
   roleId       Int            @map("role_id")
   pgLocationId Int            @map("pg_location_id")
+  isDeleted   Boolean?       @default(false) @map("is_deleted")
   pgLocations  pg_locations[]
   roles        roles          @relation(fields: [roleId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_users_role")
 
@@ -32,6 +33,7 @@ model beds {
   images          Json?
   createdAt       DateTime?          @default(now()) @map("created_at") @db.Timestamp(0)
   updatedAt       DateTime?          @default(now()) @map("updated_at") @db.Timestamp(0)
+  isDeleted      Boolean?           @default(false) @map("is_deleted")
   advancePayments advance_payments[]
   rooms           rooms?             @relation(fields: [roomId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "beds_ibfk_1")
   pgLocations     pg_locations?      @relation(fields: [pgId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_pg_id")
@@ -56,6 +58,7 @@ model employees {
   status       EmployeeStatus? @default(ACTIVE)
   createdAt    DateTime?       @default(now()) @map("created_at") @db.Timestamp(0)
   updatedAt    DateTime?       @default(now()) @map("updated_at") @db.Timestamp(0)
+  isDeleted   Boolean?        @default(false) @map("is_deleted")
   pgLocations  pg_locations?   @relation(fields: [pgLocationId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "employees_ibfk_1")
 
   @@index([pgLocationId], map: "pg_location_id")
@@ -104,6 +107,7 @@ model expenses {
   remarks       String?       @db.VarChar(255)
   createdAt     DateTime?     @default(now()) @map("created_at") @db.Timestamp(0)
   updatedAt     DateTime?     @default(now()) @map("updated_at") @db.Timestamp(0)
+  isDeleted    Boolean?      @default(false) @map("is_deleted")
   pgLocations   pg_locations? @relation(fields: [pgLocationId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "expenses_ibfk_1")
 
   @@index([pgLocationId], map: "pg_location_id")
@@ -144,6 +148,7 @@ model rooms {
   updatedAt       DateTime?          @default(now()) @map("updated_at") @db.Timestamp(0)
   rentPrice       Decimal?           @default(0.00) @map("rent_price") @db.Decimal(10, 2)
   images          Json?
+  isDeleted      Boolean?           @default(false) @map("is_deleted")
   advancePayments advance_payments[]
   beds            beds[]
   refundPayments  refund_payments[]
@@ -171,6 +176,7 @@ model tenants {
   updatedAt       DateTime?          @default(now()) @map("updated_at") @db.Timestamp(0)
   images          Json?
   proofDocuments  Json?              @map("proof_documents")
+  isDeleted      Boolean?           @default(false) @map("is_deleted")
   advancePayments advance_payments[]
   refundPayments  refund_payments[]
   tenantPayments  tenant_payments[]
@@ -196,6 +202,7 @@ model visitors {
   updatedAt     DateTime?     @default(now()) @map("updated_at") @db.Timestamp(0)
   visitedRoomId Int?          @map("visited_room_id")
   visitedBedId  Int?          @map("visited_bed_id")
+  isDeleted    Boolean?      @default(false) @map("is_deleted")
   beds          beds?         @relation(fields: [visitedBedId], references: [id], onUpdate: NoAction, map: "fk_visited_bed")
   rooms         rooms?        @relation(fields: [visitedRoomId], references: [id], onUpdate: NoAction, map: "fk_visited_room")
   pgLocations   pg_locations? @relation(fields: [pgId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "visitors_ibfk_1")
@@ -255,6 +262,7 @@ model tenant_payments {
   updatedAt            DateTime?                      @default(now()) @map("updated_at") @db.Timestamp(0)
   startDate            DateTime                       @map("start_date") @db.Timestamp(0)
   endDate              DateTime                       @map("end_date") @db.Timestamp(0)
+  isDeleted           Boolean?                       @default(false) @map("is_deleted")
   tenantPaymentHistory tenant_payment_history[]
   beds                 beds                           @relation(fields: [bedId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_tenant_payment_bed")
   pgLocations          pg_locations                   @relation(fields: [pgId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_tenant_payment_pg")
@@ -298,6 +306,7 @@ model advance_payments {
   createdAt     DateTime?                       @default(now()) @map("created_at") @db.DateTime(0)
   updatedAt     DateTime?                       @default(now()) @map("updated_at") @db.DateTime(0)
   status        advance_payments_status         @default(PENDING)
+  isDeleted    Boolean?                        @default(false) @map("is_deleted")
   tenants       tenants                         @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "advance_payments_ibfk_1")
   pgLocations   pg_locations                    @relation(fields: [pgId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "advance_payments_ibfk_2")
   rooms         rooms                           @relation(fields: [roomId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "advance_payments_ibfk_3")
@@ -322,8 +331,9 @@ model refund_payments {
   createdAt     DateTime?                      @default(now()) @map("created_at") @db.DateTime(0)
   updatedAt     DateTime?                      @default(now()) @map("updated_at") @db.DateTime(0)
   status        refund_payments_status         @default(PENDING)
+  isDeleted    Boolean?                       @default(false) @map("is_deleted")
   tenants       tenants                        @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "refund_payments_ibfk_1")
-  pg_locations  pg_locations                   @relation(fields: [pgId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "refund_payments_ibfk_2")
+  pgLocations   pg_locations                   @relation(fields: [pgId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "refund_payments_ibfk_2")
   rooms         rooms                          @relation(fields: [roomId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "refund_payments_ibfk_3")
   beds          beds                           @relation(fields: [bedId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "refund_payments_ibfk_4")
 

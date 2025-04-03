@@ -20,6 +20,12 @@ export const GET = async (
     const res = await prisma.advance_payments.findUnique({
       where: {
         id: Number(advanceId)
+      },
+      include: {
+        tenants: true,
+        pgLocations: true,
+        beds: true,
+        rooms: true
       }
     });
     if (!res) {

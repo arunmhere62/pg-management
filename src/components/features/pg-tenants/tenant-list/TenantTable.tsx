@@ -18,6 +18,11 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import axios from 'axios';
+import {
+  IBedProps,
+  IRoomProps,
+  ITenantPaymentProps
+} from '@/services/types/common-types';
 
 interface ITenantListProps {
   id: number;
@@ -36,15 +41,9 @@ interface ITenantListProps {
   createdAt: string;
   updatedAt: string;
   isPending: boolean;
-  rooms: {
-    id: number;
-    roomId: string;
-    roomNo: string;
-  };
-  beds: {
-    id: string;
-    bedNo: string;
-  };
+  rooms: IRoomProps;
+  beds: IBedProps;
+  tenantPayments: ITenantPaymentProps[];
 }
 const TenantList = () => {
   const router = useRouter();
@@ -53,12 +52,20 @@ const TenantList = () => {
     const getTenants = async () => {
       try {
         const res = await fetchTenantsList();
-        const formattedRes = res.data.map((d: ITenantListProps) => ({
-          roomNo: d.rooms.roomNo,
-          bedNo: d.beds.bedNo,
-
-          ...d
-        }));
+        const formattedRes = res.data.map((d: ITenantListProps) => {
+          const lastPayment = d.tenantPayments.at(-1);
+          return {
+            roomNo: d.rooms.roomNo,
+            bedNo: d.beds.bedNo,
+            startDate: lastPayment?.startDate
+              ? formatDateToDDMMYYYY(lastPayment?.startDate)
+              : 'N/A',
+            endDate: lastPayment?.endDate
+              ? formatDateToDDMMYYYY(lastPayment?.endDate)
+              : 'N/A',
+            ...d
+          };
+        });
         if (res.data) {
           setTenantList(formattedRes);
         }
@@ -140,6 +147,18 @@ const TenantList = () => {
       )
     },
     {
+      field: 'startDate',
+      headerName: 'Start Date ',
+      minWidth: 120,
+      flex: 1
+    },
+    {
+      field: 'endDate',
+      headerName: 'End Date',
+      minWidth: 120,
+      flex: 1
+    },
+    {
       field: 'checkInDate',
       headerName: 'Check In ',
       minWidth: 120,
@@ -161,7 +180,9 @@ const TenantList = () => {
       flex: 1,
 
       renderCell: (params: any) => (
-        <span>{formatDateToDDMMYYYY(params.value)}</span>
+        <span>
+          {params?.value ? formatDateToDDMMYYYY(params?.value) : 'N/A'}
+        </span>
       )
     },
     {
@@ -170,7 +191,9 @@ const TenantList = () => {
       minWidth: 130,
       flex: 1,
       renderCell: (params: any) => (
-        <span>{formatDateToDDMMYYYY(params.value)}</span>
+        <span>
+          {params?.value ? formatDateToDDMMYYYY(params?.value) : 'N/A'}
+        </span>
       )
     },
     {
@@ -227,7 +250,7 @@ const TenantList = () => {
                   variant='outline'
                   onClick={() => {
                     console.log('hello');
-                    router.push('/payment/rent/new');
+                    router.push(`/payment/rent/new/${params.row.id}`);
                   }}
                 >
                   Add Rent
@@ -236,7 +259,7 @@ const TenantList = () => {
                   variant='outline'
                   onClick={() => {
                     console.log('hello');
-                    router.push('/payment/advance/new');
+                    router.push(`/payment/advance/new/${params.row.id}`);
                   }}
                 >
                   Add Advance
@@ -245,7 +268,7 @@ const TenantList = () => {
                   variant='outline'
                   onClick={() => {
                     console.log('hello');
-                    router.push('/payment/refund/new');
+                    router.push(`/payment/refund/new/${params.row.id}`);
                   }}
                 >
                   Add Refund

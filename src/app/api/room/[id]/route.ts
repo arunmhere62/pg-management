@@ -106,7 +106,9 @@ export const PUT = async (
 
     const existingRoom = await prisma.rooms.findUnique({
       where: {
-        id: Number(id)
+        id: Number(id),
+        pgId: Number(pgLocationId),
+        isDeleted: false
       },
       include: {
         beds: true
@@ -127,7 +129,9 @@ export const PUT = async (
 
     // Update room details
     const updatedRoom = await prisma.rooms.update({
-      where: { id: Number(id) },
+      where: {
+        id: Number(id)
+      },
       data: {
         roomNo,
         bedCount: Number(bedCount),

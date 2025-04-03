@@ -19,6 +19,9 @@ const Page = () => {
   const slug = Array.isArray(params.slug) ? params.slug : [];
   const slugZero = slug[0]; // rent, advance, refund, details
   const slugOne = slug[1]; // new or id (like 35)
+  const slugTwo = slug[2]; // new or id (like 35)
+  console.log('slug two', slugTwo);
+
   const isId = !isNaN(Number(slugOne));
 
   // -------------- Edit Payment ----------------
@@ -62,13 +65,13 @@ const Page = () => {
           </TabsTrigger>
         </TabsList>
         <TabsContent value='rent'>
-          <MainRentPayment mode='create' />
+          <MainRentPayment tenantId={slugTwo} mode='create' />
         </TabsContent>
         <TabsContent value='advance'>
-          <MainAdvancePayment mode='create' />
+          <MainAdvancePayment tenantId={slugTwo} mode='create' />
         </TabsContent>
         <TabsContent value='refund'>
-          <MainRefundPayment mode='create' />
+          <MainRefundPayment tenantId={slugTwo} mode='create' />
         </TabsContent>
       </Tabs>
     );

@@ -15,7 +15,8 @@ export const GET = async (req: NextRequest) => {
     }
     const res = await prisma.visitors.findMany({
       where: {
-        pgId: Number(pgLocationId)
+        pgId: Number(pgLocationId),
+        isDeleted: false
       },
       include: {
         rooms: {

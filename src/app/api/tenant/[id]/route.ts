@@ -1,5 +1,9 @@
 import prisma from '@/lib/prisma';
-import { errorHandler, NotFoundError } from '@/services/utils/error';
+import {
+  BadRequestError,
+  errorHandler,
+  NotFoundError
+} from '@/services/utils/error';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -124,6 +128,19 @@ export const PUT = async (
     const body = await req.json();
     const parsedData = tenantSchema.safeParse(body);
 
+    // Check if the bed exists
+    const bed = await prisma.beds.findUnique({
+      where: {
+        pgId: Number(parsedData.data?.pgId),
+        isDeleted: false,
+        id: Number(parsedData.data?.bedId)
+      }
+    });
+
+    if (!bed) {
+      throw new NotFoundError('Bed not found');
+    }
+
     if (!parsedData.success) {
       return NextResponse.json(
         { error: 'Invalid request data', details: parsedData.error.format() },
@@ -139,10 +156,23 @@ export const PUT = async (
     if (!existingTenant) {
       throw new NotFoundError('tenant not found');
     }
+
+    const occupiedBed = await prisma.tenants.findFirst({
+      where: {
+        bedId: Number(parsedData.data?.bedId),
+        pgId: Number(pgLocationId),
+        isDeleted: false,
+        id: { not: Number(id) }
+      }
+    });
+
+    if (occupiedBed) {
+      throw new BadRequestError('Bed is already occupied');
+    }
     // Use a transaction to ensure atomic updates
     const updatedTenant = await prisma.$transaction(async (prisma) => {
       const tenant = await prisma.tenants.update({
-        where: { id: Number(id) },
+        where: { id: Number(id), isDeleted: false },
         data: parsedData.data
       });
 

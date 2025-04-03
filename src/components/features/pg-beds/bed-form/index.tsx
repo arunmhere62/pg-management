@@ -16,8 +16,18 @@ import { createBed, updateBed } from '@/services/utils/api/bed-api';
 
 export const roomFormSchema = z.object({
   images: z.array(z.string()).optional(),
-  bedNo: z.string().min(1, 'Bed number is required'),
-  roomNo: z.string().min(1, { message: 'Room number is required' })
+  bedNo: z
+    .string()
+    .min(1, 'Bed No is required')
+    .refine((val) => /^\d+$/.test(val) && Number(val) > 0, {
+      message: 'Bed NO must be a positive number'
+    }),
+  roomNo: z
+    .string()
+    .min(1, 'Room No is required')
+    .refine((val) => /^\d+$/.test(val) && Number(val) > 0, {
+      message: 'Room No must be a positive number'
+    })
 });
 
 interface IMainBedFormProps {

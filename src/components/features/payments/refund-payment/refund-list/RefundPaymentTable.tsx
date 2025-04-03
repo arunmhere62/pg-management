@@ -2,7 +2,7 @@
 import axiosService from '@/services/utils/axios';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
-import { EditIcon, Eye, Trash2 } from 'lucide-react';
+import { DownloadIcon, EditIcon, Eye, MailIcon, Trash2 } from 'lucide-react';
 import HeaderButton from '@/components/ui/large/HeaderButton';
 import GridTable from '@/components/ui/mui-grid-table/GridTable';
 import { cn } from '@/lib/utils';
@@ -10,6 +10,25 @@ import { formatDateToDDMMYYYY } from '@/services/utils/formaters';
 import { toast } from 'sonner';
 import { fetchAdvanceList } from '@/services/utils/api/payment/advance-api';
 import { fetchRefundList } from '@/services/utils/api/payment/refund-api';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
+import { DotsVerticalIcon } from '@radix-ui/react-icons';
+import {
+  IBedProps,
+  IPgLocationProps,
+  IRoomProps,
+  ITenantProps
+} from '@/services/types/common-types';
+import { Modal } from '@/components/ui/modal';
+import { IAdvancePaymentProps } from '../../advance-payment/advance-list/AdvancePaymentTable';
+import { Button } from '@/components/ui/button';
+import RefundReceipt from '../refund-receipt/RefundRecepit';
+import RefundReceiptForm from '../refund-receipt/RefundReceiptForm';
 
 interface IRefundPaymentListProps {
   id: number;
@@ -34,6 +53,12 @@ export const RefundPaymentTable = () => {
   const [refundPaymentList, setRefundPaymentList] = useState<
     IRefundPaymentListProps[]
   >([]);
+  const [openReceiptDownloadModal, setOpenReceiptDownloadModal] =
+    useState<boolean>(false);
+  const [openReceiptUploadModal, setOpenReceiptUploadModal] =
+    useState<boolean>(false);
+  const [tenantPaymentDetails, setTenantPaymentDetails] =
+    useState<IAdvancePaymentProps>();
 
   useEffect(() => {
     const getRefunds = async () => {
@@ -123,30 +148,89 @@ export const RefundPaymentTable = () => {
     {
       field: 'actions',
       headerName: 'Actions',
-      width: 150,
-      renderCell: (params: any) => (
-        <div className='ml-3 mt-3 flex gap-3'>
-          <EditIcon
-            onClick={() => {
-              router.push(`/payment/refund/${params.row.id}`);
-            }}
-            className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]'
-          />
-          <Trash2
-            onClick={() => {
-              alert(JSON.stringify(params.row));
-            }}
-            className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]'
-          />
-          <Eye
-            onClick={() => {
-              router.push(`/payment/details/${params.row.id}`);
-            }}
-            className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]'
-          />
-        </div>
-      )
+      width: 100,
+      renderCell: (params: any) => {
+        const handleReceipt = () => {
+          setTenantPaymentDetails(params.row);
+          setOpenReceiptDownloadModal(true);
+        };
+        const handleMailReceipt = () => {
+          setOpenReceiptUploadModal(true);
+        };
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger className='h-fit w-fit'>
+              <DotsVerticalIcon />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align='end'>
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <div className='flex flex-col gap-2'>
+                <div className='flex gap-2'>
+                  <Button
+                    variant='outline'
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      router.push(`/payment/refund/${params.row.id}`);
+                    }}
+                  >
+                    <EditIcon className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]' />
+                  </Button>
+                  <Button
+                    variant='outline'
+                    onClick={() => alert(JSON.stringify(params.row))}
+                  >
+                    <Trash2 className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]' />
+                  </Button>
+                  <Button
+                    variant='outline'
+                    onClick={() =>
+                      router.push(`/payment/refund-details/${params.row.id}`)
+                    }
+                  >
+                    <Eye className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]' />
+                  </Button>
+                </div>
+
+                <Button variant='outline' onClick={handleReceipt}>
+                  <DownloadIcon className='mr-2 w-4' /> Download Receipt
+                </Button>
+                <Button variant='outline' onClick={handleMailReceipt}>
+                  <MailIcon className='mr-2 w-4' /> Mail Receipt
+                </Button>
+              </div>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      }
     }
+    // {
+    //   field: 'actions',
+    //   headerName: 'Actions',
+    //   width: 150,
+    //   renderCell: (params: any) => (
+    //     <div className='ml-3 mt-3 flex gap-3'>
+    //       <EditIcon
+    //         onClick={() => {
+    //           router.push(`/payment/refund/${params.row.id}`);
+    //         }}
+    //         className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]'
+    //       />
+    //       <Trash2
+    //         onClick={() => {
+    //           alert(JSON.stringify(params.row));
+    //         }}
+    //         className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]'
+    //       />
+    //       <Eye
+    //         onClick={() => {
+    //           router.push(`/payment/details/${params.row.id}`);
+    //         }}
+    //         className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]'
+    //       />
+    //     </div>
+    //   )
+    // }
   ];
   return (
     <>
@@ -172,6 +256,28 @@ export const RefundPaymentTable = () => {
           hideFooter={false}
         />
       </div>
+      <Modal
+        contentClassName='max-w-[800px] rounded-lg sm:w-full'
+        isOpen={openReceiptDownloadModal}
+        title=''
+        onClose={() => {
+          setOpenReceiptDownloadModal(false);
+        }}
+        description=''
+      >
+        <RefundReceipt tenantPaymentDetails={tenantPaymentDetails} />
+      </Modal>
+      <Modal
+        contentClassName='w-fit rounded-lg sm:w-full'
+        isOpen={openReceiptUploadModal}
+        title=''
+        onClose={() => {
+          setOpenReceiptUploadModal(false);
+        }}
+        description=''
+      >
+        <RefundReceiptForm />
+      </Modal>
     </>
   );
 };

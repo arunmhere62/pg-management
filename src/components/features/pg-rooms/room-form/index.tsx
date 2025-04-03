@@ -18,9 +18,26 @@ export const roomFormSchema = z.object({
     .array(z.string())
     .min(1, 'Image is required.')
     .max(4, 'You can upload up to 4 images.'),
-  roomNo: z.string().min(1, 'Room number is required'),
-  bedCount: z.string().min(1, { message: 'Bed count is required' }),
-  rentPrice: z.string().min(1, { message: 'Rent price is required' })
+  roomNo: z
+    .string()
+    .min(1, 'Room number is required')
+    .refine((val) => /^\d+$/.test(val) && Number(val) > 0, {
+      message: 'Room number must be a positive number'
+    }),
+
+  bedCount: z
+    .string()
+    .min(1, 'Bed count is required')
+    .refine((val) => /^\d+$/.test(val) && Number(val) > 0, {
+      message: 'Bed count must be a positive number'
+    }),
+
+  rentPrice: z
+    .string()
+    .min(1, 'Rent price is required')
+    .refine((val) => /^\d+(\.\d{1,2})?$/.test(val) && Number(val) > 0, {
+      message: 'Rent price must be a positive number'
+    })
 });
 
 interface IMainRoomFormProps {

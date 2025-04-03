@@ -19,7 +19,8 @@ export const GET = async (req: NextRequest) => {
 
     const rooms = await prisma.rooms.findMany({
       where: {
-        pgId: Number(pgLocationId)
+        pgId: Number(pgLocationId),
+        isDeleted: false
       },
       select: {
         id: true,

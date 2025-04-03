@@ -3,6 +3,7 @@ export interface IBedProps {
   bedNo: string;
   roomId: number;
   pgId: number;
+  images: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -15,7 +16,7 @@ export interface IPgLocationProps {
   pincode: string;
   createdAt: string;
   updatedAt: string;
-  status: string;
+  status: 'ACTIVE' | 'INACTIVE';
   images: string[];
   cityId: number;
   stateId: number;
@@ -27,9 +28,10 @@ export interface IRoomProps {
   pgId: number;
   roomNo: string;
   bedCount: number;
+  rentPrice: number;
+  images: string[];
   createdAt: string;
   updatedAt: string;
-  rentPrice: string;
 }
 
 export interface ITenantPaymentProps {
@@ -40,8 +42,8 @@ export interface ITenantPaymentProps {
   bedId: number;
   amountPaid: string;
   paymentDate: string;
-  paymentMethod: string;
-  status: string;
+  paymentMethod: 'GPAY' | 'PHONEPE' | 'CASH' | 'BANK_TRANSFER';
+  status: 'PAID' | 'PENDING' | 'FAILED' | 'REFUND';
   remarks: string;
   createdAt: string;
   updatedAt: string;
@@ -60,8 +62,10 @@ export interface ITenantProps {
   bedId: number;
   checkInDate: string;
   checkOutDate: string | null;
-  status: string;
+  status: 'ACTIVE' | 'INACTIVE';
   createdAt: string;
   updatedAt: string;
   tenantPayments: ITenantPaymentProps[];
+  images: string[];
+  proofDocuments: string[];
 }

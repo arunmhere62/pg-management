@@ -24,7 +24,12 @@ export const paymentFormSchema = z.object({
   paymentDate: z.string().min(1, 'Please select a payment date.'),
   paymentMethod: z.string().min(1, 'Please select a payment method.'),
   status: z.string().min(1, 'Please select a status.'),
-  amountPaid: z.string().min(1, 'Please enter the amount paid.'),
+  amountPaid: z
+    .string()
+    .min(1, 'Advance amount is required')
+    .refine((val) => /^\d+$/.test(val) && Number(val) > 0, {
+      message: 'Advance amount must be a positive number'
+    }),
   remarks: z.string().min(1, 'Please enter remarks.')
 });
 
@@ -38,6 +43,7 @@ interface IMainAdvancePaymentProps {
     bedId: number | null;
     roomId: number | null;
   };
+  tenantId?: string;
 }
 
 export interface ITenantListSelectProps {
@@ -77,7 +83,8 @@ const MainAdvancePayment = ({
   mode,
   initialData,
   id,
-  previousPaymentData
+  previousPaymentData,
+  tenantId
 }: IMainAdvancePaymentProps) => {
   const [tenantList, setTenantList] = useState<ITenantListSelectProps[]>([]);
   const [tenantData, setTenantData] = useState<TenantDataProps[]>([]);
@@ -120,7 +127,7 @@ const MainAdvancePayment = ({
   }, []);
 
   const defaultValues = {
-    tenantId: '',
+    tenantId: tenantId || '',
     paymentDate:
       new Date().toString() !== 'Invalid Date'
         ? format(new Date(), 'dd-MM-yyyy')

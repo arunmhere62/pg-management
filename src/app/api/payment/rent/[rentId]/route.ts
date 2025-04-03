@@ -20,6 +20,12 @@ export const GET = async (
     const res = await prisma.tenant_payments.findUnique({
       where: {
         id: Number(rentId)
+      },
+      include: {
+        tenants: true,
+        pgLocations: true,
+        beds: true,
+        rooms: true
       }
     });
     if (!res) {
@@ -65,6 +71,7 @@ const paymentSchema = z.object({
   remarks: z.string().min(1, 'Remarks cannot be empty'),
   amountPaid: z.number().positive('Amount paid must be greater than zero')
 });
+
 export const PUT = async (
   req: NextRequest,
   { params }: { params: Promise<{ rentId: string }> }

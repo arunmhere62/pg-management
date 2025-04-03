@@ -20,7 +20,8 @@ export const GET = async (
     const res = await prisma.visitors.findUnique({
       where: {
         pgId: Number(pgLocationId),
-        id: Number(visitorId)
+        id: Number(visitorId),
+        isDeleted: false
       },
       include: {
         rooms: {

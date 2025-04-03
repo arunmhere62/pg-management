@@ -20,6 +20,12 @@ export const GET = async (
     const res = await prisma.refund_payments.findUnique({
       where: {
         id: Number(refundId)
+      },
+      include: {
+        tenants: true,
+        pgLocations: true,
+        beds: true,
+        rooms: true
       }
     });
     if (!res) {
