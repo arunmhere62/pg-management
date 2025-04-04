@@ -191,3 +191,61 @@ export const PUT = async (
     return errorHandler(error);
   }
 };
+
+export const DELETE = async (
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) => {
+  try {
+    const cookies = req.cookies;
+    const pgLocationId = cookies.get('pgLocationId')?.value;
+    const { id } = await params;
+
+    if (!id) {
+      throw new BadRequestError('Id is required');
+    }
+    if (!pgLocationId) {
+      throw new BadRequestError('Select pg location');
+    }
+    const result = await prisma.$transaction(async (prisma) => {
+      const tenant = await prisma.tenants.findUnique({
+        where: {
+          pgId: Number(pgLocationId),
+          id: Number(id)
+        }
+      });
+      console.log('tenant', tenant);
+
+      if (!tenant) throw new NotFoundError('Tenant not found');
+      await prisma.tenants_history.create({
+        data: {
+          tenantId: tenant.tenantId!,
+          name: tenant.name,
+          phoneNo: tenant.phoneNo,
+          email: tenant.email,
+          pgId: tenant.pgId!,
+          roomId: tenant.roomId!,
+          bedId: tenant.bedId!,
+          checkInDate: tenant.checkInDate,
+          checkOutDate: tenant.checkOutDate,
+          images: tenant.images!,
+          proofDocuments: tenant.proofDocuments!,
+          isDeleted: true
+        }
+      });
+      await prisma.tenants.delete({
+        where: {
+          pgId: Number(pgLocationId),
+          id: Number(id)
+        }
+      });
+      return { message: 'Tenant removed and moved to history' };
+    });
+    return NextResponse.json({
+      ...result,
+      status: 200
+    });
+  } catch (error) {
+    return errorHandler(error);
+  }
+};

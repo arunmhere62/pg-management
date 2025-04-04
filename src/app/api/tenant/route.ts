@@ -2,7 +2,7 @@ import prisma from '@/lib/prisma';
 import { AppError, ConflictError, errorHandler } from '@/services/utils/error';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { isAfter, parseISO } from 'date-fns';
+import { isAfter } from 'date-fns';
 
 export const GET = async (req: NextRequest) => {
   try {
@@ -19,7 +19,8 @@ export const GET = async (req: NextRequest) => {
 
     const tenants = await prisma.tenants.findMany({
       where: {
-        pgId: Number(pgLocationId)
+        pgId: Number(pgLocationId),
+        isDeleted: false
       },
       select: {
         id: true,

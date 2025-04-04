@@ -103,6 +103,65 @@ export const AdvancePaymentTable = () => {
   }, []);
 
   const columns = [
+    {
+      field: 'actions',
+      headerName: 'Actions',
+      width: 100,
+      renderCell: (params: any) => {
+        const handleReceipt = () => {
+          setTenantPaymentDetails(params.row);
+          setOpenReceiptDownloadModal(true);
+        };
+        const handleMailReceipt = () => {
+          setOpenReceiptUploadModal(true);
+        };
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger className='h-fit w-fit'>
+              <DotsVerticalIcon />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align='start'>
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <div className='flex flex-col gap-2'>
+                <div className='flex gap-2'>
+                  <Button
+                    variant='outline'
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      router.push(`/payment/advance/${params.row.id}`);
+                    }}
+                  >
+                    <EditIcon className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]' />
+                  </Button>
+                  <Button
+                    variant='outline'
+                    onClick={() => alert(JSON.stringify(params.row))}
+                  >
+                    <Trash2 className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]' />
+                  </Button>
+                  <Button
+                    variant='outline'
+                    onClick={() =>
+                      router.push(`/payment/advance-details/${params.row.id}`)
+                    }
+                  >
+                    <Eye className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]' />
+                  </Button>
+                </div>
+
+                <Button variant='outline' onClick={handleReceipt}>
+                  <DownloadIcon className='mr-2 w-4' /> Download Receipt
+                </Button>
+                <Button variant='outline' onClick={handleMailReceipt}>
+                  <MailIcon className='mr-2 w-4' /> Mail Receipt
+                </Button>
+              </div>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      }
+    },
     { field: 'name', headerName: 'Name', minWidth: 100 },
     { field: 'phoneNo', headerName: 'Phone No', minWidth: 130 },
     {
@@ -162,66 +221,8 @@ export const AdvancePaymentTable = () => {
           {params.value}
         </span>
       )
-    },
-    {
-      field: 'actions',
-      headerName: 'Actions',
-      width: 100,
-      renderCell: (params: any) => {
-        const handleReceipt = () => {
-          setTenantPaymentDetails(params.row);
-          setOpenReceiptDownloadModal(true);
-        };
-        const handleMailReceipt = () => {
-          setOpenReceiptUploadModal(true);
-        };
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger className='h-fit w-fit'>
-              <DotsVerticalIcon />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align='end'>
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <div className='flex flex-col gap-2'>
-                <div className='flex gap-2'>
-                  <Button
-                    variant='outline'
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      router.push(`/payment/advance/${params.row.id}`);
-                    }}
-                  >
-                    <EditIcon className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]' />
-                  </Button>
-                  <Button
-                    variant='outline'
-                    onClick={() => alert(JSON.stringify(params.row))}
-                  >
-                    <Trash2 className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]' />
-                  </Button>
-                  <Button
-                    variant='outline'
-                    onClick={() =>
-                      router.push(`/payment/advance-details/${params.row.id}`)
-                    }
-                  >
-                    <Eye className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]' />
-                  </Button>
-                </div>
-
-                <Button variant='outline' onClick={handleReceipt}>
-                  <DownloadIcon className='mr-2 w-4' /> Download Receipt
-                </Button>
-                <Button variant='outline' onClick={handleMailReceipt}>
-                  <MailIcon className='mr-2 w-4' /> Mail Receipt
-                </Button>
-              </div>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        );
-      }
     }
+
     // {
     //   field: 'actions',
     //   headerName: 'Actions',

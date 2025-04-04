@@ -44,3 +44,16 @@ export const updateTenant = async (data: any, id: string) => {
     throw error;
   }
 };
+
+export const removeTenant = async (id: string) => {
+  try {
+    const endpoint = API_ENDPOINT.TENANT.tenant_ById.replace(
+      ':id',
+      id.toString()
+    );
+    const res = await axiosService.delete(endpoint);
+    return res.data;
+  } catch (error) {
+    throw error;
+  }
+};

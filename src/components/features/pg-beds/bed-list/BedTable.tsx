@@ -68,6 +68,50 @@ const BedsList = () => {
   }, []);
 
   const columns = [
+    {
+      pinnable: true,
+      field: 'actions',
+      headerName: 'Actions',
+      width: 100,
+      renderCell: (params: any) => {
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger className='h-fit w-fit'>
+              <DotsVerticalIcon />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align='start'>
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <div className='flex flex-col gap-2'>
+                <div className='flex gap-2'>
+                  <Button
+                    variant='outline'
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      router.push(`/bed/${params.row.id}`);
+                    }}
+                  >
+                    <EditIcon className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]' />
+                  </Button>
+                  <Button
+                    variant='outline'
+                    onClick={() => alert(JSON.stringify(params.row))}
+                  >
+                    <Trash2 className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]' />
+                  </Button>
+                  <Button
+                    variant='outline'
+                    onClick={() => router.push(`/bed/details/${params.row.id}`)}
+                  >
+                    <Eye className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]' />
+                  </Button>
+                </div>
+              </div>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      }
+    },
     // { field: 'id', headerName: 'S No', width: 50 },
     // {
     //   field: 'images',
@@ -143,49 +187,6 @@ const BedsList = () => {
       renderCell: (params: any) => (
         <span>{params.value ? formatDateToDDMMYYYY(params.value) : 'N/A'}</span>
       )
-    },
-    {
-      field: 'actions',
-      headerName: 'Actions',
-      width: 100,
-      renderCell: (params: any) => {
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger className='h-fit w-fit'>
-              <DotsVerticalIcon />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align='end'>
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <div className='flex flex-col gap-2'>
-                <div className='flex gap-2'>
-                  <Button
-                    variant='outline'
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      router.push(`/bed/${params.row.id}`);
-                    }}
-                  >
-                    <EditIcon className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]' />
-                  </Button>
-                  <Button
-                    variant='outline'
-                    onClick={() => alert(JSON.stringify(params.row))}
-                  >
-                    <Trash2 className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]' />
-                  </Button>
-                  <Button
-                    variant='outline'
-                    onClick={() => router.push(`/bed/details/${params.row.id}`)}
-                  >
-                    <Eye className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]' />
-                  </Button>
-                </div>
-              </div>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        );
-      }
     }
   ];
   return (
