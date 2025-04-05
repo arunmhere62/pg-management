@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import PgDetails from '../pg-details/PgDetails';
 import { fetchPgLocationsList } from '@/services/utils/api/pg-location-api';
+import { TableDynamicDropdown } from '@/components/ui/large/TableDynamicDropdown';
 
 export interface IPgListProps {
   id: number;
@@ -64,6 +65,41 @@ const PgList = () => {
   const columns = [
     // { field: 'id', headerName: 'S No', width: 50 },
     {
+      field: 'actions',
+      headerName: 'Actions',
+      width: 100,
+      renderCell: (params: any) => (
+        <TableDynamicDropdown
+          actions={[
+            {
+              label: 'Edit',
+              icon: (
+                <EditIcon className='w-4 text-[#656565] hover:text-black dark:hover:text-white' />
+              ),
+              onClick: () => router.push(`/pg-location/${params.row.id}`)
+            },
+            {
+              label: 'View',
+              icon: (
+                <Eye className='w-4 text-[#656565] hover:text-black dark:hover:text-white' />
+              ),
+              onClick: () => {
+                const pgDetailsData = pgListData.find(
+                  (pg) => pg.id === params.row.id
+                );
+                if (pgDetailsData) {
+                  setOpenPgDetails(true);
+                  setPgDetails(pgDetailsData);
+                }
+              }
+            }
+          ]}
+        />
+
+        // </div>
+      )
+    },
+    {
       field: 'images',
       headerName: 'Profile',
       width: 100,
@@ -90,40 +126,7 @@ const PgList = () => {
     { field: 'stateName', headerName: 'State', flex: 1 },
     { field: 'pincode', headerName: 'Pincode', flex: 1 },
     { field: 'createdAt', headerName: 'Created At', flex: 1 },
-    { field: 'updatedAt', headerName: 'Updated At', flex: 1 },
-    {
-      field: 'actions',
-      headerName: 'Actions',
-      width: 150,
-      renderCell: (params: any) => (
-        <div className='ml-3 mt-3 flex gap-3'>
-          <EditIcon
-            onClick={() => {
-              router.push(`/pg-location/${params.row.id}`);
-            }}
-            className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]'
-          />
-          <Trash2
-            onClick={() => {
-              alert(JSON.stringify(params.row));
-            }}
-            className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]'
-          />
-          <Eye
-            onClick={() => {
-              const pgDetailsData = pgListData.find(
-                (pg) => pg.id === params.row.id
-              );
-              if (pgDetailsData) {
-                setOpenPgDetails(true);
-                setPgDetails(pgDetailsData);
-              }
-            }}
-            className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]'
-          />
-        </div>
-      )
-    }
+    { field: 'updatedAt', headerName: 'Updated At', flex: 1 }
   ];
   return (
     <>

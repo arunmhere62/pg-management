@@ -2,7 +2,6 @@ import prisma from '@/lib/prisma';
 import { AppError, ConflictError, errorHandler } from '@/services/utils/error';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { isAfter } from 'date-fns';
 
 export const GET = async (req: NextRequest) => {
   try {
@@ -49,6 +48,9 @@ export const GET = async (req: NextRequest) => {
           }
         },
         tenantPayments: {
+          where: {
+            isDeleted: false
+          },
           orderBy: {
             paymentDate: 'desc'
           },
@@ -59,37 +61,70 @@ export const GET = async (req: NextRequest) => {
             startDate: true,
             endDate: true
           }
+        },
+        advancePayments: {
+          where: {
+            isDeleted: false
+          },
+          orderBy: {
+            paymentDate: 'desc'
+          },
+          take: 1,
+          select: {
+            paymentDate: true,
+            amountPaid: true
+          }
         }
       }
     });
-
     const formattedTenants = tenants.map((tenant) => {
-      const lastPayment = tenant.tenantPayments[0];
-      let isPending = false;
+      const now = new Date();
+      const today = new Date(now.toISOString().split('T')[0]); // today's date at midnight (yyyy-mm-dd)
 
-      if (lastPayment) {
-        const paymentEnd = new Date(lastPayment.endDate);
+      const lastRentPayment =
+        tenant.tenantPayments.length > 0 ? tenant.tenantPayments[0] : null;
+      const lastAdvancePayment =
+        tenant.advancePayments.length > 0 ? tenant.advancePayments[0] : null;
 
-        // If last payment end date has passed, mark as pending
-        if (isAfter(currentDate, paymentEnd)) {
-          isPending = true;
-        }
-      } else {
-        // No payment history → mark as pending
-        isPending = true;
+      let isRentPaid = false;
+      let isAdvancePaid = false;
+
+      if (lastRentPayment?.startDate && lastRentPayment?.endDate) {
+        const startDate = new Date(
+          new Date(lastRentPayment.startDate).toISOString().split('T')[0]
+        );
+        const endDate = new Date(
+          new Date(lastRentPayment.endDate).toISOString().split('T')[0]
+        );
+
+        isRentPaid = startDate <= today && today <= endDate;
       }
-      // Convert Check-in Date from DD-MM-YYYY to YYYY-MM-DD
+
+      if (
+        lastAdvancePayment?.paymentDate &&
+        lastAdvancePayment.amountPaid != null
+      ) {
+        const paymentDate = new Date(lastAdvancePayment.paymentDate);
+        const amountPaid = Number(lastAdvancePayment.amountPaid);
+
+        isAdvancePaid =
+          !isNaN(amountPaid) && amountPaid > 0 && paymentDate >= today;
+      }
+
+      // Format Check-in Date (DD-MM-YYYY → YYYY-MM-DD)
       let formattedCheckInDate = tenant.checkInDate;
       if (formattedCheckInDate.includes('-')) {
         const [day, month, year] = formattedCheckInDate.split('-');
         formattedCheckInDate = `${year}-${month}-${day}`;
       }
+
       return {
         ...tenant,
-        isPending
+        checkInDate: formattedCheckInDate,
+        isRentPaid,
+        isAdvancePaid
       };
     });
-
     return NextResponse.json(
       {
         message: 'Tenants fetched successfully',
@@ -136,7 +171,11 @@ export const POST = async (req: NextRequest) => {
     }
     const { roomId, bedId } = parsedData.data;
     const existingTenant = await prisma.tenants.findFirst({
-      where: { roomId, bedId }
+      where: {
+        roomId,
+        bedId,
+        isDeleted: false
+      }
     });
     if (existingTenant) {
       throw new ConflictError('A tenant already exists for this Room and Bed');

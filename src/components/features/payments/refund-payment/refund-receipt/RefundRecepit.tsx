@@ -332,9 +332,6 @@ const RefundReceipt = ({
   tenantPaymentDetails?: IPaymentProps;
 }) => {
   const [pdfUrl, setPdfUrl] = useState('');
-
-  console.log('tenantPaymentDetails', tenantPaymentDetails);
-
   useEffect(() => {
     const generatePdf = async () => {
       const blob = await pdf(

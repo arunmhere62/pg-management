@@ -45,7 +45,8 @@ interface ITenantListProps {
   status: string;
   createdAt: string;
   updatedAt: string;
-  isPending: boolean;
+  isRentPaid: boolean;
+  isAdvancePaid: boolean;
   rooms: IRoomProps;
   beds: IBedProps;
   tenantPayments: ITenantPaymentProps[];
@@ -157,7 +158,6 @@ const TenantList = () => {
                 <Button
                   variant='outline'
                   onClick={() => {
-                    console.log('hello');
                     router.push(`/payment/rent/new/${params.row.id}`);
                   }}
                 >
@@ -166,7 +166,6 @@ const TenantList = () => {
                 <Button
                   variant='outline'
                   onClick={() => {
-                    console.log('hello');
                     router.push(`/payment/advance/new/${params.row.id}`);
                   }}
                 >
@@ -175,7 +174,6 @@ const TenantList = () => {
                 <Button
                   variant='outline'
                   onClick={() => {
-                    console.log('hello');
                     router.push(`/payment/refund/new/${params.row.id}`);
                   }}
                 >
@@ -258,13 +256,24 @@ const TenantList = () => {
       )
     },
     {
-      field: 'isPending',
-      headerName: 'Payment Status',
+      field: 'isRentPaid',
+      headerName: 'Rent Status',
       minWidth: 120,
       flex: 1,
       renderCell: (params: any) => (
-        <span className={cn(!params.value ? 'activeBadge' : 'inactiveBadge')}>
-          {!params.value ? 'Paid' : 'Pending'}
+        <span className={cn(params.value ? 'activeBadge' : 'inactiveBadge')}>
+          {params.value ? 'Paid' : 'Pending'}
+        </span>
+      )
+    },
+    {
+      field: 'isAdvancePaid',
+      headerName: 'Advance Status',
+      minWidth: 120,
+      flex: 1,
+      renderCell: (params: any) => (
+        <span className={cn(params.value ? 'activeBadge' : 'inactiveBadge')}>
+          {params.value ? 'Paid' : 'Pending'}
         </span>
       )
     },

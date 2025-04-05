@@ -20,8 +20,6 @@ const Page = () => {
   const slugZero = slug[0]; // rent, advance, refund, details
   const slugOne = slug[1]; // new or id (like 35)
   const slugTwo = slug[2]; // new or id (like 35)
-  console.log('slug two', slugTwo);
-
   const isId = !isNaN(Number(slugOne));
 
   // -------------- Edit Payment ----------------

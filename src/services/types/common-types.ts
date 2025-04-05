@@ -69,3 +69,8 @@ export interface ITenantProps {
   images: string[];
   proofDocuments: string[];
 }
+
+export type IOptionTypeProps = {
+  value: string;
+  label: string;
+};

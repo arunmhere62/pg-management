@@ -50,6 +50,18 @@ export const updateAdvance = async (data: any, id: string) => {
   }
 };
 
+export const deleteAdvance = async (id: string) => {
+  try {
+    const endpoint = API_ENDPOINT.PAYMENT.payment_advance_byId.replace(
+      ':id',
+      id.toString()
+    );
+    const res = await axiosService.delete(endpoint);
+    return res.data;
+  } catch (error) {
+    throw error;
+  }
+};
 // export const fetchRentsByRoomId = async(roomId : string) => {
 //   try {
 //     const endpoint = API_ENDPOINT.Rent.Rents_ByRoomId.replace(':id' , roomId.toString());

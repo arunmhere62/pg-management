@@ -18,7 +18,8 @@ export const GET = async (req: NextRequest) => {
 
     const beds = await prisma.beds.findMany({
       where: {
-        pgId: Number(pgLocationId)
+        pgId: Number(pgLocationId),
+        isDeleted: false
       },
       select: {
         id: true,
@@ -35,6 +36,9 @@ export const GET = async (req: NextRequest) => {
           }
         },
         tenants: {
+          where: {
+            isDeleted: false
+          },
           select: {
             id: true,
             name: true

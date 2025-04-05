@@ -27,6 +27,9 @@ export const GET = async (
           }
         },
         tenantPayments: {
+          where: {
+            isDeleted: false
+          },
           select: {
             id: true,
             amountPaid: true,
@@ -48,6 +51,9 @@ export const GET = async (
           }
         },
         advancePayments: {
+          where: {
+            isDeleted: false
+          },
           select: {
             id: true,
             amountPaid: true,
@@ -60,6 +66,9 @@ export const GET = async (
           }
         },
         refundPayments: {
+          where: {
+            isDeleted: false
+          },
           select: {
             id: true,
             amountPaid: true,
@@ -72,6 +81,9 @@ export const GET = async (
           }
         },
         rooms: {
+          where: {
+            isDeleted: false
+          },
           select: {
             roomNo: true
           }
@@ -207,44 +219,27 @@ export const DELETE = async (
     if (!pgLocationId) {
       throw new BadRequestError('Select pg location');
     }
-    const result = await prisma.$transaction(async (prisma) => {
-      const tenant = await prisma.tenants.findUnique({
-        where: {
-          pgId: Number(pgLocationId),
-          id: Number(id)
-        }
-      });
-      console.log('tenant', tenant);
+    const result = await prisma.tenants.update({
+      where: {
+        pgId: Number(pgLocationId),
+        id: Number(id)
+      },
+      data: {
+        isDeleted: true
+      }
+    });
+    if (!result) {
+      throw new NotFoundError('Tenant not found');
+    }
 
-      if (!tenant) throw new NotFoundError('Tenant not found');
-      await prisma.tenants_history.create({
-        data: {
-          tenantId: tenant.tenantId!,
-          name: tenant.name,
-          phoneNo: tenant.phoneNo,
-          email: tenant.email,
-          pgId: tenant.pgId!,
-          roomId: tenant.roomId!,
-          bedId: tenant.bedId!,
-          checkInDate: tenant.checkInDate,
-          checkOutDate: tenant.checkOutDate,
-          images: tenant.images!,
-          proofDocuments: tenant.proofDocuments!,
-          isDeleted: true
-        }
-      });
-      await prisma.tenants.delete({
-        where: {
-          pgId: Number(pgLocationId),
-          id: Number(id)
-        }
-      });
-      return { message: 'Tenant removed and moved to history' };
-    });
-    return NextResponse.json({
-      ...result,
-      status: 200
-    });
+    return NextResponse.json(
+      {
+        data: result,
+        status: 200,
+        message: 'Tenant removed successfully'
+      },
+      { status: 200 }
+    );
   } catch (error) {
     return errorHandler(error);
   }

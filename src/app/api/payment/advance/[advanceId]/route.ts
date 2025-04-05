@@ -13,7 +13,7 @@ export const GET = async (
 ) => {
   try {
     const { advanceId } = await params;
-    const pgLocationId = req.cookies.get('pgLocationId');
+    const pgLocationId = req.cookies.get('pgLocationId')?.value;
     if (!pgLocationId) {
       throw new BadRequestError('PG location data not found in cookies');
     }
@@ -80,7 +80,7 @@ export const PUT = async (
       );
     }
 
-    const pgLocationId = req.cookies.get('pgLocationId');
+    const pgLocationId = req.cookies.get('pgLocationId')?.value;
     if (!pgLocationId) {
       throw new BadRequestError('PG location data not found in cookies');
     }
@@ -88,7 +88,7 @@ export const PUT = async (
     // ✅ Prisma Transaction to Ensure Atomic Updates
     await prisma.$transaction([
       prisma.advance_payments.update({
-        where: { id: Number(advanceId) },
+        where: { id: Number(advanceId), pgId: Number(pgLocationId) },
         data: {
           tenantId: validation.data.tenantId,
           pgId: validation.data.pgId,
@@ -105,6 +105,42 @@ export const PUT = async (
 
     return NextResponse.json(
       { message: 'Payment updated successfully', status: 200 },
+      { status: 200 }
+    );
+  } catch (error) {
+    return errorHandler(error);
+  }
+};
+
+export const DELETE = async (
+  req: NextRequest,
+  { params }: { params: Promise<{ advanceId: string }> }
+) => {
+  try {
+    const { advanceId } = await params;
+
+    const pgLocationId = req.cookies.get('pgLocationId')?.value;
+    if (!pgLocationId || !advanceId) {
+      throw new BadRequestError('PG location or advance data not found');
+    }
+    const res = await prisma.advance_payments.update({
+      where: {
+        pgId: Number(pgLocationId),
+        id: Number(advanceId)
+      },
+      data: {
+        isDeleted: true
+      }
+    });
+    if (!res) {
+      throw new NotFoundError('Payment record not found');
+    }
+    return NextResponse.json(
+      {
+        data: res,
+        message: 'Advance Payment deleted successfully',
+        status: 200
+      },
       { status: 200 }
     );
   } catch (error) {

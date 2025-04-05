@@ -17,7 +17,10 @@ import GridTable from '@/components/ui/mui-grid-table/GridTable';
 import { cn } from '@/lib/utils';
 import { formatDateToDDMMYYYY } from '@/services/utils/formaters';
 import { toast } from 'sonner';
-import { fetchRentsList } from '@/services/utils/api/payment/rent-api';
+import {
+  deleteRent,
+  fetchRentsList
+} from '@/services/utils/api/payment/rent-api';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -26,6 +29,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
+import {
+  isWithinInterval,
+  startOfMonth,
+  endOfMonth,
+  subMonths,
+  parseISO
+} from 'date-fns';
 import { DotsVerticalIcon } from '@radix-ui/react-icons';
 import { Modal } from '@/components/ui/modal';
 import InvoiceReceipt from '../receipt/RentRecepit';
@@ -36,6 +46,7 @@ import {
   ITenantProps
 } from '@/services/types/common-types';
 import ReceiptForm from '../receipt/ReceiptForm';
+import { SelectComboBox } from '@/components/ui/selectComboBox';
 
 interface IRentPaymentListProps {
   id: number;
@@ -88,29 +99,115 @@ const RentPaymentList = () => {
     useState<boolean>(false);
   const [tenantPaymentDetails, setTenantPaymentDetails] =
     useState<IPaymentProps>();
+  const [openRentRemoveConfirmModal, setOpenRentRemoveConfirmModal] =
+    useState<boolean>(false);
+  const [selectedRentId, setSelectedRentId] = useState<number | null>(null);
+  const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
+  const [filteredPaymentData, setFilteredPaymentData] = useState<
+    IRentPaymentListProps[]
+  >([]);
   useEffect(() => {
-    const getPayments = async () => {
-      try {
-        const res = await fetchRentsList();
-        if (res.data) {
-          const formattedData = res.data.map((d: any) => {
-            return {
-              ...d,
-              roomNo: d?.rooms?.roomNo ?? '',
-              bedNo: d?.beds?.bedNo ?? '',
-              name: d?.tenants?.name ?? '',
-              paymentDate: formatDateToDDMMYYYY(d.paymentDate) ?? '',
-              phoneNo: d?.tenants?.phoneNo ?? ''
-            };
-          });
-          setRentPaymentList(formattedData);
-        }
-      } catch (error) {
-        toast.error('Fetching the payments list failed try again later');
+    if (selectedMonth && rentPaymentList.length) {
+      const now = new Date();
+      let startDate: Date;
+      let endDate = now;
+
+      switch (selectedMonth) {
+        case 'this_month':
+          startDate = startOfMonth(now);
+          break;
+        case 'last_month':
+          startDate = startOfMonth(subMonths(now, 1));
+          endDate = endOfMonth(subMonths(now, 1));
+          break;
+        case 'last_3_months':
+          startDate = startOfMonth(subMonths(now, 3));
+          break;
+        case 'last_6_months':
+          startDate = startOfMonth(subMonths(now, 6));
+          break;
+        case 'last_1_year':
+          startDate = startOfMonth(subMonths(now, 12));
+          break;
+        default:
+          return;
       }
-    };
+
+      const filtered = rentPaymentList.filter((payment) => {
+        const createdAt = parseISO(payment.createdAt);
+        return isWithinInterval(createdAt, { start: startDate, end: endDate });
+      });
+
+      setFilteredPaymentData(filtered);
+    } else {
+      setFilteredPaymentData(rentPaymentList);
+    }
+  }, [selectedMonth, rentPaymentList]);
+
+  const getPayments = async () => {
+    try {
+      const res = await fetchRentsList();
+      if (res.data) {
+        const formattedData = res.data.map((d: any) => {
+          return {
+            ...d,
+            roomNo: d?.rooms?.roomNo ?? '',
+            bedNo: d?.beds?.bedNo ?? '',
+            name: d?.tenants?.name ?? '',
+            paymentDate: formatDateToDDMMYYYY(d.paymentDate) ?? '',
+            phoneNo: d?.tenants?.phoneNo ?? ''
+          };
+        });
+        setRentPaymentList(formattedData);
+      }
+    } catch (error) {
+      toast.error('Fetching the payments list failed try again later');
+    }
+  };
+
+  useEffect(() => {
     getPayments();
   }, []);
+
+  const handleRemoveRent = async () => {
+    try {
+      if (selectedRentId) {
+        const res = await deleteRent(String(selectedRentId));
+        if (res.status === 200) {
+          toast.success('Rent removed bed is free now!');
+          getPayments();
+        }
+      }
+    } catch (error: any) {
+      const errorMessage =
+        error?.response?.data?.error ||
+        error?.message ||
+        'Something went wrong.';
+      toast.error(errorMessage);
+    }
+  };
+  const rentOptions = [
+    {
+      label: 'This Month',
+      value: 'this_month'
+    },
+    {
+      label: 'Last Month',
+      value: 'last_month'
+    },
+    {
+      label: 'Last 3 Months',
+      value: 'last_3_months'
+    },
+    {
+      label: 'Last 6 Months',
+      value: 'last_6_months'
+    },
+    {
+      label: 'Last 1 Year',
+      value: 'last_1_year'
+    }
+  ];
 
   const columns = [
     {
@@ -146,9 +243,12 @@ const RentPaymentList = () => {
                   </Button>
                   <Button
                     variant='outline'
-                    onClick={() => alert(JSON.stringify(params.row))}
+                    onClick={() => {
+                      setSelectedRentId(params.row.id);
+                      setOpenRentRemoveConfirmModal(true);
+                    }}
                   >
-                    <Trash2 className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]' />
+                    <Trash2 className='w-4 cursor-pointer text-[red] hover:text-[#000] dark:hover:text-[#fff]' />
                   </Button>
                   <Button
                     variant='outline'
@@ -265,16 +365,40 @@ const RentPaymentList = () => {
           }
         ]}
       />
-      <div className='mt-6'>
+
+      <div className='mt-3 flex gap-3'>
+        <div className='w-[200px]'>
+          <SelectComboBox
+            options={rentOptions}
+            placeholder='Select a Month'
+            value={selectedMonth || ''}
+            onChange={(e: string | null) => {
+              setSelectedMonth(e);
+            }}
+          />
+        </div>
+        <Button
+          variant='outline'
+          onClick={() => {
+            // setFilteredBedsData([])
+            setSelectedMonth(null);
+          }}
+        >
+          clear
+        </Button>
+      </div>
+      <div className='mt-2'>
         <GridTable
+          tableHeight='550px'
           columns={columns}
-          rows={rentPaymentList}
+          rows={filteredPaymentData ?? rentPaymentList}
           loading={false}
           rowHeight={80}
           showToolbar={true}
           hideFooter={false}
         />
       </div>
+
       <Modal
         contentClassName='max-w-[800px] rounded-lg sm:w-full'
         isOpen={openReceiptDownloadModal}
@@ -296,6 +420,35 @@ const RentPaymentList = () => {
         description=''
       >
         <ReceiptForm />
+      </Modal>
+      <Modal
+        contentClassName='w-fit rounded-lg sm:w-full'
+        isOpen={openRentRemoveConfirmModal}
+        title=''
+        onClose={() => {
+          setOpenRentRemoveConfirmModal(false);
+        }}
+        description='Are you sure you want to delete the Advance Payment?'
+      >
+        <div className='flex w-full items-center justify-center gap-4'>
+          <Button
+            variant='destructive'
+            onClick={() => {
+              handleRemoveRent();
+              setOpenRentRemoveConfirmModal(false);
+            }}
+          >
+            Remove
+          </Button>
+          <Button
+            variant='outline'
+            onClick={() => {
+              setOpenRentRemoveConfirmModal(false);
+            }}
+          >
+            Cancel
+          </Button>
+        </div>
       </Modal>
     </>
   );

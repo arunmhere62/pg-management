@@ -13,13 +13,14 @@ export const GET = async (
 ) => {
   try {
     const { rentId } = await params;
-    const pgLocationId = req.cookies.get('pgLocationId');
+    const pgLocationId = req.cookies.get('pgLocationId')?.value;
     if (!pgLocationId) {
       throw new BadRequestError('PG location data not found in cookies');
     }
     const res = await prisma.tenant_payments.findUnique({
       where: {
-        id: Number(rentId)
+        id: Number(rentId),
+        pgId: Number(pgLocationId)
       },
       include: {
         tenants: true,
@@ -93,7 +94,7 @@ export const PUT = async (
       throw new BadRequestError('Invalid payment data');
     }
 
-    const pgLocationId = req.cookies.get('pgLocationId');
+    const pgLocationId = req.cookies.get('pgLocationId')?.value;
     if (!pgLocationId) {
       throw new BadRequestError('PG location data not found in cookies');
     }
@@ -108,7 +109,7 @@ export const PUT = async (
     // ✅ Prisma Transaction to Ensure Atomic Updates
     await prisma.$transaction([
       prisma.tenant_payments.update({
-        where: { id: Number(rentId) },
+        where: { id: Number(rentId), pgId: Number(pgLocationId) },
         data: {
           tenantId: currentPayment.tenantId,
           pgId: currentPayment.pgId,
@@ -127,6 +128,38 @@ export const PUT = async (
 
     return NextResponse.json(
       { message: 'Payment updated successfully', status: 200 },
+      { status: 200 }
+    );
+  } catch (error) {
+    return errorHandler(error);
+  }
+};
+
+export const DELETE = async (
+  req: NextRequest,
+  { params }: { params: Promise<{ rentId: string }> }
+) => {
+  try {
+    const { rentId } = await params;
+    const pgLocationId = req.cookies.get('pgLocationId')?.value;
+
+    if (!pgLocationId || !rentId) {
+      throw new BadRequestError('PG location or rent data not found');
+    }
+    const res = await prisma.tenant_payments.update({
+      where: {
+        pgId: Number(pgLocationId),
+        id: Number(rentId)
+      },
+      data: {
+        isDeleted: true
+      }
+    });
+    if (!res) {
+      throw new NotFoundError('Payment record not found');
+    }
+    return NextResponse.json(
+      { data: res, message: 'Rent Payment deleted successfully', status: 200 },
       { status: 200 }
     );
   } catch (error) {

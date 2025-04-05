@@ -7,7 +7,10 @@ import GridTable from '@/components/ui/mui-grid-table/GridTable';
 import { cn } from '@/lib/utils';
 import { formatDateToDDMMYYYY } from '@/services/utils/formaters';
 import { toast } from 'sonner';
-import { fetchAdvanceList } from '@/services/utils/api/payment/advance-api';
+import {
+  deleteAdvance,
+  fetchAdvanceList
+} from '@/services/utils/api/payment/advance-api';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -77,31 +80,53 @@ export const AdvancePaymentTable = () => {
     useState<boolean>(false);
   const [tenantPaymentDetails, setTenantPaymentDetails] =
     useState<IAdvancePaymentProps>();
+  const [openAdvanceRemoveConfirmModal, setOpenAdvanceRemoveConfirmModal] =
+    useState<boolean>(false);
+  const [selectedAdvanceId, setSelectedAdvanceId] = useState<number | null>(
+    null
+  );
 
-  useEffect(() => {
-    const getPayments = async () => {
-      try {
-        const res = await fetchAdvanceList();
-        if (res.data) {
-          const formattedData = res.data.map((d: any) => {
-            return {
-              ...d,
-              roomNo: d?.rooms?.roomNo ?? '',
-              bedNo: d?.beds?.bedNo ?? '',
-              name: d?.tenants?.name ?? '',
-              paymentDate: formatDateToDDMMYYYY(d.paymentDate) ?? '',
-              phoneNo: d?.tenants?.phoneNo ?? ''
-            };
-          });
-          setAdvancePaymentList(formattedData);
-        }
-      } catch (error) {
-        toast.error('Fetching the payments list failed try again later');
+  const getPayments = async () => {
+    try {
+      const res = await fetchAdvanceList();
+      if (res.data) {
+        const formattedData = res.data.map((d: any) => {
+          return {
+            ...d,
+            roomNo: d?.rooms?.roomNo ?? '',
+            bedNo: d?.beds?.bedNo ?? '',
+            name: d?.tenants?.name ?? '',
+            paymentDate: formatDateToDDMMYYYY(d.paymentDate) ?? '',
+            phoneNo: d?.tenants?.phoneNo ?? ''
+          };
+        });
+        setAdvancePaymentList(formattedData);
       }
-    };
+    } catch (error) {
+      toast.error('Fetching the payments list failed try again later');
+    }
+  };
+  useEffect(() => {
     getPayments();
   }, []);
 
+  const handleRemoveAdvance = async () => {
+    try {
+      if (selectedAdvanceId) {
+        const res = await deleteAdvance(String(selectedAdvanceId));
+        if (res.status === 200) {
+          toast.success('Advance removed bed is free now!');
+          getPayments();
+        }
+      }
+    } catch (error: any) {
+      const errorMessage =
+        error?.response?.data?.error ||
+        error?.message ||
+        'Something went wrong.';
+      toast.error(errorMessage);
+    }
+  };
   const columns = [
     {
       field: 'actions',
@@ -136,9 +161,12 @@ export const AdvancePaymentTable = () => {
                   </Button>
                   <Button
                     variant='outline'
-                    onClick={() => alert(JSON.stringify(params.row))}
+                    onClick={() => {
+                      setSelectedAdvanceId(params.row.id);
+                      setOpenAdvanceRemoveConfirmModal(true);
+                    }}
                   >
-                    <Trash2 className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]' />
+                    <Trash2 className='w-4 cursor-pointer text-[red] hover:text-[#000] dark:hover:text-[#fff]' />
                   </Button>
                   <Button
                     variant='outline'
@@ -296,6 +324,35 @@ export const AdvancePaymentTable = () => {
         description=''
       >
         <AdvanceReceiptForm />
+      </Modal>
+      <Modal
+        contentClassName='w-fit rounded-lg sm:w-full'
+        isOpen={openAdvanceRemoveConfirmModal}
+        title=''
+        onClose={() => {
+          setOpenAdvanceRemoveConfirmModal(false);
+        }}
+        description='Are you sure you want to remove this tenant?'
+      >
+        <div className='flex w-full items-center justify-center gap-4'>
+          <Button
+            variant='destructive'
+            onClick={() => {
+              handleRemoveAdvance();
+              setOpenAdvanceRemoveConfirmModal(false);
+            }}
+          >
+            Remove
+          </Button>
+          <Button
+            variant='outline'
+            onClick={() => {
+              setOpenAdvanceRemoveConfirmModal(false);
+            }}
+          >
+            Cancel
+          </Button>
+        </div>
       </Modal>
     </>
   );

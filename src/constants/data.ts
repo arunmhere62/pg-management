@@ -69,51 +69,6 @@ export const navItems: NavItem[] = [
     isActive: false,
     shortcut: ['v', 'v'],
     items: []
-  },
-
-  {
-    title: 'Employees',
-    url: '/dashboard/employees',
-    icon: 'dashboard',
-    isActive: false,
-    shortcut: ['em', 'em'],
-    items: []
-  },
-  {
-    title: 'Product',
-    url: '/dashboard/product',
-    icon: 'product',
-    shortcut: ['p', 'p'],
-    isActive: false,
-    items: []
-  },
-  {
-    title: 'Account',
-    url: '#',
-    icon: 'billing',
-    isActive: true,
-    items: [
-      {
-        title: 'Profile',
-        url: '/dashboard/profile',
-        icon: 'userPen',
-        shortcut: ['m', 'm']
-      },
-      {
-        title: 'Login',
-        shortcut: ['l', 'l'],
-        url: '/',
-        icon: 'login'
-      }
-    ]
-  },
-  {
-    title: 'Kanban',
-    url: '/dashboard/kanban',
-    icon: 'kanban',
-    shortcut: ['k', 'k'],
-    isActive: false,
-    items: []
   }
 ];
 

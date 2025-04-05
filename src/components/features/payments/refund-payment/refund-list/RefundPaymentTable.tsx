@@ -8,8 +8,10 @@ import GridTable from '@/components/ui/mui-grid-table/GridTable';
 import { cn } from '@/lib/utils';
 import { formatDateToDDMMYYYY } from '@/services/utils/formaters';
 import { toast } from 'sonner';
-import { fetchAdvanceList } from '@/services/utils/api/payment/advance-api';
-import { fetchRefundList } from '@/services/utils/api/payment/refund-api';
+import {
+  deleteRefund,
+  fetchRefundList
+} from '@/services/utils/api/payment/refund-api';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -59,31 +61,51 @@ export const RefundPaymentTable = () => {
     useState<boolean>(false);
   const [tenantPaymentDetails, setTenantPaymentDetails] =
     useState<IAdvancePaymentProps>();
+  const [openRefundRemoveConfirmModal, setOpenRefundRemoveConfirmModal] =
+    useState<boolean>(false);
+  const [selectedRefundId, setSelectedRefundId] = useState<number | null>(null);
 
-  useEffect(() => {
-    const getRefunds = async () => {
-      try {
-        const res = await fetchRefundList();
-        if (res.data) {
-          const formattedData = res.data.map((d: any) => {
-            return {
-              ...d,
-              roomNo: d?.rooms?.roomNo ?? '',
-              bedNo: d?.beds?.bedNo ?? '',
-              name: d?.tenants?.name ?? '',
-              paymentDate: formatDateToDDMMYYYY(d.paymentDate) ?? '',
-              phoneNo: d?.tenants?.phoneNo ?? ''
-            };
-          });
-          setRefundPaymentList(formattedData);
-        }
-      } catch (error) {
-        toast.error('Fetching the Refunds list failed try again later');
+  const getRefunds = async () => {
+    try {
+      const res = await fetchRefundList();
+      if (res.data) {
+        const formattedData = res.data.map((d: any) => {
+          return {
+            ...d,
+            roomNo: d?.rooms?.roomNo ?? '',
+            bedNo: d?.beds?.bedNo ?? '',
+            name: d?.tenants?.name ?? '',
+            paymentDate: formatDateToDDMMYYYY(d.paymentDate) ?? '',
+            phoneNo: d?.tenants?.phoneNo ?? ''
+          };
+        });
+        setRefundPaymentList(formattedData);
       }
-    };
+    } catch (error) {
+      toast.error('Fetching the Refunds list failed try again later');
+    }
+  };
+  useEffect(() => {
     getRefunds();
   }, []);
 
+  const handleRemoveRefund = async () => {
+    try {
+      if (selectedRefundId) {
+        const res = await deleteRefund(String(selectedRefundId));
+        if (res.status === 200) {
+          toast.success('Refund removed bed is free now!');
+          getRefunds();
+        }
+      }
+    } catch (error: any) {
+      const errorMessage =
+        error?.response?.data?.error ||
+        error?.message ||
+        'Something went wrong.';
+      toast.error(errorMessage);
+    }
+  };
   const columns = [
     {
       field: 'actions',
@@ -118,9 +140,12 @@ export const RefundPaymentTable = () => {
                   </Button>
                   <Button
                     variant='outline'
-                    onClick={() => alert(JSON.stringify(params.row))}
+                    onClick={() => {
+                      setSelectedRefundId(params.row.id);
+                      setOpenRefundRemoveConfirmModal(true);
+                    }}
                   >
-                    <Trash2 className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]' />
+                    <Trash2 className='w-4 cursor-pointer text-[red] hover:text-[#000] dark:hover:text-[#fff]' />
                   </Button>
                   <Button
                     variant='outline'
@@ -278,6 +303,35 @@ export const RefundPaymentTable = () => {
         description=''
       >
         <RefundReceiptForm />
+      </Modal>
+      <Modal
+        contentClassName='w-fit rounded-lg sm:w-full'
+        isOpen={openRefundRemoveConfirmModal}
+        title=''
+        onClose={() => {
+          setOpenRefundRemoveConfirmModal(false);
+        }}
+        description='Are you sure you want to delete this refund?'
+      >
+        <div className='flex w-full items-center justify-center gap-4'>
+          <Button
+            variant='destructive'
+            onClick={() => {
+              handleRemoveRefund();
+              setOpenRefundRemoveConfirmModal(false);
+            }}
+          >
+            Remove
+          </Button>
+          <Button
+            variant='outline'
+            onClick={() => {
+              setOpenRefundRemoveConfirmModal(false);
+            }}
+          >
+            Cancel
+          </Button>
+        </div>
       </Modal>
     </>
   );

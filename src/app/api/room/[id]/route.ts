@@ -20,7 +20,8 @@ export const GET = async (
 
     const room = await prisma.rooms.findUnique({
       where: {
-        id: Number(id)
+        id: Number(id),
+        isDeleted: false
       },
       select: {
         id: true,

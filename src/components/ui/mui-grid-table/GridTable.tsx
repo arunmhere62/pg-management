@@ -17,6 +17,7 @@ interface GridTableProps {
   rowHeight?: number;
   hideFooter?: boolean;
   showToolbar?: boolean;
+  tableHeight?: string;
 }
 
 const GridTable: React.FC<GridTableProps> = ({
@@ -25,7 +26,8 @@ const GridTable: React.FC<GridTableProps> = ({
   loading,
   columns,
   rows,
-  rowHeight
+  rowHeight,
+  tableHeight
 }) => {
   const apiRef = useGridApiRef();
   const containerRef = React.useRef<HTMLDivElement>(null);
@@ -98,7 +100,7 @@ const GridTable: React.FC<GridTableProps> = ({
           padding: '',
           width: `${tableWidth}px`,
           maxWidth: '100%',
-          height: '600px'
+          height: `${tableHeight ?? '600px'}`
         }}
       >
         <DataGrid

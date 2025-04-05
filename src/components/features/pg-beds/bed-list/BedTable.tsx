@@ -19,6 +19,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { DotsVerticalIcon } from '@radix-ui/react-icons';
 import { Button } from '@/components/ui/button';
+import { SelectComboBox } from '@/components/ui/selectComboBox';
+import { IBedProps, IOptionTypeProps } from '@/services/types/common-types';
 interface IBedsProps {
   id: number;
   bedNo: string;
@@ -35,7 +37,20 @@ interface IBedsProps {
 const BedsList = () => {
   const router = useRouter();
   const [bedsData, setBedsData] = useState<IBedsProps[]>([]);
+  const [filteredBedsData, setFilteredBedsData] = useState<IBedsProps[]>([]);
   const [loading, setLoading] = useState(false);
+  const [roomSelectionList, setRoomSelectionList] = useState<
+    IOptionTypeProps[]
+  >([]);
+  const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
+  useEffect(() => {
+    if (selectedRoom) {
+      const filteredBedsList = bedsData.filter(
+        (bed: IBedProps) => Number(bed.roomId) === Number(selectedRoom)
+      );
+      setFilteredBedsData(filteredBedsList);
+    }
+  }, [selectedRoom]);
 
   useEffect(() => {
     const getBeds = async () => {
@@ -56,6 +71,15 @@ const BedsList = () => {
             roomNo: data.rooms.roomNo,
             name: data?.tenants[0]?.name ?? 'N/A'
           }));
+          const roomSelectionList = Array.from(
+            new Map<string, IOptionTypeProps>(
+              res.data.map((data: any) => [
+                data.roomId,
+                { value: String(data.roomId), label: data.rooms.roomNo }
+              ])
+            ).values()
+          );
+          setRoomSelectionList(roomSelectionList);
           setBedsData(formattedRes);
         }
       } catch (error) {
@@ -203,10 +227,31 @@ const BedsList = () => {
           }
         ]}
       />
-      <div className='mt-6'>
+      <div className='mt-3 flex gap-3'>
+        <div className='w-[200px]'>
+          <SelectComboBox
+            options={roomSelectionList}
+            placeholder='Select a Room'
+            value={selectedRoom || ''}
+            onChange={(e: string | null) => {
+              setSelectedRoom(e);
+            }}
+          />
+        </div>
+        <Button
+          variant='outline'
+          onClick={() => {
+            setFilteredBedsData([]);
+            setSelectedRoom(null);
+          }}
+        >
+          clear
+        </Button>
+      </div>
+      <div className='mt-2'>
         <GridTable
           columns={columns}
-          rows={bedsData}
+          rows={filteredBedsData.length > 0 ? filteredBedsData : bedsData}
           loading={loading}
           rowHeight={80}
           showToolbar={true}
