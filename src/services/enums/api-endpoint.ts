@@ -1,7 +1,9 @@
 export const API_ENDPOINT = {
   room: '/api/room',
   room_ById: '/api/room/:id',
-
+  DASHBOARD: {
+    OVERVIEW: '/api/dashboard-overview'
+  },
   PG: {
     pg_location: '/api/pg',
     pg_location_ById: '/api/pg/:id'
@@ -18,6 +20,10 @@ export const API_ENDPOINT = {
   TENANT: {
     tenant: '/api/tenant',
     tenant_ById: '/api/tenant/:id'
+  },
+  EXPENSE: {
+    expense: '/api/expense',
+    expense_ById: '/api/expense/:id'
   },
   PAYMENT: {
     payment_rent: '/api/payment/rent',

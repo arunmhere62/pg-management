@@ -28,3 +28,17 @@ export const formatDateToDDMMYYYY = (dateString: string): string => {
     return dateString;
   }
 };
+
+export const formatDateToMonDDYYYY = (dateString: string): string => {
+  try {
+    if (!dateString) return dateString;
+
+    const date = parseISO(dateString);
+
+    if (!isValid(date)) return dateString;
+
+    return format(date, 'dd-MMM-yyyy'); // e.g. Mar-10-2025
+  } catch {
+    return dateString;
+  }
+};

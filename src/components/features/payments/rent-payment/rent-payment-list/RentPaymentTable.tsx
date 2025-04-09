@@ -102,7 +102,9 @@ const RentPaymentList = () => {
   const [openRentRemoveConfirmModal, setOpenRentRemoveConfirmModal] =
     useState<boolean>(false);
   const [selectedRentId, setSelectedRentId] = useState<number | null>(null);
-  const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
+  const [selectedMonth, setSelectedMonth] = useState<string | null>(
+    'this_month'
+  );
   const [filteredPaymentData, setFilteredPaymentData] = useState<
     IRentPaymentListProps[]
   >([]);
@@ -300,11 +302,11 @@ const RentPaymentList = () => {
         </span>
       )
     },
-    {
-      field: 'paymentDate',
-      headerName: 'Payment Date',
-      minWidth: 150
-    },
+    // {
+    //   field: 'paymentDate',
+    //   headerName: 'Payment Date',
+    //   minWidth: 150
+    // },
     {
       field: 'startDate',
       headerName: 'Start Date',

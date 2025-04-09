@@ -120,3 +120,78 @@ export const PUT = async (
     return errorHandler(error);
   }
 };
+
+export const DELETE = async (
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) => {
+  try {
+    const { id } = await params;
+    const pgLocationId = req.cookies.get('pgLocationId')?.value;
+
+    if (!pgLocationId) {
+      throw new BadRequestError('PG location data not found');
+    }
+    if (!id) {
+      throw new BadRequestError('Bed Id is required');
+    }
+
+    // Check if bed is assigned to a tenant
+    const existingTenant = await prisma.tenants.findFirst({
+      where: {
+        bedId: Number(id),
+        pgId: Number(pgLocationId),
+        isDeleted: false
+      }
+    });
+
+    if (existingTenant) {
+      throw new BadRequestError('Cannot delete. Bed is assigned to a tenant.');
+    }
+
+    // Find bed to get roomId
+    const bed = await prisma.beds.findUnique({
+      where: {
+        id: Number(id)
+      },
+      select: {
+        roomId: true
+      }
+    });
+
+    if (!bed?.roomId) {
+      throw new BadRequestError('Bed or associated room not found');
+    }
+
+    // Run both operations in a transaction
+    await prisma.$transaction([
+      prisma.beds.update({
+        where: {
+          id: Number(id),
+          pgId: Number(pgLocationId)
+        },
+        data: {
+          isDeleted: true
+        }
+      }),
+      prisma.rooms.update({
+        where: {
+          id: bed.roomId,
+          pgId: Number(pgLocationId)
+        },
+        data: {
+          bedCount: {
+            decrement: 1
+          }
+        }
+      })
+    ]);
+
+    return NextResponse.json(
+      { status: 200, message: 'Deleted successfully' },
+      { status: 200 }
+    );
+  } catch (error) {
+    return errorHandler(error);
+  }
+};

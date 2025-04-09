@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import axiosService from '@/services/utils/axios';
 import * as z from 'zod';
 import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
+import { toast, Toaster } from 'sonner';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
@@ -12,6 +12,7 @@ import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import RoomForm from './RoomForm';
 import { createRoom, updateRoom } from '@/services/utils/api/rooms-api';
+import { useSetBreadcrumbs } from '@/hooks/use-breadcrumbs';
 
 export const roomFormSchema = z.object({
   images: z
@@ -20,23 +21,26 @@ export const roomFormSchema = z.object({
     .max(4, 'You can upload up to 4 images.'),
   roomNo: z
     .string()
+    .trim()
     .min(1, 'Room number is required')
     .refine((val) => /^\d+$/.test(val) && Number(val) > 0, {
-      message: 'Room number must be a positive number'
+      message: 'Room number must be a positive number greater than 0'
     }),
 
   bedCount: z
     .string()
+    .trim()
     .min(1, 'Bed count is required')
     .refine((val) => /^\d+$/.test(val) && Number(val) > 0, {
-      message: 'Bed count must be a positive number'
+      message: 'Bed count must be a positive number greater than 0'
     }),
 
   rentPrice: z
     .string()
+    .trim()
     .min(1, 'Rent price is required')
     .refine((val) => /^\d+(\.\d{1,2})?$/.test(val) && Number(val) > 0, {
-      message: 'Rent price must be a positive number'
+      message: 'Rent price must be a positive number greater than 0'
     })
 });
 
@@ -54,7 +58,10 @@ const MainRoomForm = ({ mode, initialData, id }: IMainRoomFormProps) => {
     (state) => state.pgLocation
   );
   const pageTitle = mode === 'create' ? 'Create New Room' : 'Edit Room';
-
+  useSetBreadcrumbs([
+    { title: 'Rooms', link: '/room' },
+    { title: mode ?? 'new', link: '/' }
+  ]);
   const defaultValues = {
     roomNo: '',
     bedCount: '',

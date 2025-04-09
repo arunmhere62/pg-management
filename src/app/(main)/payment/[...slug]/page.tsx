@@ -45,19 +45,19 @@ const Page = () => {
         <TabsList className='grid w-full grid-cols-3'>
           <TabsTrigger
             value='rent'
-            onClick={() => router.push('/payment/rent/new')}
+            onClick={() => router.push(`/payment/rent/new/${slugTwo ?? ''}`)}
           >
             Rent
           </TabsTrigger>
           <TabsTrigger
             value='advance'
-            onClick={() => router.push('/payment/advance/new')}
+            onClick={() => router.push(`/payment/advance/new/${slugTwo ?? ''}`)}
           >
             Advance
           </TabsTrigger>
           <TabsTrigger
             value='refund'
-            onClick={() => router.push('/payment/refund/new')}
+            onClick={() => router.push(`/payment/refund/new/${slugTwo ?? ''}`)}
           >
             Refund
           </TabsTrigger>

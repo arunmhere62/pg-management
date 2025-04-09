@@ -26,9 +26,10 @@ export const paymentFormSchema = z.object({
   status: z.string().min(1, 'Please select a status.'),
   amountPaid: z
     .string()
-    .min(1, 'Advance amount is required')
+    .trim()
+    .min(1, 'Amount  is required')
     .refine((val) => /^\d+$/.test(val) && Number(val) > 0, {
-      message: 'Advance amount must be a positive number'
+      message: 'Amount must be a positive number greater than 0'
     }),
   remarks: z.string().min(1, 'Please enter remarks.')
 });
@@ -111,6 +112,8 @@ const MainAdvancePayment = ({
       try {
         const res = await fetchTenantsList();
         if (res.data) {
+          console.log('tenant list', res.data);
+
           setTenantData(res.data);
           setTenantList(
             res.data.map((tenant: any) => ({
@@ -127,7 +130,7 @@ const MainAdvancePayment = ({
   }, []);
 
   const defaultValues = {
-    tenantId: tenantId || '',
+    tenantId: String(tenantId) || '',
     paymentDate:
       new Date().toString() !== 'Invalid Date'
         ? format(new Date(), 'dd-MM-yyyy')

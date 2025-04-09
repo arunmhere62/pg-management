@@ -16,6 +16,7 @@ import { parse } from 'date-fns';
 import { fetchRoomsList } from '@/services/utils/api/rooms-api';
 import { fetchBedsByRoomId } from '@/services/utils/api/bed-api';
 import { createTenant, updateTenant } from '@/services/utils/api/tenant-api';
+import { IOptionTypeProps } from '@/services/types/common-types';
 export const tenantFormSchema = z
   .object({
     tenantName: z.string().min(1, 'Tenant name is required'),
@@ -26,6 +27,8 @@ export const tenantFormSchema = z
     checkInDate: z.string().min(1, 'Check-in date is required'),
     checkOutDate: z.string().optional(), // Making checkOutDate optional
     status: z.string().min(1, 'Status is required'),
+    tenantAddress: z.string().optional(),
+    occupation: z.string().optional(),
     images: z
       .array(z.string())
       .min(1, 'Image is required.')
@@ -50,22 +53,22 @@ export const tenantFormSchema = z
   );
 
 interface IMainTenantFormProps {
+  roomId?: string;
+  bedId?: string;
   id?: string;
   mode: 'create' | 'edit';
   initialData?: Partial<z.infer<typeof tenantFormSchema>>;
 }
-export interface IRoomListSelectProps {
-  value: string;
-  label: string;
-}
-export interface IBedListSelectProps {
-  value: string;
-  label: string;
-}
 
-const MainTenantForm = ({ mode, initialData, id }: IMainTenantFormProps) => {
-  const [roomList, setRoomList] = useState<IRoomListSelectProps[]>([]);
-  const [bedsList, setBedsList] = useState<IBedListSelectProps[]>([]);
+const MainTenantForm = ({
+  mode,
+  initialData,
+  id,
+  roomId,
+  bedId
+}: IMainTenantFormProps) => {
+  const [roomList, setRoomList] = useState<IOptionTypeProps[]>([]);
+  const [bedsList, setBedsList] = useState<IOptionTypeProps[]>([]);
   const [selectedRoomId, setSelectedRoomId] = useState<string>('');
   const { pgLocationId } = useSelector((state) => state.pgLocation);
   const pageTitle = mode === 'create' ? 'Add New Tenant' : 'Edit Tenant';
@@ -107,11 +110,13 @@ const MainTenantForm = ({ mode, initialData, id }: IMainTenantFormProps) => {
     tenantName: '',
     phoneNo: '',
     email: '',
-    roomId: '',
-    bedId: '',
+    roomId: roomId ?? '',
+    bedId: bedId ?? '',
     checkInDate: '',
     checkOutDate: '',
-    status: '',
+    status: 'ACTIVE',
+    tenantAddress: '',
+    occupation: '',
     images: [],
     proofDocuments: [],
     ...initialData
@@ -132,6 +137,8 @@ const MainTenantForm = ({ mode, initialData, id }: IMainTenantFormProps) => {
         name: values.tenantName,
         phoneNo: values.phoneNo,
         email: values.email,
+        tenantAddress: values.tenantAddress,
+        occupation: values.occupation,
         checkInDate: values.checkInDate,
         checkOutDate: values.checkOutDate ?? '',
         status: values.status,
@@ -151,6 +158,8 @@ const MainTenantForm = ({ mode, initialData, id }: IMainTenantFormProps) => {
             checkInDate: '',
             checkOutDate: '',
             status: '',
+            tenantAddress: '',
+            occupation: '',
             images: [],
             proofDocuments: []
           });
@@ -167,6 +176,8 @@ const MainTenantForm = ({ mode, initialData, id }: IMainTenantFormProps) => {
             bedId: '',
             checkInDate: '',
             checkOutDate: '',
+            tenantAddress: '',
+            occupation: '',
             status: '',
             images: [],
             proofDocuments: []

@@ -29,6 +29,8 @@ interface IRoomDetailsProps {
   createdAt: string;
   updatedAt: string;
   images: string[];
+  tenantAddress: string;
+  occupation: string;
   proofDocuments: string[];
   beds: {
     bedNo: string;
@@ -155,27 +157,35 @@ const RoomDetails = ({ id }: { id: string }) => {
         <div className='mt-3'>
           <div className='mb-5 flex justify-between'>
             <p className='w-[120px] font-semibold'>Tenant Name</p>
-            <p className=''>{roomDetails?.name}</p>
+            <p className=''>{roomDetails?.name || 'N/A'}</p>
           </div>
           <div className='mb-5 flex justify-between'>
             <p className='w-[120px] font-semibold'>Room No</p>
-            <p className=''>{roomDetails?.rooms.roomNo}</p>
+            <p className=''>{roomDetails?.rooms.roomNo || 'N/A'}</p>
           </div>
           <div className='mb-5 flex justify-between'>
             <p className='w-[120px] font-semibold'>Bed No</p>
-            <p className=''>{roomDetails?.beds.bedNo}</p>
+            <p className=''>{roomDetails?.beds.bedNo || 'N/A'}</p>
           </div>
           <div className='mb-5 flex justify-between'>
             <p className='w-[120px] font-semibold'>Phone No:</p>
-            <p className=''>{roomDetails?.phoneNo}</p>
+            <p className=''>{roomDetails?.phoneNo || 'N/A'}</p>
           </div>
           <div className='mb-5 flex justify-between'>
             <p className='w-[120px] font-semibold'>Email</p>
-            <p className=''>{roomDetails?.email}</p>
+            <p className=''>{roomDetails?.email || 'N/A'}</p>
+          </div>
+          <div className='mb-5 flex justify-between'>
+            <p className='w-[120px] font-semibold'>Address</p>
+            <p className=''>{roomDetails?.tenantAddress || 'N/A'}</p>
+          </div>
+          <div className='mb-5 flex justify-between'>
+            <p className='w-[120px] font-semibold'>Occupation</p>
+            <p className=''>{roomDetails?.occupation || 'N/A'}</p>
           </div>
           <div className='mb-5 flex justify-between'>
             <p className='w-[120px] font-semibold'>Check In Date</p>
-            <p className=''>{roomDetails?.checkInDate}</p>
+            <p className=''>{roomDetails?.checkInDate || 'N/A'}</p>
           </div>
           <div className='mb-5 flex justify-between'>
             <p className='w-[120px] font-semibold'>Check Out Date</p>

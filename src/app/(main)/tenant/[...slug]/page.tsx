@@ -10,11 +10,17 @@ const Page = () => {
   const slug = Array.isArray(params.slug) ? params.slug : [];
   let type = 'edit';
   let id = slug[0];
+  let roomId = slug[1];
+  let bedId = slug[2];
   if (slug.length === 2) {
     [type, id] = slug;
   }
+  console.log('bedId', bedId);
+
   if (slug[0] === 'new') {
-    return <MainTenantForm mode='create' />;
+    return (
+      <MainTenantForm mode='create' bedId={bedId ?? ''} roomId={roomId ?? ''} />
+    );
   }
   return (
     <div>

@@ -9,18 +9,9 @@ import {
 } from '@/components/ui/form';
 import ImageUploader from '@/components/ui/ImageUploader';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
-import { DatePickerWithRange } from '@/components/ui/date-picker-withrange';
-import { roomFormSchema } from '@/components/features/pg-rooms/room-form';
 import { DatePicker } from '@/components/ui/date-picker';
 import { SelectComboBox } from '@/components/ui/selectComboBox';
-import { IBedListSelectProps, IRoomListSelectProps } from '.';
+import { IOptionTypeProps } from '@/services/types/common-types';
 
 interface IPgLocationFromProps {
   initialValue: {
@@ -38,8 +29,8 @@ interface IPgLocationFromProps {
   };
   onSubmit: (values: any) => void;
   control: any;
-  roomList: IRoomListSelectProps[];
-  bedsList: IBedListSelectProps[];
+  roomList: IOptionTypeProps[];
+  bedsList: IOptionTypeProps[];
 }
 export default function TenantForm({
   initialValue,
@@ -108,6 +99,40 @@ export default function TenantForm({
                 <Input
                   type='number'
                   placeholder='Enter Phone Number'
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={control}
+          name='tenantAddress'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Tenant Address</FormLabel>
+              <FormControl>
+                <Input
+                  type='text'
+                  placeholder='Enter Tenant Address'
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={control}
+          name='occupation'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Tenant Occupation</FormLabel>
+              <FormControl>
+                <Input
+                  type='text'
+                  placeholder='Enter Tenant Occupation'
                   {...field}
                 />
               </FormControl>

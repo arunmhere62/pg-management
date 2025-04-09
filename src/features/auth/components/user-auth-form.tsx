@@ -44,7 +44,7 @@ export default function UserAuthForm() {
       const res = await signIn('credentials', {
         email: data.email,
         password: data.password,
-        callbackUrl: callbackUrl ?? '/dashboard'
+        callbackUrl: callbackUrl ?? '/dashboard/overview'
         // redirect: false
       });
       if (res?.error) {

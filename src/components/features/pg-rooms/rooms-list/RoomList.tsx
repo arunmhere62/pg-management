@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { DotsVerticalIcon } from '@radix-ui/react-icons';
 import { formatDateToDDMMYYYY } from '@/services/utils/formaters';
+import { useSetBreadcrumbs } from '@/hooks/use-breadcrumbs';
 export interface IRoomListProps {
   id: number;
   roomId: number;
@@ -45,7 +46,7 @@ const RoomsList = () => {
   const [roomsList, setRoomsList] = useState<IRoomListProps[]>([]);
   const [loading, setLoading] = useState(false);
   const [openBedModal, setOpenBedModal] = useState<boolean>(false);
-
+  useSetBreadcrumbs([{ title: 'Rooms', link: '/' }]);
   useEffect(() => {
     const getPgList = async () => {
       setLoading(true);

@@ -81,6 +81,7 @@ model pg_locations {
   employees       employees[]
   expenses        expenses[]
   income          income[]
+  other_expenses  OtherExpenses[]
   city            city?                @relation(fields: [cityId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_city")
   state           state?               @relation(fields: [stateId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_state")
   users           users                @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pg_locations_ibfk_1")
@@ -177,6 +178,8 @@ model tenants {
   images          Json?
   proofDocuments  Json?              @map("proof_documents")
   isDeleted       Boolean?           @default(false) @map("is_deleted")
+  occupation      String?            @db.VarChar(100)
+  tenantAddress   String?            @map("tenant_address") @db.VarChar(255)
   advancePayments advance_payments[]
   refundPayments  refund_payments[]
   tenantPayments  tenant_payments[]
@@ -204,8 +207,8 @@ model tenants_history {
   createdAt      DateTime? @default(now()) @map("created_at") @db.Timestamp(0)
   updatedAt      DateTime? @default(now()) @map("updated_at") @db.Timestamp(0)
   images         Json?
-  proofDocuments Json? @map("proof_documents")
-  isDeleted      Boolean?  @default(false) @map("is_deleted")
+  proofDocuments Json?     @map("proof_documents")
+  is_Deleted     Boolean?  @default(false)
 
   @@index([bedId], map: "bed_id")
   @@index([pgId], map: "pg_id")
@@ -299,7 +302,6 @@ model tenant_payments {
   @@index([tenantId], map: "fk_tenant_payment_tenant")
 }
 
-
 model advance_payments {
   id            Int                             @id @default(autoincrement()) @map("s_no")
   tenantId      Int                             @map("tenant_id")
@@ -367,6 +369,21 @@ model tenant_payment_history {
   @@index([tenantPaymentId], map: "fk_tenant_payment_history_payment")
 }
 
+model OtherExpenses {
+  id          Int          @id @default(autoincrement())
+  pgId        Int          @map("pg_id")
+  expenseName String       @map("expense_name") @db.VarChar(100)
+  description String?      @db.Text
+  amount      Float        @db.Float
+  expenseDate DateTime     @map("expense_date") @db.Date
+  createdAt   DateTime?    @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt   DateTime?    @default(now()) @map("updated_at") @db.Timestamp(0)
+  isDeleted   Boolean?     @default(false) @map("is_deleted")
+  pgLocations pg_locations @relation(fields: [pgId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "other_expenses_ibfk_1")
+
+  @@index([pgId], map: "pg_id")
+  @@map("other_expenses")
+}
 
 enum roles_status {
   ACTIVE

@@ -39,6 +39,9 @@ export const GET = async (req: NextRequest) => {
           }
         },
         beds: {
+          where: {
+            isDeleted: false
+          },
           select: {
             id: true,
             bedNo: true,

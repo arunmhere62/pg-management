@@ -62,9 +62,34 @@ export const navItems: NavItem[] = [
     shortcut: ['v', 'v'],
     items: []
   },
+
   {
-    title: 'Payment Transaction',
+    title: 'Rent ',
     url: '/payment/rent',
+    icon: 'dashboard',
+    isActive: false,
+    shortcut: ['v', 'v'],
+    items: []
+  },
+  {
+    title: 'Advance',
+    url: '/payment/advance',
+    icon: 'dashboard',
+    isActive: false,
+    shortcut: ['v', 'v'],
+    items: []
+  },
+  {
+    title: 'Refund',
+    url: '/payment/refund',
+    icon: 'dashboard',
+    isActive: false,
+    shortcut: ['v', 'v'],
+    items: []
+  },
+  {
+    title: 'Expenses',
+    url: '/expense',
     icon: 'dashboard',
     isActive: false,
     shortcut: ['v', 'v'],

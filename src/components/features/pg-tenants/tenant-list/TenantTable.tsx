@@ -1,7 +1,7 @@
 'use client';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
-import { EditIcon, Eye, MessageCircle, Trash2Icon } from 'lucide-react';
+import { EditIcon, Eye, MessageCircle, Trash2, Trash2Icon } from 'lucide-react';
 import HeaderButton from '@/components/ui/large/HeaderButton';
 import GridTable from '@/components/ui/mui-grid-table/GridTable';
 import { cn } from '@/lib/utils';
@@ -9,8 +9,17 @@ import {
   fetchTenantsList,
   removeTenant
 } from '@/services/utils/api/tenant-api';
-import { formatDateToDDMMYYYY } from '@/services/utils/formaters';
-
+import {
+  formatDateToDDMMYYYY,
+  formatDateToMonDDYYYY
+} from '@/services/utils/formaters';
+import {
+  endOfMonth,
+  isWithinInterval,
+  parseISO,
+  startOfMonth,
+  subMonths
+} from 'date-fns';
 import { DotsVerticalIcon } from '@radix-ui/react-icons';
 import { Button } from '@/components/ui/button';
 import {
@@ -28,6 +37,8 @@ import {
 } from '@/services/types/common-types';
 import { toast } from 'sonner';
 import { Modal } from '@/components/ui/modal';
+import { SelectComboBox } from '@/components/ui/selectComboBox';
+import { monthOptions } from '@/services/data/data';
 
 interface ITenantListProps {
   id: number;
@@ -55,22 +66,26 @@ const TenantList = () => {
   const router = useRouter();
   const [tenantList, setTenantList] = useState<ITenantListProps[]>([]);
   const [selectedTenantId, setSelectedTenantId] = useState<number | null>(null);
-
+  const [selectedMonth, setSelectedMonth] = useState<string>('this_month');
+  const [filteredTenantData, setFilteredTenantData] = useState<
+    ITenantListProps[]
+  >([]);
+  const [selectedRoom, setSelectedRoom] = useState<string>('');
   const [openTenantRemoveConfirmModal, setOpenTenantRemoveConfirmModal] =
     useState<boolean>(false);
   const getTenants = async () => {
     try {
-      const res = await fetchTenantsList();
+      const res = await fetchTenantsList({ isDeleted: 'false' });
       const formattedRes = res.data.map((d: ITenantListProps) => {
         const lastPayment = d.tenantPayments.at(-1);
         return {
           roomNo: d.rooms.roomNo,
           bedNo: d.beds.bedNo,
           startDate: lastPayment?.startDate
-            ? formatDateToDDMMYYYY(lastPayment?.startDate)
+            ? formatDateToMonDDYYYY(lastPayment?.startDate)
             : 'N/A',
           endDate: lastPayment?.endDate
-            ? formatDateToDDMMYYYY(lastPayment?.endDate)
+            ? formatDateToMonDDYYYY(lastPayment?.endDate)
             : 'N/A',
           ...d
         };
@@ -85,6 +100,61 @@ const TenantList = () => {
   useEffect(() => {
     getTenants();
   }, []);
+
+  useEffect(() => {
+    if (selectedMonth && tenantList.length) {
+      const now = new Date();
+      let startDate: Date;
+      let endDate = now;
+
+      switch (selectedMonth) {
+        case 'this_month':
+          startDate = startOfMonth(now);
+          break;
+        case 'last_month':
+          startDate = startOfMonth(subMonths(now, 1));
+          endDate = endOfMonth(subMonths(now, 1));
+          break;
+        case 'last_3_months':
+          startDate = startOfMonth(subMonths(now, 3));
+          break;
+        case 'last_6_months':
+          startDate = startOfMonth(subMonths(now, 6));
+          break;
+        case 'last_1_year':
+          startDate = startOfMonth(subMonths(now, 12));
+          break;
+        default:
+          return;
+      }
+
+      const filtered = tenantList.filter((tenant) => {
+        const checkIn = parseISO(tenant.checkInDate);
+        return isWithinInterval(checkIn, { start: startDate, end: endDate });
+      });
+
+      setFilteredTenantData(filtered);
+    } else {
+      setFilteredTenantData(tenantList);
+    }
+  }, [selectedMonth, tenantList]);
+
+  // Filter tenants based on selected room
+  useEffect(() => {
+    if (selectedRoom) {
+      console.log('sdfsdfsd room', selectedRoom);
+      console.log(selectedRoom);
+
+      const filtered = tenantList.filter(
+        (tenant) => String(tenant.rooms.id) === selectedRoom
+      );
+      console.log('filtered', filtered);
+
+      setFilteredTenantData(filtered);
+    } else {
+      setFilteredTenantData(tenantList);
+    }
+  }, [selectedRoom, tenantList]);
 
   const handleRemoveTenant = async () => {
     try {
@@ -103,6 +173,7 @@ const TenantList = () => {
       toast.error(errorMessage);
     }
   };
+
   const columns = [
     {
       field: 'actions',
@@ -142,9 +213,12 @@ const TenantList = () => {
                   </Button>
                   <Button
                     variant='outline'
-                    onClick={() => alert(JSON.stringify(params.row))}
+                    onClick={() => {
+                      setSelectedTenantId(params.row.id);
+                      setOpenTenantRemoveConfirmModal(true);
+                    }}
                   >
-                    <EditIcon className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]' />
+                    <Trash2 className='w-4 cursor-pointer text-[red] hover:text-[#000] dark:hover:text-[#fff]' />
                   </Button>
                   <Button
                     variant='outline'
@@ -181,15 +255,6 @@ const TenantList = () => {
                 </Button>
                 <Button variant='outline' onClick={sendWhatsAppMessage}>
                   <MessageCircle className='mr-2 w-4' /> Whats App
-                </Button>
-                <Button
-                  variant='destructive'
-                  onClick={() => {
-                    setSelectedTenantId(params.row.id);
-                    setOpenTenantRemoveConfirmModal(true);
-                  }}
-                >
-                  <Trash2Icon className='mr-2 w-4' /> Remove
                 </Button>
               </div>
             </DropdownMenuContent>
@@ -328,6 +393,15 @@ const TenantList = () => {
       )
     }
   ];
+  const uniqueRooms = [
+    ...new Map(
+      tenantList.map((tenant) => [
+        `${tenant.rooms.roomNo}-${tenant.rooms.id}`, // Use roomNo and id as a unique key
+        { roomNo: tenant.rooms.roomNo, id: tenant.rooms.id }
+      ])
+    ).values()
+  ];
+
   return (
     <>
       <HeaderButton
@@ -342,10 +416,36 @@ const TenantList = () => {
           }
         ]}
       />
+      <div className='mt-3 flex gap-3'>
+        <div className='w-[200px]'>
+          <SelectComboBox
+            options={monthOptions}
+            value={selectedMonth}
+            onChange={(e: string | null) => setSelectedMonth(e || 'this_month')}
+          />
+        </div>
+        <Button variant='outline' onClick={() => setSelectedMonth('')}>
+          Clear Month Filter
+        </Button>
+        <div className='w-[200px]'>
+          <SelectComboBox
+            options={uniqueRooms.map((room) => ({
+              label: room.roomNo,
+              value: room.id.toString()
+            }))}
+            value={selectedRoom}
+            onChange={(e: string | null) => setSelectedRoom(e || '')}
+            placeholder='Select Room No'
+          />
+        </div>
+        <Button variant='outline' onClick={() => setSelectedRoom('')}>
+          Clear Room Filter
+        </Button>
+      </div>
       <div className='mt-6'>
         <GridTable
           columns={columns}
-          rows={tenantList}
+          rows={filteredTenantData ?? tenantList}
           loading={false}
           rowHeight={80}
           showToolbar={true}

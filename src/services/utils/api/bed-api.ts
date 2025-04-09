@@ -51,3 +51,13 @@ export const fetchBedsByRoomId = async (roomId: string) => {
     throw error;
   }
 };
+
+export const deleteBed = async (id: string) => {
+  try {
+    const endpoint = API_ENDPOINT.BED.bed_ById.replace(':id', id.toString());
+    const res = await axiosService.delete(endpoint);
+    return res.data;
+  } catch (error) {
+    throw error;
+  }
+};

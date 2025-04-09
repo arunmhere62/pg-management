@@ -1,7 +1,6 @@
 import prisma from '@/lib/prisma';
 import {
   BadRequestError,
-  ConflictError,
   errorHandler,
   NotFoundError
 } from '@/services/utils/error';
@@ -112,7 +111,15 @@ export const PUT = async (
         isDeleted: false
       },
       include: {
-        beds: true
+        beds: {
+          where: {
+            isDeleted: false
+          },
+          select: {
+            bedNo: true,
+            id: true
+          }
+        }
       }
     });
 

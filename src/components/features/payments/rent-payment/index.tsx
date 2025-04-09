@@ -169,7 +169,7 @@ const MainRentPayment = ({
       if (mode === 'create') {
         const res = await createRent(payload);
         if (res.status === 201) {
-          toast.success('Tenant Payment added successfully!');
+          toast.success('Tenant Rent added successfully!');
           form.reset({
             tenantId: '',
             paymentDate: '',
@@ -188,7 +188,7 @@ const MainRentPayment = ({
         };
         const res = await updateRent(data, String(id));
         if (res.status === 200) {
-          toast.success('Tenant Payment updated successfully!');
+          toast.success('Tenant Rent updated successfully!');
           form.reset({
             tenantId: '',
             paymentDate: '',

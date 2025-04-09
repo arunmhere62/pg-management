@@ -13,14 +13,24 @@ export const GET = async (req: NextRequest) => {
         status: 400
       });
     }
+    const searchParams = req.nextUrl.searchParams;
+    const isDeletedParam = searchParams.get('isDeleted');
+    const isDeleted =
+      isDeletedParam === 'true'
+        ? true
+        : isDeletedParam === 'false'
+          ? false
+          : undefined;
 
-    const currentDate = new Date();
+    const whereCondition: any = {
+      pgId: Number(pgLocationId)
+    };
 
+    if (typeof isDeleted === 'boolean') {
+      whereCondition.isDeleted = isDeleted;
+    }
     const tenants = await prisma.tenants.findMany({
-      where: {
-        pgId: Number(pgLocationId),
-        isDeleted: false
-      },
+      where: whereCondition,
       select: {
         id: true,
         tenantId: true,
@@ -30,6 +40,8 @@ export const GET = async (req: NextRequest) => {
         status: true,
         pgId: true,
         roomId: true,
+        tenantAddress: true,
+        occupation: true,
         checkInDate: true,
         checkOutDate: true,
         createdAt: true,
@@ -89,6 +101,7 @@ export const GET = async (req: NextRequest) => {
       let isRentPaid = false;
       let isAdvancePaid = false;
 
+      // Rent payment check
       if (lastRentPayment?.startDate && lastRentPayment?.endDate) {
         const startDate = new Date(
           new Date(lastRentPayment.startDate).toISOString().split('T')[0]
@@ -100,6 +113,7 @@ export const GET = async (req: NextRequest) => {
         isRentPaid = startDate <= today && today <= endDate;
       }
 
+      // Advance payment check
       if (
         lastAdvancePayment?.paymentDate &&
         lastAdvancePayment.amountPaid != null
@@ -107,8 +121,9 @@ export const GET = async (req: NextRequest) => {
         const paymentDate = new Date(lastAdvancePayment.paymentDate);
         const amountPaid = Number(lastAdvancePayment.amountPaid);
 
+        // Advance payment is considered paid if it's been paid and the payment date is valid (not in future)
         isAdvancePaid =
-          !isNaN(amountPaid) && amountPaid > 0 && paymentDate >= today;
+          !isNaN(amountPaid) && amountPaid > 0 && paymentDate <= today;
       }
 
       // Format Check-in Date (DD-MM-YYYY → YYYY-MM-DD)
@@ -125,6 +140,7 @@ export const GET = async (req: NextRequest) => {
         isAdvancePaid
       };
     });
+
     return NextResponse.json(
       {
         message: 'Tenants fetched successfully',
@@ -147,6 +163,8 @@ const tenantSchema = z.object({
   phoneNo: z.string().regex(/^\d{10}$/, 'Phone number must be 10 digits'),
   email: z.string().email('Invalid email format'),
   checkInDate: z.string(),
+  tenantAddress: z.string().optional(),
+  occupation: z.string().optional(),
   checkOutDate: z.string().optional(),
   status: z.enum(['ACTIVE', 'INACTIVE']),
   images: z.array(z.string()).optional(),

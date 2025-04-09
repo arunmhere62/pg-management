@@ -1,9 +1,10 @@
 import { API_ENDPOINT } from '@/services/enums/api-endpoint';
 import axiosService from '../axios';
 
-export const fetchTenantsList = async () => {
+export const fetchTenantsList = async (params?: Record<string, any>) => {
   try {
-    const res = await axiosService.get(`${API_ENDPOINT.TENANT.tenant}`);
+    const query = params ? `?${new URLSearchParams(params).toString()}` : '';
+    const res = await axiosService.get(`${API_ENDPOINT.TENANT.tenant}${query}`);
     return res.data;
   } catch (error) {
     throw error;

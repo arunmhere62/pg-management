@@ -168,7 +168,7 @@ const MainRefundPayment = ({
       if (mode === 'create') {
         const res = await createRefund(payload);
         if (res.status === 201) {
-          toast.success('Tenant Advance added successfully!');
+          toast.success('Tenant Refund added successfully!');
           form.reset({
             tenantId: '',
             paymentDate: '',
@@ -181,7 +181,7 @@ const MainRefundPayment = ({
       } else {
         const res = await updateRefund(payload, String(id));
         if (res.status === 200) {
-          toast.success('Tenant Payment updated successfully!');
+          toast.success('Tenant Refund updated successfully!');
           form.reset({
             tenantId: '',
             paymentDate: '',

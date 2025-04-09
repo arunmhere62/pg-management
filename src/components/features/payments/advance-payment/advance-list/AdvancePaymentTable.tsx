@@ -29,6 +29,15 @@ import {
 import { Modal } from '@/components/ui/modal';
 import AdvanceReceipt from '../advance-receipt/AdvanceRecepit';
 import AdvanceReceiptForm from '../advance-receipt/AdvanceReceiptForm';
+import {
+  endOfMonth,
+  isWithinInterval,
+  parseISO,
+  startOfMonth,
+  subMonths
+} from 'date-fns';
+import { SelectComboBox } from '@/components/ui/selectComboBox';
+import { monthOptions } from '@/services/data/data';
 
 interface IAdvancePaymentListProps {
   id: number;
@@ -85,6 +94,10 @@ export const AdvancePaymentTable = () => {
   const [selectedAdvanceId, setSelectedAdvanceId] = useState<number | null>(
     null
   );
+  const [filteredPaymentData, setFilteredPaymentData] = useState<
+    IAdvancePaymentListProps[]
+  >([]);
+  const [selectedMonth, setSelectedMonth] = useState<string>('this_month');
 
   const getPayments = async () => {
     try {
@@ -109,6 +122,45 @@ export const AdvancePaymentTable = () => {
   useEffect(() => {
     getPayments();
   }, []);
+
+  // Filtering by month
+  useEffect(() => {
+    if (selectedMonth && advancePaymentList.length) {
+      const now = new Date();
+      let startDate: Date;
+      let endDate = now;
+
+      switch (selectedMonth) {
+        case 'this_month':
+          startDate = startOfMonth(now);
+          break;
+        case 'last_month':
+          startDate = startOfMonth(subMonths(now, 1));
+          endDate = endOfMonth(subMonths(now, 1));
+          break;
+        case 'last_3_months':
+          startDate = startOfMonth(subMonths(now, 3));
+          break;
+        case 'last_6_months':
+          startDate = startOfMonth(subMonths(now, 6));
+          break;
+        case 'last_1_year':
+          startDate = startOfMonth(subMonths(now, 12));
+          break;
+        default:
+          return;
+      }
+
+      const filtered = advancePaymentList.filter((payment) => {
+        const createdAt = parseISO(payment.createdAt);
+        return isWithinInterval(createdAt, { start: startDate, end: endDate });
+      });
+
+      setFilteredPaymentData(filtered);
+    } else {
+      setFilteredPaymentData(advancePaymentList);
+    }
+  }, [selectedMonth, advancePaymentList]);
 
   const handleRemoveAdvance = async () => {
     try {
@@ -250,35 +302,8 @@ export const AdvancePaymentTable = () => {
         </span>
       )
     }
-
-    // {
-    //   field: 'actions',
-    //   headerName: 'Actions',
-    //   width: 150,
-    //   renderCell: (params: any) => (
-    //     <div className='ml-3 mt-3 flex gap-3'>
-    //       <EditIcon
-    //         onClick={() => {
-    //           router.push(`/payment/advance/${params.row.id}`);
-    //         }}
-    //         className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]'
-    //       />
-    //       <Trash2
-    //         onClick={() => {
-    //           alert(JSON.stringify(params.row));
-    //         }}
-    //         className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]'
-    //       />
-    //       <Eye
-    //         onClick={() => {
-    //           router.push(`/payment/details/${params.row.id}`);
-    //         }}
-    //         className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]'
-    //       />
-    //     </div>
-    //   )
-    // }
   ];
+
   return (
     <>
       <HeaderButton
@@ -293,8 +318,28 @@ export const AdvancePaymentTable = () => {
           }
         ]}
       />
+      <div className='mt-3 flex gap-3'>
+        <div className='w-[200px]'>
+          <SelectComboBox
+            options={monthOptions}
+            value={selectedMonth}
+            onChange={(e: string | null) => setSelectedMonth(e || 'this_month')}
+          />
+        </div>
+        <Button
+          variant='outline'
+          onClick={() => {
+            // setFilteredBedsData([])
+            setSelectedMonth('');
+          }}
+        >
+          clear
+        </Button>
+      </div>
+
       <div className='mt-6'>
         <GridTable
+          tableHeight='550px'
           columns={columns}
           rows={advancePaymentList}
           loading={false}

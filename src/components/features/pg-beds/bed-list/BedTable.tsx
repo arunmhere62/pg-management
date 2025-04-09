@@ -2,7 +2,7 @@ import HeaderButton from '@/components/ui/large/HeaderButton';
 import { Modal } from '@/components/ui/modal';
 import GridTable from '@/components/ui/mui-grid-table/GridTable';
 import { cn } from '@/lib/utils';
-import { fetchBedsList } from '@/services/utils/api/bed-api';
+import { deleteBed, fetchBedsList } from '@/services/utils/api/bed-api';
 import axiosService from '@/services/utils/axios';
 import { formatDateToDDMMYYYY } from '@/services/utils/formaters';
 import { EditIcon, Eye, Trash2 } from 'lucide-react';
@@ -43,6 +43,10 @@ const BedsList = () => {
     IOptionTypeProps[]
   >([]);
   const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
+  const [openBedRemoveConfirmModal, setOpenBedRemoveConfirmModal] =
+    useState<boolean>(false);
+  const [selectedBedId, setSelectedBedId] = useState<number | null>(null);
+
   useEffect(() => {
     if (selectedRoom) {
       const filteredBedsList = bedsData.filter(
@@ -51,45 +55,62 @@ const BedsList = () => {
       setFilteredBedsData(filteredBedsList);
     }
   }, [selectedRoom]);
+  const getBeds = async () => {
+    setLoading(true);
 
-  useEffect(() => {
-    const getBeds = async () => {
-      setLoading(true);
-
-      try {
-        const res = await fetchBedsList();
-        if (res.data) {
-          const formattedRes = res.data.map((data: any) => ({
-            id: data.id,
-            bedNo: data.bedNo,
-            roomId: data.roomId,
-            pgId: data.pgId,
-            status: data.status,
-            images: data.images,
-            createdAt: data.createdAt,
-            updatedAt: data.updatedAt,
-            roomNo: data.rooms.roomNo,
-            name: data?.tenants[0]?.name ?? 'N/A'
-          }));
-          const roomSelectionList = Array.from(
-            new Map<string, IOptionTypeProps>(
-              res.data.map((data: any) => [
-                data.roomId,
-                { value: String(data.roomId), label: data.rooms.roomNo }
-              ])
-            ).values()
-          );
-          setRoomSelectionList(roomSelectionList);
-          setBedsData(formattedRes);
-        }
-      } catch (error) {
-        toast.error('fetching failed');
-      } finally {
-        setLoading(false);
+    try {
+      const res = await fetchBedsList();
+      if (res.data) {
+        const formattedRes = res.data.map((data: any) => ({
+          id: data.id,
+          bedNo: data.bedNo,
+          roomId: data.roomId,
+          pgId: data.pgId,
+          status: data.status,
+          images: data.images,
+          createdAt: data.createdAt,
+          updatedAt: data.updatedAt,
+          roomNo: data.rooms.roomNo,
+          name: data?.tenants[0]?.name ?? 'N/A'
+        }));
+        const roomSelectionList = Array.from(
+          new Map<string, IOptionTypeProps>(
+            res.data.map((data: any) => [
+              data.roomId,
+              { value: String(data.roomId), label: data.rooms.roomNo }
+            ])
+          ).values()
+        );
+        setRoomSelectionList(roomSelectionList);
+        setBedsData(formattedRes);
       }
-    };
+    } catch (error) {
+      toast.error('fetching failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
     getBeds();
   }, []);
+
+  const handleRemoveBed = async () => {
+    try {
+      if (selectedBedId) {
+        const res = await deleteBed(String(selectedBedId));
+        if (res.status === 200) {
+          toast.success('Tenant removed bed is free now!');
+          getBeds();
+        }
+      }
+    } catch (error: any) {
+      const errorMessage =
+        error?.response?.data?.error ||
+        error?.message ||
+        'Something went wrong.';
+      toast.error(errorMessage);
+    }
+  };
 
   const columns = [
     {
@@ -119,9 +140,12 @@ const BedsList = () => {
                   </Button>
                   <Button
                     variant='outline'
-                    onClick={() => alert(JSON.stringify(params.row))}
+                    onClick={() => {
+                      setSelectedBedId(params.row.id);
+                      setOpenBedRemoveConfirmModal(true);
+                    }}
                   >
-                    <Trash2 className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]' />
+                    <Trash2 className='w-4 cursor-pointer text-[red] hover:text-[#000] dark:hover:text-[#fff]' />
                   </Button>
                   <Button
                     variant='outline'
@@ -130,6 +154,16 @@ const BedsList = () => {
                     <Eye className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]' />
                   </Button>
                 </div>
+                <Button
+                  variant='outline'
+                  onClick={() => {
+                    router.push(
+                      `tenant/new/${params.row.roomId ?? ''}/${params.row.id ?? ''}`
+                    );
+                  }}
+                >
+                  Create Tenant
+                </Button>
               </div>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -181,7 +215,7 @@ const BedsList = () => {
 
     {
       field: 'status',
-      headerName: 'Payment Status',
+      headerName: 'Bed Status',
       minWidth: 150,
       renderCell: (params: any) => (
         <span
@@ -250,6 +284,7 @@ const BedsList = () => {
       </div>
       <div className='mt-2'>
         <GridTable
+          tableHeight='550px'
           columns={columns}
           rows={filteredBedsData.length > 0 ? filteredBedsData : bedsData}
           loading={loading}
@@ -258,6 +293,35 @@ const BedsList = () => {
           hideFooter={false}
         />
       </div>
+      <Modal
+        contentClassName='w-fit rounded-lg sm:w-full'
+        isOpen={openBedRemoveConfirmModal}
+        title=''
+        onClose={() => {
+          setOpenBedRemoveConfirmModal(false);
+        }}
+        description='Are you sure you want to remove this Bed?'
+      >
+        <div className='flex w-full items-center justify-center gap-4'>
+          <Button
+            variant='destructive'
+            onClick={() => {
+              handleRemoveBed();
+              setOpenBedRemoveConfirmModal(false);
+            }}
+          >
+            Remove
+          </Button>
+          <Button
+            variant='outline'
+            onClick={() => {
+              setOpenBedRemoveConfirmModal(false);
+            }}
+          >
+            Cancel
+          </Button>
+        </div>
+      </Modal>
     </>
   );
 };

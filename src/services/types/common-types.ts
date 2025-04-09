@@ -3,9 +3,12 @@ export interface IBedProps {
   bedNo: string;
   roomId: number;
   pgId: number;
+  status: string;
   images: string[];
   createdAt: string;
   updatedAt: string;
+  roomNo: string;
+  name: string;
 }
 
 export interface IPgLocationProps {
@@ -74,3 +77,14 @@ export type IOptionTypeProps = {
   value: string;
   label: string;
 };
+
+export interface IExpensesProps {
+  id?: number;
+  pgId?: number;
+  amount?: number;
+  expenseName?: string;
+  description?: string;
+  expenseDate?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}

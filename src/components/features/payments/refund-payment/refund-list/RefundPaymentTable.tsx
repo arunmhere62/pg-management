@@ -274,6 +274,7 @@ export const RefundPaymentTable = () => {
       />
       <div className='mt-6'>
         <GridTable
+          tableHeight='550px'
           columns={columns}
           rows={refundPaymentList}
           loading={false}
