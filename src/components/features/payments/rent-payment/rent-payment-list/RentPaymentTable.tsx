@@ -15,7 +15,10 @@ import {
 import HeaderButton from '@/components/ui/large/HeaderButton';
 import GridTable from '@/components/ui/mui-grid-table/GridTable';
 import { cn } from '@/lib/utils';
-import { formatDateToDDMMYYYY } from '@/services/utils/formaters';
+import {
+  formatDateToDDMMYYYY,
+  formatDateToMonDDYYYY
+} from '@/services/utils/formaters';
 import { toast } from 'sonner';
 import {
   deleteRent,
@@ -47,6 +50,8 @@ import {
 } from '@/services/types/common-types';
 import ReceiptForm from '../receipt/ReceiptForm';
 import { SelectComboBox } from '@/components/ui/selectComboBox';
+import CurrentBillForm from '@/components/features/payments/current-bill/CurrentBillForm';
+import { updateCurrentBill } from '@/services/utils/api/payment/current-bill-api';
 
 interface IRentPaymentListProps {
   id: number;
@@ -108,6 +113,8 @@ const RentPaymentList = () => {
   const [filteredPaymentData, setFilteredPaymentData] = useState<
     IRentPaymentListProps[]
   >([]);
+  const [openCurrentBillModal, setOpenCurrentBillModal] =
+    useState<boolean>(false);
   useEffect(() => {
     if (selectedMonth && rentPaymentList.length) {
       const now = new Date();
@@ -261,7 +268,15 @@ const RentPaymentList = () => {
                     <Eye className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]' />
                   </Button>
                 </div>
-
+                <Button
+                  variant='outline'
+                  onClick={() => {
+                    setSelectedRentId(params.row.id);
+                    setOpenCurrentBillModal(true);
+                  }}
+                >
+                  Current Bill
+                </Button>
                 <Button variant='outline' onClick={handleReceipt}>
                   <DownloadIcon className='mr-2 w-4' /> Download Receipt
                 </Button>
@@ -297,9 +312,7 @@ const RentPaymentList = () => {
       headerName: 'Amount Paid',
       minWidth: 150,
       renderCell: (params: any) => (
-        <span className='rounded-lg bg-[#ebffe2] px-2 py-1 font-bold text-[#328a17]'>
-          ₹{params.value}
-        </span>
+        <span className='activeBadge'>₹{params.value}</span>
       )
     },
     // {
@@ -313,7 +326,7 @@ const RentPaymentList = () => {
       minWidth: 150,
       renderCell: (params: any) => (
         <span>
-          {params?.value ? formatDateToDDMMYYYY(params?.value) : 'N/A'}
+          {params?.value ? formatDateToMonDDYYYY(params?.value) : 'N/A'}
         </span>
       )
     },
@@ -322,7 +335,7 @@ const RentPaymentList = () => {
       headerName: 'End Date',
       minWidth: 150,
       renderCell: (params: any) => (
-        <span>{formatDateToDDMMYYYY(params?.value)}</span>
+        <span>{formatDateToMonDDYYYY(params?.value)}</span>
       )
     },
     {
@@ -332,13 +345,21 @@ const RentPaymentList = () => {
       renderCell: (params: any) => (
         <span
           className={cn(
-            params.value === 'PAID'
-              ? 'bg-[#ebffe2] text-[#328a17]'
-              : 'bg-[#fa7171] text-white',
+            params.value === 'PAID' ? 'activeBadge' : 'bg-[#fa7171] text-white',
             'rounded-lg px-2 py-1 text-[13px] font-bold'
           )}
         >
           {params.value}
+        </span>
+      )
+    },
+    {
+      field: 'currentBill',
+      headerName: 'Current Bill',
+      minWidth: 150,
+      renderCell: (params: any) => (
+        <span className={cn(params.value ? 'activeBadge' : '')}>
+          {params.value ? '₹' + params.value : 'N/A'}
         </span>
       )
     },
@@ -415,7 +436,7 @@ const RentPaymentList = () => {
       <Modal
         contentClassName='w-fit rounded-lg sm:w-full'
         isOpen={openReceiptUploadModal}
-        title=''
+        title='Rent Payment Receipt'
         onClose={() => {
           setOpenReceiptUploadModal(false);
         }}
@@ -451,6 +472,34 @@ const RentPaymentList = () => {
             Cancel
           </Button>
         </div>
+      </Modal>
+      <Modal
+        contentClassName='w-fit rounded-lg sm:w-full'
+        isOpen={openCurrentBillModal}
+        title=''
+        onClose={() => {
+          setOpenCurrentBillModal(false);
+        }}
+        description='Add Current Bill'
+      >
+        <CurrentBillForm
+          tenantPaymentId={selectedRentId}
+          onSubmit={async (payload) => {
+            if (selectedRentId) {
+              const res = await updateCurrentBill(
+                payload,
+                selectedRentId.toString()
+              );
+              if (res.status === 200) {
+                toast.success('Current Bill Added successfully!');
+                setOpenCurrentBillModal(false);
+                getPayments();
+              } else {
+                toast.error(res.message || 'Failed to Add Current Bill');
+              }
+            }
+          }}
+        />
       </Modal>
     </>
   );

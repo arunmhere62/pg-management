@@ -24,7 +24,9 @@ const TenantEdit = ({ id }: { id: string }) => {
           checkOutDate: res.data.checkOutDate,
           status: res.data.status,
           images: res.data.images,
-          proofDocuments: res.data.proofDocuments
+          proofDocuments: res.data.proofDocuments,
+          tenantAddress: res.data.tenantAddress,
+          occupation: res.data.occupation
         };
         if (formattedRes) {
           setTenantData(formattedRes);

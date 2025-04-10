@@ -65,7 +65,6 @@ const AdvanceReceiptForm = () => {
 
   return (
     <div>
-      <h1 className='mb-5 text-[18px] font-semibold'>Rent Payment Receipt </h1>
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)} className='space-y-8'>
           {/* Email Field */}

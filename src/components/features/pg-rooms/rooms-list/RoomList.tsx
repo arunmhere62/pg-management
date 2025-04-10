@@ -177,7 +177,7 @@ const RoomsList = () => {
       minWidth: 200,
       renderCell: (params: any) => (
         <span className='rounded-lg bg-[#ffcd94] px-2 py-1 font-bold text-[#000000]'>
-          {params.row.totalBeds}/ {params.row.bedCount}
+          {params.row.totalBeds + ' '}/ {params.row.bedCount}
         </span>
       )
     },
@@ -187,9 +187,7 @@ const RoomsList = () => {
       minWidth: 100,
       flex: 1,
       renderCell: (params: any) => (
-        <span className='rounded-lg bg-[#ebffe2] px-2 py-1 font-bold text-[#328a17]'>
-          ₹{params.value}
-        </span>
+        <span className='activeBadge'>₹{params.value}</span>
       )
     },
     {
@@ -198,9 +196,7 @@ const RoomsList = () => {
       minWidth: 100,
       flex: 1,
       renderCell: (params: any) => (
-        <span className='rounded-lg bg-[#ebffe2] px-2 py-1 font-bold text-[#328a17]'>
-          ₹{params.value}
-        </span>
+        <span className='activeBadge'>₹{params.value}</span>
       )
     },
     {
@@ -211,10 +207,7 @@ const RoomsList = () => {
       renderCell: (params: any) => (
         <span
           className={cn(
-            'rounded-lg bg-[#ebffe2] px-2 py-1 font-bold text-[#328a17]',
-            params.value === 'AVAILABLE'
-              ? 'bg-[#ebffe2] text-[#328a17]'
-              : 'bg-[#ffdede] text-[#c22121]'
+            params.value === 'AVAILABLE' ? 'activeBadge' : 'inactiveBadge'
           )}
         >
           {params.value}

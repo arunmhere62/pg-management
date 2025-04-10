@@ -35,6 +35,9 @@ export interface IRoomProps {
   images: string[];
   createdAt: string;
   updatedAt: string;
+  status: string;
+  occupiedBeds: number;
+  totalBeds: number;
 }
 
 export interface ITenantPaymentProps {

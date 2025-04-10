@@ -1,6 +1,10 @@
 import {
   AlertTriangle,
   ArrowRight,
+  BanknoteIcon,
+  BedDouble,
+  Building,
+  Building2,
   Check,
   ChevronLeft,
   ChevronRight,
@@ -9,6 +13,7 @@ import {
   CreditCard,
   File,
   FileText,
+  HandCoins,
   HelpCircle,
   Image,
   Laptop,
@@ -29,6 +34,7 @@ import {
   User,
   UserCircle2Icon,
   UserPen,
+  UsersRound,
   UserX2Icon,
   X
 } from 'lucide-react';
@@ -36,6 +42,11 @@ import {
 export type Icon = LucideIcon;
 
 export const Icons = {
+  building: Building,
+  bed: BedDouble,
+  tenants: UsersRound,
+  money: HandCoins,
+  expense: BanknoteIcon,
   dashboard: LayoutDashboardIcon,
   logo: Command,
   login: LogIn,

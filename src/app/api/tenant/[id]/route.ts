@@ -115,7 +115,9 @@ const tenantSchema = z.object({
   checkOutDate: z.string(),
   status: z.enum(['ACTIVE', 'INACTIVE']),
   images: z.array(z.string()).optional(),
-  proofDocuments: z.array(z.string()).optional()
+  proofDocuments: z.array(z.string()).optional(),
+  tenantAddress: z.string().optional(),
+  occupation: z.string().optional()
 });
 
 export const PUT = async (
@@ -181,20 +183,18 @@ export const PUT = async (
     if (occupiedBed) {
       throw new BadRequestError('Bed is already occupied');
     }
-    // Use a transaction to ensure atomic updates
-    const updatedTenant = await prisma.$transaction(async (prisma) => {
-      const tenant = await prisma.tenants.update({
-        where: { id: Number(id), isDeleted: false },
-        data: parsedData.data
-      });
+    console.log('parsed', parsedData.data);
+    console.log('body', body);
 
-      return tenant;
+    const tenant = await prisma.tenants.update({
+      where: { id: Number(id), isDeleted: false },
+      data: parsedData.data
     });
 
     return NextResponse.json(
       {
         message: 'Tenant updated successfully',
-        data: updatedTenant,
+        data: tenant,
         status: 200
       },
       { status: 200 }

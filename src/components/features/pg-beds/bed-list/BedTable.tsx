@@ -154,16 +154,18 @@ const BedsList = () => {
                     <Eye className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]' />
                   </Button>
                 </div>
-                <Button
-                  variant='outline'
-                  onClick={() => {
-                    router.push(
-                      `tenant/new/${params.row.roomId ?? ''}/${params.row.id ?? ''}`
-                    );
-                  }}
-                >
-                  Create Tenant
-                </Button>
+                {params.row.status !== 'OCCUPIED' && (
+                  <Button
+                    variant='outline'
+                    onClick={() => {
+                      router.push(
+                        `tenant/new/${params.row.roomId ?? ''}/${params.row.id ?? ''}`
+                      );
+                    }}
+                  >
+                    Create Tenant
+                  </Button>
+                )}
               </div>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -220,9 +222,7 @@ const BedsList = () => {
       renderCell: (params: any) => (
         <span
           className={cn(
-            params.value === 'VACANT'
-              ? 'bg-[#ebffe2] text-[#328a17]'
-              : 'bg-[#fa7171] text-white',
+            params.value === 'VACANT' ? 'activeBadge' : 'inactiveBadge',
             'rounded-lg px-2 py-1 text-[13px] font-bold'
           )}
         >

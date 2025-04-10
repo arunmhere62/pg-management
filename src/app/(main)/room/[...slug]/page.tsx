@@ -1,6 +1,6 @@
 'use client';
 
-import RoomDetails from '@/components/features/pg-rooms/room-details';
+import RoomDetails from '@/components/features/pg-rooms/room-details/RoomDetails';
 import MainRoomForm from '@/components/features/pg-rooms/room-form';
 import RoomEdit from '@/components/features/pg-rooms/room-form/RoomEdit';
 import TenantDetails from '@/components/features/pg-tenants/tenant-details/TenantDetails';

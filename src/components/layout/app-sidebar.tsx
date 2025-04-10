@@ -115,6 +115,7 @@ export default function AppSidebar() {
               ) : (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
+                    className='py-5'
                     asChild
                     tooltip={item.title}
                     isActive={pathname === item.url}

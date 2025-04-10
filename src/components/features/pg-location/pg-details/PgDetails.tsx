@@ -61,7 +61,7 @@ const PgDetails = ({ pgDetails }: { pgDetails: IPgListProps }) => {
       <p
         className={cn(
           'col-span-8 w-fit rounded-lg px-3 py-0.5 text-[14px]',
-          pgDetails.status === 'ACTIVE' ? 'bg-[#95cf20]' : 'bg-[#fb5656]'
+          pgDetails.status === 'ACTIVE' ? 'activeBadge' : 'inactiveBadge'
         )}
       >
         {pgDetails?.status?.toLocaleUpperCase()}

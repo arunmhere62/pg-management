@@ -265,9 +265,7 @@ export const AdvancePaymentTable = () => {
       headerName: 'Advance Amount',
       minWidth: 150,
       renderCell: (params: any) => (
-        <span className='rounded-lg bg-[#ebffe2] px-2 py-1 font-bold text-[#328a17]'>
-          ₹{params.value}
-        </span>
+        <span className='activeBadge'>₹{params.value}</span>
       )
     },
     {
@@ -282,9 +280,7 @@ export const AdvancePaymentTable = () => {
       renderCell: (params: any) => (
         <span
           className={cn(
-            params.value === 'PAID'
-              ? 'bg-[#ebffe2] text-[#328a17]'
-              : 'bg-[#fa7171] text-white',
+            params.value === 'PAID' ? 'activeBadge' : 'inactiveBadge',
             'rounded-lg px-2 py-1 text-[13px] font-bold'
           )}
         >
@@ -362,7 +358,7 @@ export const AdvancePaymentTable = () => {
       <Modal
         contentClassName='w-fit rounded-lg sm:w-full'
         isOpen={openReceiptUploadModal}
-        title=''
+        title='Advance Payment Receipt'
         onClose={() => {
           setOpenReceiptUploadModal(false);
         }}

@@ -39,6 +39,7 @@ import { toast } from 'sonner';
 import { Modal } from '@/components/ui/modal';
 import { SelectComboBox } from '@/components/ui/selectComboBox';
 import { monthOptions } from '@/services/data/data';
+import CurrentBillForm from '../../payments/current-bill/CurrentBillForm';
 
 interface ITenantListProps {
   id: number;
@@ -73,6 +74,7 @@ const TenantList = () => {
   const [selectedRoom, setSelectedRoom] = useState<string>('');
   const [openTenantRemoveConfirmModal, setOpenTenantRemoveConfirmModal] =
     useState<boolean>(false);
+
   const getTenants = async () => {
     try {
       const res = await fetchTenantsList({ isDeleted: 'false' });
@@ -229,6 +231,7 @@ const TenantList = () => {
                     <Eye className='w-4 cursor-pointer text-[#656565] hover:text-[#000] dark:hover:text-[#fff]' />
                   </Button>
                 </div>
+
                 <Button
                   variant='outline'
                   onClick={() => {

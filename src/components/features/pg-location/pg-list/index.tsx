@@ -9,6 +9,7 @@ import React, { useEffect, useState } from 'react';
 import PgDetails from '../pg-details/PgDetails';
 import { fetchPgLocationsList } from '@/services/utils/api/pg-location-api';
 import { TableDynamicDropdown } from '@/components/ui/large/TableDynamicDropdown';
+import { formatDateToDDMMYYYY } from '@/services/utils/formaters';
 
 export interface IPgListProps {
   id: number;
@@ -42,16 +43,8 @@ const PgList = () => {
           locationName: data.locationName,
           pincode: data.pincode,
           images: data?.images,
-          updatedAt: new Date(data.updatedAt).toLocaleDateString('en-GB', {
-            day: 'numeric',
-            month: 'numeric',
-            year: 'numeric'
-          }),
-          createdAt: new Date(data.createdAt).toLocaleDateString('en-GB', {
-            day: 'numeric',
-            month: 'numeric',
-            year: 'numeric'
-          }),
+          updatedAt: formatDateToDDMMYYYY(data.updatedAt ?? ''),
+          createdAt: formatDateToDDMMYYYY(data.createdAt ?? ''),
           status: data.status
         }));
         setPgListData(formattedRes);

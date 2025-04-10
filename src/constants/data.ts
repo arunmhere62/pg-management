@@ -24,7 +24,7 @@ export const navItems: NavItem[] = [
   {
     title: 'Pg Locations',
     url: '/pg-location',
-    icon: 'dashboard',
+    icon: 'building',
     isActive: false,
     shortcut: ['p', 'p'],
     items: []
@@ -40,7 +40,7 @@ export const navItems: NavItem[] = [
   {
     title: 'Beds',
     url: '/bed',
-    icon: 'dashboard',
+    icon: 'bed',
     isActive: false,
     shortcut: ['d', 'd'],
     items: []
@@ -49,7 +49,7 @@ export const navItems: NavItem[] = [
   {
     title: 'Tenants',
     url: '/tenant',
-    icon: 'dashboard',
+    icon: 'tenants',
     isActive: false,
     shortcut: ['tn', 'tn'],
     items: []
@@ -66,7 +66,7 @@ export const navItems: NavItem[] = [
   {
     title: 'Rent ',
     url: '/payment/rent',
-    icon: 'dashboard',
+    icon: 'money',
     isActive: false,
     shortcut: ['v', 'v'],
     items: []
@@ -74,7 +74,7 @@ export const navItems: NavItem[] = [
   {
     title: 'Advance',
     url: '/payment/advance',
-    icon: 'dashboard',
+    icon: 'money',
     isActive: false,
     shortcut: ['v', 'v'],
     items: []
@@ -82,7 +82,7 @@ export const navItems: NavItem[] = [
   {
     title: 'Refund',
     url: '/payment/refund',
-    icon: 'dashboard',
+    icon: 'money',
     isActive: false,
     shortcut: ['v', 'v'],
     items: []
@@ -90,7 +90,7 @@ export const navItems: NavItem[] = [
   {
     title: 'Expenses',
     url: '/expense',
-    icon: 'dashboard',
+    icon: 'expense',
     isActive: false,
     shortcut: ['v', 'v'],
     items: []

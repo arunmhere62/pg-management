@@ -31,6 +31,7 @@ export const API_ENDPOINT = {
     payment_advance: '/api/payment/advance',
     payment_advance_byId: '/api/payment/advance/:id',
     payment_refund: '/api/payment/refund',
-    payment_refund_byId: '/api/payment/refund/:id'
+    payment_refund_byId: '/api/payment/refund/:id',
+    payment_current_bill_byId: '/api/payment/current-bill/:id'
   }
 };

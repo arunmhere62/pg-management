@@ -196,7 +196,7 @@ const RoomDetails = ({ id }: { id: string }) => {
           <p className='font-semibold'>Status:</p>
           <p
             className={cn(
-              roomDetails?.status === 'ACTIVE' ? 'activeBadge' : 'inActiveBadge'
+              roomDetails?.status === 'ACTIVE' ? 'activeBadge' : 'inactiveBadge'
             )}
           >
             {roomDetails?.status?.toLocaleUpperCase()}
@@ -205,11 +205,15 @@ const RoomDetails = ({ id }: { id: string }) => {
 
         <div className='mb-5 flex justify-between'>
           <p className='font-semibold'>Updated At:</p>
-          <p className=''>{roomDetails?.updatedAt}</p>
+          <p className=''>
+            {formatDateToDDMMYYYY(roomDetails?.updatedAt ?? '')}
+          </p>
         </div>
         <div className='flex justify-between'>
           <p className='font-semibold'>Created At:</p>
-          <p className=''>{roomDetails?.createdAt}</p>
+          <p className=''>
+            {formatDateToDDMMYYYY(roomDetails?.createdAt ?? '')}
+          </p>
         </div>
       </div>
 
@@ -224,35 +228,35 @@ const RoomDetails = ({ id }: { id: string }) => {
                   <div className='space-y-2'>
                     <div className='flex justify-between'>
                       <p className='font-semibold'>Amount Paid:</p>
-                      <p>{payment.amountPaid}</p>
+                      <p>{payment?.amountPaid}</p>
                     </div>
                     <div className='flex justify-between'>
                       <p className='font-semibold'>Payment Date:</p>
-                      <p>{formatDateToDDMMYYYY(payment.paymentDate)}</p>
+                      <p>{formatDateToDDMMYYYY(payment?.paymentDate)}</p>
                     </div>
                     <div className='flex justify-between'>
                       <p className='font-semibold'>Start Date:</p>
-                      <p>{formatDateToDDMMYYYY(payment.startDate)}</p>
+                      <p>{formatDateToDDMMYYYY(payment?.startDate)}</p>
                     </div>
                     <div className='flex justify-between'>
                       <p className='font-semibold'>End Date:</p>
-                      <p>{formatDateToDDMMYYYY(payment.endDate)}</p>
+                      <p>{formatDateToDDMMYYYY(payment?.endDate)}</p>
                     </div>
                     <div className='flex justify-between'>
                       <p className='font-semibold'>Payment Method:</p>
-                      <p>{payment.paymentMethod}</p>
+                      <p>{payment?.paymentMethod}</p>
                     </div>
                     <div className='flex justify-between'>
                       <p className='font-semibold'>Remarks:</p>
-                      <p>{payment.remarks || 'N/A'}</p>
+                      <p>{payment?.remarks || 'N/A'}</p>
                     </div>
                     <div className='flex justify-between'>
                       <p className='font-semibold'>Status:</p>
                       <p
                         className={cn(
                           payment.status === 'PAID'
-                            ? 'text-green-500'
-                            : 'text-red-500'
+                            ? 'activeBadge'
+                            : 'inactiveBadge'
                         )}
                       >
                         {payment.status}
@@ -294,8 +298,8 @@ const RoomDetails = ({ id }: { id: string }) => {
                       <p
                         className={cn(
                           payment.status === 'PAID'
-                            ? 'text-green-500'
-                            : 'text-red-500'
+                            ? 'activeBadge'
+                            : 'inactiveBadge'
                         )}
                       >
                         {payment.status}
@@ -337,8 +341,8 @@ const RoomDetails = ({ id }: { id: string }) => {
                       <p
                         className={cn(
                           payment.status === 'PAID'
-                            ? 'text-green-500'
-                            : 'text-red-500'
+                            ? 'activeBadge'
+                            : 'inactiveBadge'
                         )}
                       >
                         {payment.status}

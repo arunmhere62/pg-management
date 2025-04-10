@@ -22,23 +22,10 @@ export const GET = async (
         id: Number(id),
         isDeleted: false
       },
-      select: {
-        id: true,
-        roomId: true,
-        pgId: true,
-        bedCount: true,
-        roomNo: true,
-        updatedAt: true,
-        createdAt: true,
-        rentPrice: true,
-        images: true,
+      include: {
         beds: {
-          select: {
-            id: true,
-            bedNo: true,
-            tenants: {
-              select: { id: true }
-            }
+          include: {
+            tenants: true
           }
         }
       }
