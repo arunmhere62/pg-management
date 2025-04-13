@@ -6,7 +6,17 @@ export const API_ENDPOINT = {
   },
   PG: {
     pg_location: '/api/pg',
+    new_pg_create: '/api/new-pg',
     pg_location_ById: '/api/pg/:id'
+  },
+  EMPLOYEE: {
+    employee: '/api/employee',
+    employee_ById: '/api/employee/:id',
+    employee_password_ById: '/api/employee/change-password/:id'
+  },
+  ROLES: {
+    role: '/api/role',
+    role_ById: '/api/role/:id'
   },
   COMMON: {
     state: '/api/states',

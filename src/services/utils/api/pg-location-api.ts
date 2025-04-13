@@ -44,3 +44,15 @@ export const updatePgLocation = async (data: any, id: string) => {
     throw error;
   }
 };
+
+export const createFirstPg = async (data: any) => {
+  try {
+    const res = await axiosService.post(
+      `${API_ENDPOINT.PG.new_pg_create}`,
+      data
+    );
+    return res.data;
+  } catch (error) {
+    throw error;
+  }
+};

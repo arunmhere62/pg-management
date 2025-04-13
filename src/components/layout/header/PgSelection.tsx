@@ -33,6 +33,7 @@ const PgSelection = () => {
           dispatch(
             setPgLocation({ id: firstPg.id, name: firstPg.locationName })
           );
+
           setSelectedPg(firstPg.id.toString());
         }
       } catch (error) {

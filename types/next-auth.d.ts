@@ -10,6 +10,8 @@ declare module 'next-auth' {
     token: string;
     roleId: string;
     roleName: string;
+    pgLocationId: string | null;
+    organizationId: string;
   }
 
   interface Session {
@@ -19,6 +21,8 @@ declare module 'next-auth' {
     };
     roleId: string;
     roleName: string;
+    pgLocationId: string | null;
+    organizationId: string;
   }
 }
 
@@ -31,5 +35,7 @@ declare module 'next-auth/jwt' {
     token: string;
     roleId: string;
     roleName: string;
+    pgLocationId: string | null;
+    organizationId: string;
   }
 }

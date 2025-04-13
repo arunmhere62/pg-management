@@ -314,7 +314,7 @@ export const AdvancePaymentTable = () => {
           }
         ]}
       />
-      <div className='mt-3 flex gap-3'>
+      <div className='mt-1 flex gap-3'>
         <div className='w-[200px]'>
           <SelectComboBox
             options={monthOptions}
@@ -333,9 +333,9 @@ export const AdvancePaymentTable = () => {
         </Button>
       </div>
 
-      <div className='mt-6'>
+      <div className='mt-2'>
         <GridTable
-          tableHeight='550px'
+          tableHeight='520px'
           columns={columns}
           rows={advancePaymentList}
           loading={false}

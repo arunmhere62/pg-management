@@ -94,6 +94,14 @@ export const navItems: NavItem[] = [
     isActive: false,
     shortcut: ['v', 'v'],
     items: []
+  },
+  {
+    title: 'Employee',
+    url: '/employee',
+    icon: 'users',
+    isActive: false,
+    shortcut: ['v', 'v'],
+    items: []
   }
 ];
 

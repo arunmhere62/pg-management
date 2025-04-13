@@ -25,6 +25,7 @@ import {
   SidebarMenuItem,
   useSidebar
 } from '@/components/ui/sidebar';
+import { signOut } from 'next-auth/react';
 
 export function NavUser({
   user
@@ -98,7 +99,18 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => {
+                // Clear localStorage (runs on client side)
+                localStorage.clear();
+
+                // Clear cookies (optional – mostly handled by signOut depending on usage)
+                document.cookie = 'pgLocationId=; Max-Age=0; path=/';
+
+                // Trigger NextAuth signOut
+                signOut({ callbackUrl: '/' }); // optional: redirect to homepage after logout
+              }}
+            >
               <LogOut />
               Log out
             </DropdownMenuItem>

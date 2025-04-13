@@ -389,7 +389,7 @@ const RentPaymentList = () => {
         ]}
       />
 
-      <div className='mt-3 flex gap-3'>
+      <div className='mt-1 flex gap-3'>
         <div className='w-[200px]'>
           <SelectComboBox
             options={rentOptions}
@@ -412,7 +412,7 @@ const RentPaymentList = () => {
       </div>
       <div className='mt-2'>
         <GridTable
-          tableHeight='550px'
+          tableHeight='530px'
           columns={columns}
           rows={filteredPaymentData ?? rentPaymentList}
           loading={false}

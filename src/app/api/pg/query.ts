@@ -1,13 +1,16 @@
 import prisma from '@/lib/prisma';
 
-export const getPgListQuery = async (userId: number) => {
+export const getPgListQuery = async (
+  userId: number,
+  organizationId?: number
+) => {
   if (!userId) {
     throw new Error('Invalid userId provided');
   }
   try {
     const res = await prisma.pg_locations.findMany({
       where: {
-        userId: userId
+        organizationId: organizationId
       },
       include: {
         city: {

@@ -38,7 +38,7 @@
     --sidebar-ring: #3B82F5;
   } */
   :root {
-    --background: 20 66% 99%;
+    --background: 0 0% 100%;
     --foreground: 20 51% 4%;
     --muted: 20 25% 86%;
     --muted-foreground: 20 7% 25%;
@@ -47,15 +47,15 @@
     --card: 0 0% 98%;
     --card-foreground: 20 51% 3%;
     --border: 20 15% 94%;
-    --input: 20 15% 94%;
+    --input: 0 0% 88%;
     --primary: 247 81% 67%;
     --primary-foreground: 0 0% 100%;
     --secondary: 20 12% 92%;
     --secondary-foreground: 20 12% 32%;
     --accent: 20 12% 92%;
     --accent-foreground: 20 12% 32%;
-    --destructive: 11 80% 22%;
-    --destructive-foreground: 11 80% 82%;
+    --destructive: 339.2 90.36% 51.18%;
+    --destructive-foreground: 0 0% 100%;
     --ring: 0 0% 0%;
     --radius: 0.5rem;
     --chart-1: 247 81% 67%;
@@ -173,4 +173,15 @@
   .inactiveBadge {
     @apply rounded-lg border bg-[#fa7171] px-2 py-1 text-[13px] font-bold text-[#fff] dark:bg-[#fa7171] dark:text-[#fff];
   }
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:active {
+  appearance: none;
+  transition: background-color 9999s ease-in-out 0s;
+  -webkit-text-fill-color: #000 !important;
+  background-color: transparent !important;
+  box-shadow: 0 0 0px 1000px white inset !important;
 }

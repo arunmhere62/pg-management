@@ -447,6 +447,7 @@ const TenantList = () => {
       </div>
       <div className='mt-6'>
         <GridTable
+          tableHeight='550px'
           columns={columns}
           rows={filteredTenantData ?? tenantList}
           loading={false}

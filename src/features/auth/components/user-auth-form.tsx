@@ -10,8 +10,9 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { signIn } from 'next-auth/react';
-import { useSearchParams } from 'next/navigation';
+import Cookies from 'js-cookie';
+import { getSession, signIn } from 'next-auth/react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -28,6 +29,8 @@ type UserFormValue = z.infer<typeof formSchema>;
 
 export default function UserAuthForm() {
   const searchParams = useSearchParams();
+  const router = useRouter();
+
   const callbackUrl = searchParams.get('callbackUrl');
   const [loading, startTransition] = useTransition();
   const defaultValues = {
@@ -44,13 +47,23 @@ export default function UserAuthForm() {
       const res = await signIn('credentials', {
         email: data.email,
         password: data.password,
-        callbackUrl: callbackUrl ?? '/dashboard/overview'
-        // redirect: false
+        redirect: false,
+        callbackUrl: '/dashboard'
       });
+
       if (res?.error) {
-        toast.error(res.error);
+        toast.error('Invalid email or password');
       } else {
         toast.success('Signed In Successfully!');
+        const session = await getSession();
+        const pgLocationId = session?.pgLocationId;
+
+        if (pgLocationId) {
+          Cookies.set('pgLocationId', pgLocationId);
+          router.replace('/dashboard/overview');
+        } else {
+          router.replace('/new-pg');
+        }
       }
     });
   };
@@ -58,10 +71,7 @@ export default function UserAuthForm() {
   return (
     <>
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className='w-full space-y-2'
-        >
+        <form onSubmit={form.handleSubmit(onSubmit)} className='w-full'>
           <FormField
             control={form.control}
             name='email'
@@ -70,6 +80,7 @@ export default function UserAuthForm() {
                 <FormLabel>Email</FormLabel>
                 <FormControl>
                   <Input
+                    className='rounded-xl py-[25px]'
                     type='email'
                     placeholder='Enter your email...'
                     disabled={loading}
@@ -84,10 +95,11 @@ export default function UserAuthForm() {
             control={form.control}
             name='password'
             render={({ field }) => (
-              <FormItem>
+              <FormItem className='mt-2'>
                 <FormLabel>Password</FormLabel>
                 <FormControl>
                   <Input
+                    className='rounded-xl py-[25px]'
                     type='password'
                     placeholder='Enter your password...'
                     disabled={loading}
@@ -98,7 +110,11 @@ export default function UserAuthForm() {
               </FormItem>
             )}
           />
-          <Button disabled={loading} className='ml-auto w-full' type='submit'>
+          <Button
+            disabled={loading}
+            className='ml-auto mt-6 w-full rounded-xl py-6'
+            type='submit'
+          >
             Continue With Email
           </Button>
         </form>

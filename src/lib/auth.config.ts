@@ -1,36 +1,52 @@
-import { NextAuthConfig } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import GithubProvider from 'next-auth/providers/github';
 import prisma from '@/lib/prisma';
-import type { User } from 'next-auth';
+import type { Session, User } from 'next-auth';
+import { JWT } from 'next-auth/jwt';
 
 const authConfig = {
   providers: [
-    GithubProvider({
-      clientId: process.env.GITHUB_ID ?? '',
-      clientSecret: process.env.GITHUB_SECRET ?? ''
-    }),
     CredentialsProvider({
-      name: 'Credentials',
+      name: 'credentials',
       credentials: {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' }
       },
       async authorize(credentials): Promise<User | null> {
-        if (!credentials.email || !credentials.password) {
-          return null;
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error(
+            encodeURIComponent(
+              JSON.stringify({
+                code: 400,
+                message: 'Email and password are required.'
+              })
+            )
+          );
         }
+        const { email, password } = credentials;
+
+        if (!email || !password) {
+          throw new Error(
+            JSON.stringify({
+              code: 400,
+              message: 'Email and password are required.'
+            })
+          );
+        }
+
         const user = await prisma.users.findUnique({
           where: {
-            email: credentials.email as string
+            email: credentials.email as string,
+            isDeleted: false
           },
           select: {
             roleId: true,
             id: true,
             name: true,
             email: true,
-            pgLocationId: true,
             phone: true,
+            pgId: true,
+            password: true,
+            organizationId: true,
             roles: {
               select: {
                 roleName: true
@@ -38,9 +54,22 @@ const authConfig = {
             }
           }
         });
-        if (!user || user.roleId === undefined || user.roleId === null) {
+        console.log('user data', user);
+        if (!user) {
+          return Promise.reject(new Error('Email not found'));
+        }
+
+        if (credentials.password !== user.password) {
+          return Promise.reject(new Error('Incorrect password'));
+        }
+
+        console.log('user data', user);
+
+        const isValidPassword = password === user.password;
+
+        if (!isValidPassword) {
           throw new Error(
-            'User roleId is missing. Ensure it is set in the database.'
+            JSON.stringify({ code: 401, message: 'Incorrect password.' })
           );
         }
 
@@ -50,37 +79,44 @@ const authConfig = {
           email: user.email,
           roleId: user.roleId.toString(),
           roleName: user.roles?.roleName,
-          token: `mocked-jwt-token-${user.id}`
+          token: `mocked-jwt-token-${user.id}`,
+          pgLocationId: user.pgId?.toString() ?? null,
+          organizationId: user.organizationId?.toString() ?? null
         };
       }
     })
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user }: { token: JWT; user?: User }) {
       if (user) {
-        token.id = user.id as string;
-        token.email = user.email as string;
-        token.name = user.name as string;
+        token.id = user.id?.toString() ?? '';
+        token.email = user.email?.toString() ?? '';
+        token.name = user.name?.toString() ?? '';
         token.token = user.token;
-        token.roleId = user.roleId as string;
+        token.roleId = user.roleId;
         token.roleName = user.roleName;
+        token.pgLocationId = user.pgLocationId ?? null;
+        token.organizationId = user.organizationId ?? null;
       }
-
       return token;
     },
-    async session({ session, token }) {
-      session.user.id = token.id;
-      session.user.email = token.email;
-      session.user.name = token.name;
+    async session({ session, token }: { session: Session; token: JWT }) {
+      session.user.id = token.id as string;
+      session.user.email = token.email as string;
+      session.user.name = token.name as string;
       session.roleId = token.roleId as string;
-      session.roleName = token?.roleName as string;
+      session.roleName = token.roleName as string;
+      session.pgLocationId = token.pgLocationId as string | null;
+      session.organizationId = token.organizationId as string;
       return session;
     }
   },
+
   trustHost: true,
   pages: {
-    signIn: '/' // Sign-in page
+    signIn: '/',
+    error: '/'
   }
-} satisfies NextAuthConfig;
+};
 
 export default authConfig;

@@ -1,7 +1,6 @@
 'use client';
 import HeaderButton from '@/components/ui/large/HeaderButton';
 import GridTable from '@/components/ui/mui-grid-table/GridTable';
-import { cn } from '@/lib/utils';
 import { formatDateToDDMMYYYY } from '@/services/utils/formaters';
 import { EditIcon, Eye, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -16,23 +15,13 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { DotsVerticalIcon } from '@radix-ui/react-icons';
 import { Button } from '@/components/ui/button';
-import { SelectComboBox } from '@/components/ui/selectComboBox';
-import {
-  IBedProps,
-  IExpensesProps,
-  IOptionTypeProps
-} from '@/services/types/common-types';
+import { IExpensesProps } from '@/services/types/common-types';
 import { fetchExpenseList } from '@/services/utils/api/expense-api';
 
 const ExpensesList = () => {
   const router = useRouter();
   const [expenseData, setExpenseData] = useState<IExpensesProps[]>([]);
-  const [filteredBedsData, setFilteredBedsData] = useState<IBedProps[]>([]);
   const [loading, setLoading] = useState(false);
-  const [roomSelectionList, setRoomSelectionList] = useState<
-    IOptionTypeProps[]
-  >([]);
-  const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
 
   useEffect(() => {
     const getBeds = async () => {
@@ -41,7 +30,6 @@ const ExpensesList = () => {
       try {
         const res = await fetchExpenseList();
         if (res.data) {
-          console.log('expense list', res.data);
           setExpenseData(res.data);
         }
       } catch (error) {
@@ -177,27 +165,7 @@ const ExpensesList = () => {
           }
         ]}
       />
-      <div className='mt-3 flex gap-3'>
-        <div className='w-[200px]'>
-          <SelectComboBox
-            options={roomSelectionList}
-            placeholder='Select a Room'
-            value={selectedRoom || ''}
-            onChange={(e: string | null) => {
-              setSelectedRoom(e);
-            }}
-          />
-        </div>
-        <Button
-          variant='outline'
-          onClick={() => {
-            setFilteredBedsData([]);
-            setSelectedRoom(null);
-          }}
-        >
-          clear
-        </Button>
-      </div>
+
       <div className='mt-2'>
         <GridTable
           columns={columns}

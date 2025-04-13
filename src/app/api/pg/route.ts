@@ -8,6 +8,8 @@ import { z } from 'zod';
 export const GET = async (req: NextRequest) => {
   try {
     const session = await auth();
+    console.log('session', session);
+
     if (!session || !session.user) {
       return NextResponse.json(
         { error: 'Unauthorized access' },
@@ -15,10 +17,17 @@ export const GET = async (req: NextRequest) => {
       );
     }
     const userId = session?.user.id;
-    if (!userId) {
-      throw new BadRequestError('User ID not found in session');
+    const organizationId = session?.organizationId;
+
+    console.log('organizationId', organizationId);
+
+    if (!userId || !organizationId) {
+      throw new BadRequestError('User ID or organization not found in session');
     }
-    const pgList = await getPgListService(Number(userId));
+    const pgList = await getPgListService(
+      Number(userId),
+      Number(organizationId)
+    );
     return NextResponse.json(
       {
         data: pgList,
@@ -53,12 +62,14 @@ export const POST = async (req: NextRequest) => {
       );
     }
     const userId = session?.user.id;
+    const organizationId = session?.organizationId;
     const body = await req.json();
     const validatedData = pgLocationSchema.parse(body);
 
     const newPG = await prisma.pg_locations.create({
       data: {
         userId: Number(userId),
+        organizationId: Number(organizationId),
         ...validatedData
       }
     });

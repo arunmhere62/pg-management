@@ -91,3 +91,28 @@ export interface IExpensesProps {
   createdAt?: string;
   updatedAt?: string;
 }
+
+export interface IEmployeeProps {
+  id: number;
+  name: string;
+  email: string;
+  password: string;
+  phone: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  roleId: number;
+  pgId: number;
+  isDeleted: boolean;
+  organizationId: number;
+}
+
+export interface IRoleProps {
+  id: number;
+  roleName: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  organizationId: number;
+  isDeleted: boolean;
+}

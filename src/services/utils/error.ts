@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+
 class AppError extends Error {
   status: number;
   errorCode: string;
@@ -13,24 +14,26 @@ class AppError extends Error {
     super(message);
     this.status = status;
     this.errorCode = errorCode;
-    this.cause = cause; // Store the original cause
-    Object.setPrototypeOf(this, new.target.prototype);
+    this.cause = cause;
+    Object.setPrototypeOf(this, new.target.prototype); // restore prototype chain
   }
 }
 
-class ConflictError extends AppError {
-  constructor(message = 'Resource conflict detected') {
-    super(message, 409, 'CONFLICT_ERROR');
-  }
-}
 class BadRequestError extends AppError {
   constructor(message = 'Bad request') {
     super(message, 400, 'BAD_REQUEST');
   }
 }
-class InternalServerError extends AppError {
-  constructor(message = 'Internal server error') {
-    super(message, 500, 'INTERNAL_SERVER_ERROR');
+
+class UnauthorizedError extends AppError {
+  constructor(message = 'Unauthorized access') {
+    super(message, 401, 'UNAUTHORIZED');
+  }
+}
+
+class ForbiddenError extends AppError {
+  constructor(message = 'Forbidden: You do not have permission') {
+    super(message, 403, 'FORBIDDEN');
   }
 }
 
@@ -40,21 +43,33 @@ class NotFoundError extends AppError {
   }
 }
 
-class ForbiddenError extends AppError {
-  constructor(
-    message = 'Forbidden: You do not have permission to perform this action'
-  ) {
-    super(message, 403, 'FORBIDDEN_ERROR');
+class ConflictError extends AppError {
+  constructor(message = 'Resource conflict detected') {
+    super(message, 409, 'CONFLICT');
+  }
+}
+
+class UnprocessableEntityError extends AppError {
+  constructor(message = 'Unprocessable entity') {
+    super(message, 422, 'UNPROCESSABLE_ENTITY');
+  }
+}
+
+class InternalServerError extends AppError {
+  constructor(message = 'Internal server error') {
+    super(message, 500, 'INTERNAL_SERVER_ERROR');
   }
 }
 
 export {
   AppError,
   BadRequestError,
+  UnauthorizedError,
+  ForbiddenError,
   NotFoundError,
   ConflictError,
-  InternalServerError,
-  ForbiddenError
+  UnprocessableEntityError,
+  InternalServerError
 };
 
 export const errorHandler = (error: any) => {
@@ -64,8 +79,14 @@ export const errorHandler = (error: any) => {
       { status: error.status }
     );
   }
+
+  console.error('Unhandled Error:', error);
+
   return NextResponse.json(
-    { error: 'Internal Server Error', details: error.message }, // Include error details
+    {
+      error: 'Internal Server Error',
+      details: error?.message || 'Unknown error occurred'
+    },
     { status: 500 }
   );
 };

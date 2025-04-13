@@ -1,0 +1,160 @@
+'use client';
+import * as z from 'zod';
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
+import { IOptionTypeProps } from '@/services/types/common-types';
+import { SelectComboBox } from '@/components/ui/selectComboBox';
+import { useState } from 'react';
+import { EyeClosed, EyeIcon, EyeOff } from 'lucide-react';
+import { createEmployeeSchema, editEmployeeSchema } from '.';
+
+type CreateEmployeeFormValues = z.infer<typeof createEmployeeSchema>;
+type EditEmployeeFormValues = z.infer<typeof editEmployeeSchema>;
+
+export interface IEmployeeFormProps {
+  initialValue: CreateEmployeeFormValues | EditEmployeeFormValues;
+  onSubmit: (values: CreateEmployeeFormValues | EditEmployeeFormValues) => void;
+  control: any;
+  mode: 'create' | 'edit';
+  rolesList: IOptionTypeProps[];
+}
+export default function EmployeeForm({
+  initialValue,
+  onSubmit,
+  control,
+  mode,
+  rolesList
+}: IEmployeeFormProps) {
+  const [showPassword, setShowPassword] = useState(false);
+
+  return (
+    <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+      <FormField
+        control={control}
+        name='name'
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Name</FormLabel>
+            <FormControl>
+              <Input type='text' placeholder='Full Name' {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={control}
+        name='email'
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Email</FormLabel>
+            <FormControl>
+              <Input type='email' placeholder='example@mail.com' {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      {mode === 'create' && (
+        <FormField
+          control={control}
+          name='password'
+          render={({ field }) => {
+            return (
+              <FormItem>
+                <FormLabel>Password</FormLabel>
+                <div className='relative'>
+                  <FormControl>
+                    <Input
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder='Enter your password'
+                      {...field}
+                      className='pr-10'
+                    />
+                  </FormControl>
+                  <button
+                    type='button'
+                    onClick={() => setShowPassword(!showPassword)}
+                    className='absolute inset-y-0 right-2 flex items-center text-gray-500 hover:text-gray-700 focus:outline-none'
+                  >
+                    {showPassword ? (
+                      <EyeOff className='w-5' />
+                    ) : (
+                      <EyeIcon className='w-5' />
+                    )}
+                  </button>
+                </div>
+                <FormMessage />
+              </FormItem>
+            );
+          }}
+        />
+      )}
+
+      <FormField
+        control={control}
+        name='phone'
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Phone</FormLabel>
+            <FormControl>
+              <Input type='text' placeholder='Enter your number' {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={control}
+        name='roleId'
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Select a Role</FormLabel>
+            <SelectComboBox
+              options={rolesList || []}
+              placeholder='Select a Role'
+              value={field.value}
+              onChange={field.onChange}
+            />
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={control}
+        name='status'
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Status</FormLabel>
+            <SelectComboBox
+              options={[
+                { value: 'ACTIVE', label: 'ACTIVE' },
+                { value: 'INACTIVE', label: 'INACTIVE' }
+              ]}
+              placeholder='Select a status'
+              value={field.value}
+              onChange={field.onChange}
+            />
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    </div>
+  );
+}

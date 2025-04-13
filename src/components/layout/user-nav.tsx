@@ -12,7 +12,9 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { signOut, useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 export function UserNav() {
+  const router = useRouter();
   const { data: session } = useSession();
   if (session) {
     return (
@@ -41,7 +43,11 @@ export function UserNav() {
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
-            <DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => {
+                router.push('/user-profile');
+              }}
+            >
               Profile
               <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
             </DropdownMenuItem>
@@ -56,7 +62,18 @@ export function UserNav() {
             <DropdownMenuItem>New Team</DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => signOut({ callbackUrl: '/' })}>
+          <DropdownMenuItem
+            onClick={() => {
+              // Clear localStorage (runs on client side)
+              localStorage.clear();
+
+              // Clear cookies (optional – mostly handled by signOut depending on usage)
+              document.cookie = 'pgLocationId=; Max-Age=0; path=/';
+
+              // Trigger NextAuth signOut
+              signOut({ callbackUrl: '/' }); // optional: redirect to homepage after logout
+            }}
+          >
             Log out
             <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
           </DropdownMenuItem>

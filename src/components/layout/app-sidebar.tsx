@@ -206,7 +206,18 @@ export default function AppSidebar() {
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => signOut()}>
+                <DropdownMenuItem
+                  onClick={() => {
+                    // Clear localStorage (runs on client side)
+                    localStorage.clear();
+
+                    // Clear cookies (optional – mostly handled by signOut depending on usage)
+                    document.cookie = 'pgLocationId=; Max-Age=0; path=/';
+
+                    // Trigger NextAuth signOut
+                    signOut({ callbackUrl: '/' }); // optional: redirect to homepage after logout
+                  }}
+                >
                   <LogOut />
                   Log out
                 </DropdownMenuItem>
