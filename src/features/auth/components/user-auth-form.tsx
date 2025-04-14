@@ -48,7 +48,7 @@ export default function UserAuthForm() {
         email: data.email,
         password: data.password,
         redirect: false,
-        callbackUrl: '/dashboard'
+        callbackUrl: '/dashboard/overview'
       });
 
       if (res?.error) {
