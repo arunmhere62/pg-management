@@ -7,7 +7,7 @@ export default function NewPgPage() {
   const handleLogout = () => {
     localStorage.clear();
     document.cookie = 'pgLocationId=; Max-Age=0; path=/';
-    signOut({ callbackUrl: '/' });
+    signOut({ callbackUrl: process.env.NEXT_PUBLIC_LOGOUT_REDIRECT });
   };
 
   return (

@@ -1,5 +1,6 @@
 'use client';
 
+import { ImageCarousel } from '@/components/ui/ImageCarousel';
 import { Separator } from '@/components/ui/separator';
 import { useSetBreadcrumbs } from '@/hooks/use-breadcrumbs';
 import { cn } from '@/lib/utils';
@@ -13,6 +14,7 @@ import {
 import { fetchBedById } from '@/services/utils/api/bed-api';
 import { fetchRentById } from '@/services/utils/api/payment/rent-api';
 import { formatDateToDDMMYYYY } from '@/services/utils/formaters';
+import { IndianRupee } from 'lucide-react';
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -51,29 +53,11 @@ const RentDetails = ({ id }: { id: string }) => {
         <p className='mb-5 mt-2'>Explore the complete details of this rent. </p>
         <Separator className='mb-6' />
       </div>
-      <div className='col-span-12 rounded-xl border p-3 sm:col-span-4'>
-        <div
-          className='h-[500px] w-full overflow-y-scroll'
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-        >
-          {rentDetails?.tenants.images?.map((img: string, index: number) => (
-            <div key={index}>
-              <Image
-                alt=''
-                src={img}
-                width={1000}
-                height={1000}
-                className='h-[300px] w-full rounded-lg object-contain'
-              />
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className='col-span-12 sm:col-span-4'>
-        <div className='rounded-xl border p-5'>
-          <h1 className='mb-4 text-[20px] font-bold'>Tenant Details</h1>
-          <Separator className='mb-4' />
+      <div className='col-span-12 rounded-xl border p-3 sm:col-span-6'>
+        <h1 className='mb-4 text-[20px] font-bold'>Tenant Details</h1>
+        <Separator className='mb-4' />
+        <ImageCarousel images={rentDetails?.tenants.images || []} />
+        <div className='mt-3 p-1'>
           <div className='mb-5 flex justify-between'>
             <p className='w-[100px] font-semibold'>Tenant Name</p>
             <p className=''>{rentDetails?.tenants?.name}</p>
@@ -86,6 +70,19 @@ const RentDetails = ({ id }: { id: string }) => {
           <div className='mb-5 flex justify-between'>
             <p className='w-[100px] font-semibold'>Email</p>
             <p className=''>{rentDetails?.tenants?.email}</p>
+          </div>
+          <div className='mb-5 flex justify-between'>
+            <p className='w-[100px] font-semibold'>Pg Location</p>
+            <p className=''>{rentDetails?.pgLocations.locationName}</p>
+          </div>
+          <div className='mb-5 flex justify-between'>
+            <p className='w-[100px] font-semibold'>Room No</p>
+            <p className=''>{rentDetails?.rooms.roomNo}</p>
+          </div>
+
+          <div className='mb-5 flex justify-between'>
+            <p className='w-[100px] font-semibold'>Bed No:</p>
+            <p className=''>{rentDetails?.beds.bedNo}</p>
           </div>
           <div className='mb-5 flex justify-between'>
             <p className='w-[100px] font-semibold'>Check In</p>
@@ -102,42 +99,69 @@ const RentDetails = ({ id }: { id: string }) => {
             </p>
           </div>
         </div>
-        {/* Created At */}
       </div>
-      <div className='col-span-12 sm:col-span-4'>
-        <div className='rounded-xl border p-5'>
-          <h1 className='mb-4 text-[20px] font-bold'>PG Details</h1>
+
+      <div className='col-span-12 sm:col-span-6'>
+        <div className='mt-2 rounded-xl border p-5'>
+          <h1 className='mb-4 text-[20px] font-bold'>Payment Details</h1>
           <Separator className='mb-4' />
           <div className='mb-5 flex justify-between'>
-            <p className='w-[100px] font-semibold'>Pg Location</p>
-            <p className=''>{rentDetails?.pgLocations.locationName}</p>
-          </div>
-          <div className='mb-5 flex justify-between'>
-            <p className='w-[100px] font-semibold'>Room No</p>
-            <p className=''>{rentDetails?.rooms.roomNo}</p>
+            <p className='w-[100px] font-semibold'>Remarks</p>
+            <p className=''>{rentDetails?.remarks}</p>
           </div>
 
           <div className='mb-5 flex justify-between'>
-            <p className='w-[100px] font-semibold'>Bed No:</p>
-            <p className=''>{rentDetails?.beds.bedNo}</p>
-          </div>
-
-          <div className='mb-5 flex justify-between'>
-            <p className='font-semibold'>Status:</p>
-            <p className={cn('w-fit rounded-lg px-3 py-0.5 text-[14px]')}>
-              {rentDetails?.status?.toLocaleUpperCase()}
+            <p className='w-[100px] font-semibold'>Payment Date</p>
+            <p className=''>
+              {formatDateToDDMMYYYY(rentDetails?.paymentDate ?? '')}
             </p>
           </div>
+
+          <div className='mb-5 flex justify-between'>
+            <p className='font-semibold'>Start Date:</p>
+            <p className=''>
+              {formatDateToDDMMYYYY(rentDetails?.startDate ?? '')}
+            </p>
+          </div>
+          <div className='mb-5 flex justify-between'>
+            <p className='font-semibold'>End Date:</p>
+            <p className=''>
+              {formatDateToDDMMYYYY(rentDetails?.endDate ?? '')}
+            </p>
+          </div>
+
           <div className='mb-5 flex justify-between'>
             <p className='font-semibold'>Updated At:</p>
             <p className=''>
               {formatDateToDDMMYYYY(rentDetails?.updatedAt ?? '')}
             </p>
           </div>
-          <div className='flex justify-between'>
+          <div className='mb-5 flex justify-between'>
             <p className='font-semibold'>Created At:</p>
             <p className=''>
               {formatDateToDDMMYYYY(rentDetails?.createdAt ?? '')}
+            </p>
+          </div>
+          <div className='mb-5 flex justify-between'>
+            <p className='w-[100px] font-semibold'>Payment Method</p>
+            <p className=''>{rentDetails?.paymentMethod}</p>
+          </div>
+          <div className='mb-5 flex justify-between'>
+            <p className='w-[100px] font-semibold'>Payment Status</p>
+            <p className=''>{rentDetails?.status}</p>
+          </div>
+          <div className='mb-5 flex justify-between'>
+            <p className='w-[100px] font-semibold'>Amount Paid</p>
+            <p className='flex'>
+              {' '}
+              <IndianRupee className='w-3' />
+              {rentDetails?.amountPaid}
+            </p>
+          </div>
+          <div className='mb-5 flex justify-between'>
+            <p className='font-semibold'>Current Bill:</p>
+            <p className='flex'>
+              <IndianRupee className='w-3' /> {rentDetails?.currentBill}
             </p>
           </div>
         </div>

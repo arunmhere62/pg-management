@@ -82,8 +82,8 @@ export const POST = async (req: NextRequest) => {
         { status: 400 }
       );
     }
-    const body = await req.json();
 
+    const body = await req.json();
     const parsedBody = bedCreateSchema.safeParse(body);
 
     if (!parsedBody.success) {
@@ -92,9 +92,12 @@ export const POST = async (req: NextRequest) => {
         { status: 400 }
       );
     }
+
     const room = await prisma.rooms.findUnique({
       where: {
-        id: Number(parsedBody.data.roomNo)
+        id: Number(parsedBody.data.roomNo),
+        pgId: Number(pgLocationId),
+        isDeleted: false
       },
       include: {
         beds: true
@@ -108,30 +111,59 @@ export const POST = async (req: NextRequest) => {
         'ROOM_NOT_FOUND'
       );
     }
+
     const existingBed = room.beds.find(
-      (bed) => bed.bedNo === parsedBody.data.bedNo
+      (bed) => bed.bedNo === parsedBody.data.bedNo && bed.isDeleted === false
     );
+
     if (existingBed) {
       throw new ConflictError(
         `A bed with number ${parsedBody.data.bedNo} already exists in room ${parsedBody.data.roomNo}`
       );
     }
-    if (room.bedCount !== null && room.beds.length >= room.bedCount) {
-      throw new ConflictError('Cannot add more beds, limit reached');
+
+    const softDeletedBed = room.beds.find(
+      (bed) => bed.bedNo === parsedBody.data.bedNo && bed.isDeleted === true
+    );
+
+    if (softDeletedBed) {
+      const restoredBed = await prisma.beds.update({
+        where: { id: softDeletedBed.id },
+        data: {
+          isDeleted: false,
+          images: parsedBody.data.images
+        }
+      });
+
+      return NextResponse.json(
+        {
+          data: restoredBed,
+          message: 'Restored previously deleted bed',
+          status: 201
+        },
+        { status: 201 }
+      );
     }
-    const res = await prisma.beds.create({
+
+    const createdBed = await prisma.beds.create({
       data: {
-        bedNo: parsedBody.data?.bedNo,
-        pgId: parsedBody.data?.pgId,
-        images: parsedBody.data?.images,
-        roomId: parsedBody.data?.roomNo
+        bedNo: parsedBody.data.bedNo,
+        pgId: parsedBody.data.pgId,
+        images: parsedBody.data.images,
+        roomId: parsedBody.data.roomNo
       }
     });
+
     return NextResponse.json(
-      { data: res, message: 'created the bed successfully', status: 201 },
+      {
+        data: createdBed,
+        message: 'Created the bed successfully',
+        status: 201
+      },
       { status: 201 }
     );
   } catch (error: any) {
+    console.log('Error in POST /bed:', error);
     return errorHandler(error);
   }
 };

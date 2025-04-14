@@ -164,7 +164,7 @@ const TenantList = () => {
       if (selectedTenantId) {
         const res = await removeTenant(String(selectedTenantId));
         if (res.status === 200) {
-          toast.success('Tenant removed bed is free now!');
+          toast.success('Bed is deleted successfully!');
           getTenants();
         }
       }

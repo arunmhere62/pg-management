@@ -5,6 +5,7 @@ import {
   AccordionItem,
   AccordionTrigger
 } from '@/components/ui/accordion';
+import { ImageCarousel } from '@/components/ui/ImageCarousel';
 
 import { Separator } from '@/components/ui/separator';
 import { useSetBreadcrumbs } from '@/hooks/use-breadcrumbs';
@@ -125,38 +126,7 @@ const RoomDetails = ({ id }: { id: string }) => {
       </div>
       <div className='col-span-12 h-fit rounded-xl border p-3 sm:col-span-7'>
         <div className='flex space-x-2'>
-          <div
-            className='h-fit w-full overflow-y-scroll rounded-xl border p-3'
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-          >
-            {roomDetails?.proofDocuments?.map((img: string, index: number) => (
-              <div key={index}>
-                <Image
-                  alt=''
-                  src={img}
-                  width={1000}
-                  height={1000}
-                  className='h-[200px] w-full rounded-lg object-contain'
-                />
-              </div>
-            ))}
-          </div>
-          <div
-            className='h-fit w-full overflow-y-scroll rounded-xl border p-3'
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-          >
-            {roomDetails?.images?.map((img: string, index: number) => (
-              <div key={index}>
-                <Image
-                  alt=''
-                  src={img}
-                  width={1000}
-                  height={1000}
-                  className='h-[200px] w-full rounded-lg object-contain'
-                />
-              </div>
-            ))}
-          </div>
+          <ImageCarousel images={roomDetails?.images || []} />
         </div>
         <div className='mt-5 sm:mt-3'>
           <div className='mb-5 flex justify-between'>

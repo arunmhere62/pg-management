@@ -24,6 +24,9 @@ export const GET = async (
       },
       include: {
         beds: {
+          where: {
+            isDeleted: false
+          },
           include: {
             tenants: true
           }
@@ -57,11 +60,9 @@ export const GET = async (
 const roomSchema = z.object({
   images: z.array(z.string()).optional(),
   roomNo: z.string().min(1, 'Room number is required'),
-  bedCount: z.number().int().min(0, 'Bed count must be at least 0'),
   rentPrice: z.number().min(0, 'Rent price must be a positive number'),
   pgId: z.number().int().positive('PG ID must be a positive integer')
 });
-
 export const PUT = async (
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -85,7 +86,7 @@ export const PUT = async (
       );
     }
 
-    const { roomNo, bedCount, rentPrice, images } = validatedData.data;
+    const { roomNo, rentPrice, images } = validatedData.data;
 
     if (!id) {
       throw new BadRequestError('RoomId is required');
@@ -96,17 +97,6 @@ export const PUT = async (
         id: Number(id),
         pgId: Number(pgLocationId),
         isDeleted: false
-      },
-      include: {
-        beds: {
-          where: {
-            isDeleted: false
-          },
-          select: {
-            bedNo: true,
-            id: true
-          }
-        }
       }
     });
 
@@ -114,44 +104,23 @@ export const PUT = async (
       throw new NotFoundError('Room not found');
     }
 
-    const existingBedCount = existingRoom.beds.length;
-
-    if (bedCount < existingBedCount) {
-      throw new BadRequestError(
-        `Cannot reduce bed count to ${bedCount}. Already ${existingBedCount} exists. Delete and reduce manually.`
-      );
-    }
-
-    // Update room details
     const updatedRoom = await prisma.rooms.update({
       where: {
         id: Number(id)
       },
       data: {
         roomNo,
-        bedCount: Number(bedCount),
         rentPrice: Number(rentPrice),
         images
       }
     });
 
-    // If bed count increased, create new beds
-    if (bedCount > existingBedCount) {
-      const newBeds = Array.from(
-        { length: bedCount - existingBedCount },
-        (_, index) => ({
-          bedNo: `BED${existingBedCount + index + 1}`,
-          roomId: updatedRoom.id,
-          pgId: updatedRoom.pgId,
-          images: []
-        })
-      );
-
-      await prisma.beds.createMany({ data: newBeds });
-    }
-
     return NextResponse.json(
-      { data: updatedRoom, message: 'Updated the room', status: 200 },
+      {
+        data: updatedRoom,
+        message: 'Updated the room successfully',
+        status: 200
+      },
       { status: 200 }
     );
   } catch (error: any) {

@@ -179,11 +179,11 @@ const RoomsList = () => {
     },
     {
       field: 'bedInfo',
-      headerName: 'Created Bed / Total Bed',
-      minWidth: 200,
+      headerName: 'Total Bed',
+      minWidth: 100,
       renderCell: (params: any) => (
         <span className='rounded-lg bg-[#ffcd94] px-2 py-1 font-bold text-[#000000]'>
-          {params.row.totalBeds + ' '}/ {params.row.bedCount}
+          {params.row.totalBeds}
         </span>
       )
     },

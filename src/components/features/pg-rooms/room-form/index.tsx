@@ -27,14 +27,6 @@ export const roomFormSchema = z.object({
       message: 'Room number must be a positive number greater than 0'
     }),
 
-  bedCount: z
-    .string()
-    .trim()
-    .min(1, 'Bed count is required')
-    .refine((val) => /^\d+$/.test(val) && Number(val) > 0, {
-      message: 'Bed count must be a positive number greater than 0'
-    }),
-
   rentPrice: z
     .string()
     .trim()
@@ -81,17 +73,15 @@ const MainRoomForm = ({ mode, initialData, id }: IMainRoomFormProps) => {
         roomNo: values.roomNo.startsWith('RM')
           ? values.roomNo
           : 'RM' + values.roomNo,
-        bedCount: Number(values.bedCount),
         rentPrice: Number(values.rentPrice),
         pgId: Number(pgLocationId)
       };
       if (mode === 'create') {
         const res = await createRoom(payload);
         if (res.status === 201) {
-          toast.success('PG and its Beds created successfully!');
+          toast.success('Room created successfully!');
           form.reset({
             roomNo: '',
-            bedCount: '',
             rentPrice: '',
             images: []
           });
@@ -102,7 +92,6 @@ const MainRoomForm = ({ mode, initialData, id }: IMainRoomFormProps) => {
           toast.success('PG updated successfully!');
           form.reset({
             roomNo: '',
-            bedCount: '',
             rentPrice: '',
             images: []
           });
@@ -122,7 +111,6 @@ const MainRoomForm = ({ mode, initialData, id }: IMainRoomFormProps) => {
     if (initialData) {
       form.reset({
         roomNo: initialData.roomNo || '',
-        bedCount: initialData.bedCount || '',
         rentPrice: initialData.rentPrice || '',
         images: initialData.images || []
       });

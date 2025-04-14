@@ -1,4 +1,5 @@
 'use client';
+import { ImageCarousel } from '@/components/ui/ImageCarousel';
 import { Separator } from '@/components/ui/separator';
 import { useSetBreadcrumbs } from '@/hooks/use-breadcrumbs';
 import { cn } from '@/lib/utils';
@@ -59,25 +60,48 @@ const RoomDetails = ({ id }: { id: string }) => {
       </div>
 
       {/* Images */}
-      <div className='col-span-12 rounded-xl border p-3 md:col-span-3'>
-        <div className='no-scrollbar h-[400px] w-full overflow-y-auto md:h-[500px]'>
-          {roomDetails?.images?.map((img: string, index: number) => (
-            <div key={index} className='mb-3'>
-              <Image
-                alt={`Room image ${index + 1}`}
-                src={img}
-                width={1000}
-                height={1000}
-                className='h-[250px] w-full rounded-lg object-contain md:h-[300px]'
-              />
-            </div>
-          ))}
+      <div className='col-span-12 rounded-xl md:col-span-6'>
+        {/* Room Image Carousel */}
+        <ImageCarousel images={roomDetails?.images || []} />
+
+        {/* Section Title */}
+        <h2 className='mb-2 mt-4 text-lg font-semibold'>
+          Vacant Beds & Tenant Information
+        </h2>
+
+        {/* Beds Info List */}
+        <div className='space-y-4'>
+          {roomDetails?.beds?.length ? (
+            roomDetails.beds.map((bed) => (
+              <div
+                key={bed.id}
+                className='rounded-xl border border-gray-200 bg-white px-3 py-2 shadow-sm'
+              >
+                <div className='mb-3 flex justify-between'>
+                  <span className='w-[120px] font-medium text-gray-600'>
+                    Bed Number
+                  </span>
+                  <span>{bed?.bedNo ?? 'N/A'}</span>
+                </div>
+                <div className='flex justify-between'>
+                  <span className='w-[120px] font-medium text-gray-600'>
+                    Tenant Name
+                  </span>
+                  <span>{bed?.tenants?.[0]?.name ?? 'N/A'}</span>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className='text-sm text-gray-500'>No bed data available.</p>
+          )}
         </div>
       </div>
 
-      {/* Room Info */}
-      <div className='col-span-12 md:col-span-4'>
+      {/* Beds Info */}
+      <div className='col-span-12 md:col-span-6'>
         <div className='rounded-xl border p-4'>
+          <h2 className='mb-2 mt-2 text-[20px] font-semibold'>Room Info</h2>
+          <Separator className='mb-3' />
           <div className='mb-5 flex justify-between'>
             <p className='w-[120px] font-semibold'>Room No</p>
             <p>{roomDetails?.roomNo}</p>
@@ -121,24 +145,6 @@ const RoomDetails = ({ id }: { id: string }) => {
               {Number(roomDetails?.bedCount) * Number(roomDetails?.rentPrice)}
             </p>
           </div>
-        </div>
-      </div>
-
-      {/* Beds Info */}
-      <div className='col-span-12 md:col-span-5'>
-        <div className='space-y-4'>
-          {roomDetails?.beds.map((bed) => (
-            <div key={bed.id} className='rounded-xl border px-3 py-2 shadow-sm'>
-              <div className='mb-3 flex justify-between'>
-                <p className='w-[100px] font-semibold'>Bed No</p>
-                <p>{bed?.bedNo ?? 'N/A'}</p>
-              </div>
-              <div className='flex justify-between'>
-                <p className='w-[100px] font-semibold'>Tenant Name</p>
-                <p>{bed?.tenants[0]?.name ?? 'N/A'}</p>
-              </div>
-            </div>
-          ))}
         </div>
       </div>
     </div>

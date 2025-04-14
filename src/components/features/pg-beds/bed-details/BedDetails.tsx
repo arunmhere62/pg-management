@@ -1,4 +1,5 @@
 'use client';
+import { ImageCarousel } from '@/components/ui/ImageCarousel';
 import { Separator } from '@/components/ui/separator';
 import { useSetBreadcrumbs } from '@/hooks/use-breadcrumbs';
 import { cn } from '@/lib/utils';
@@ -53,23 +54,8 @@ const BedDetails = ({ id }: { id: string }) => {
         </p>
         <Separator className='mb-6' />
       </div>
-      <div className='col-span-12 rounded-xl border p-3 sm:col-span-4'>
-        <div
-          className='h-[500px] w-full overflow-y-scroll'
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-        >
-          {bedDetails?.images?.map((img: string, index: number) => (
-            <div key={index}>
-              <Image
-                alt=''
-                src={img}
-                width={1000}
-                height={1000}
-                className='h-[300px] w-full rounded-lg object-contain'
-              />
-            </div>
-          ))}
-        </div>
+      <div className='col-span-12 sm:col-span-6'>
+        <ImageCarousel images={bedDetails?.images || []} />
       </div>
 
       <div className='col-span-12 sm:col-span-5'>

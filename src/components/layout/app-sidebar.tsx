@@ -215,7 +215,9 @@ export default function AppSidebar() {
                     document.cookie = 'pgLocationId=; Max-Age=0; path=/';
 
                     // Trigger NextAuth signOut
-                    signOut({ callbackUrl: '/' }); // optional: redirect to homepage after logout
+                    signOut({
+                      callbackUrl: process.env.NEXT_PUBLIC_LOGOUT_REDIRECT
+                    }); // optional: redirect to homepage after logout
                   }}
                 >
                   <LogOut />

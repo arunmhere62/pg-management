@@ -207,7 +207,7 @@ const MainUserProfile = () => {
 
       {/* Password Change Modal */}
       <Modal
-        contentClassName='w-fit rounded-lg sm:w-full'
+        contentClassName='w-[95%] rounded-lg sm:w-full'
         isOpen={openEmployeePasswordModal}
         title='Change Employee Password'
         onClose={() => setOpenEmployeePasswordModal(false)}

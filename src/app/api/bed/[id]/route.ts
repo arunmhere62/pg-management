@@ -149,43 +149,16 @@ export const DELETE = async (
       throw new BadRequestError('Cannot delete. Bed is assigned to a tenant.');
     }
 
-    // Find bed to get roomId
-    const bed = await prisma.beds.findUnique({
+    // Soft-delete the bed only
+    await prisma.beds.update({
       where: {
-        id: Number(id)
+        id: Number(id),
+        pgId: Number(pgLocationId)
       },
-      select: {
-        roomId: true
+      data: {
+        isDeleted: true
       }
     });
-
-    if (!bed?.roomId) {
-      throw new BadRequestError('Bed or associated room not found');
-    }
-
-    // Run both operations in a transaction
-    await prisma.$transaction([
-      prisma.beds.update({
-        where: {
-          id: Number(id),
-          pgId: Number(pgLocationId)
-        },
-        data: {
-          isDeleted: true
-        }
-      }),
-      prisma.rooms.update({
-        where: {
-          id: bed.roomId,
-          pgId: Number(pgLocationId)
-        },
-        data: {
-          bedCount: {
-            decrement: 1
-          }
-        }
-      })
-    ]);
 
     return NextResponse.json(
       { status: 200, message: 'Deleted successfully' },

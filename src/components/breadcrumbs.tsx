@@ -32,7 +32,7 @@ export function Breadcrumbs() {
                 <BreadcrumbItem>
                   <BreadcrumbLink
                     asChild
-                    className='cursor-pointer'
+                    className='cursor-pointer select-none'
                     onClick={() => router.push(item.link || '/')}
                   >
                     <span>{item.title}</span>
@@ -45,7 +45,9 @@ export function Breadcrumbs() {
             )}
 
             {index === items.length - 1 && (
-              <BreadcrumbPage>{item.title}</BreadcrumbPage>
+              <BreadcrumbPage className='select-none'>
+                {item.title}
+              </BreadcrumbPage>
             )}
           </Fragment>
         ))}

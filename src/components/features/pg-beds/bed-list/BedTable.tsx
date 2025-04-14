@@ -56,7 +56,7 @@ const BedsList = () => {
       );
       setFilteredBedsData(filteredBedsList);
     }
-  }, [selectedRoom]);
+  }, [selectedRoom, bedsData]);
   const getBeds = async () => {
     setLoading(true);
 
@@ -101,7 +101,7 @@ const BedsList = () => {
       if (selectedBedId) {
         const res = await deleteBed(String(selectedBedId));
         if (res.status === 200) {
-          toast.success('Tenant removed bed is free now!');
+          toast.success('Bed removed successfully !');
           getBeds();
         }
       }

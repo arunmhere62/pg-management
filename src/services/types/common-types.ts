@@ -55,6 +55,7 @@ export interface ITenantPaymentProps {
   updatedAt: string;
   startDate: string;
   endDate: string;
+  currentBill: number;
 }
 
 export interface ITenantProps {

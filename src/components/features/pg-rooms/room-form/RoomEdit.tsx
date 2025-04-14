@@ -7,7 +7,6 @@ import { toast } from 'sonner';
 
 interface IRoomEditFormProps {
   roomNo: string;
-  bedCount: string;
   rentPrice: string;
   status: string;
   images: string[];
@@ -21,7 +20,6 @@ const RoomEdit = ({ id }: { id: string }) => {
         const formattedRes = {
           images: res.data.images,
           roomNo: res.data.roomNo?.replace(/^RM/, ''),
-          bedCount: res.data.bedCount.toString(),
           rentPrice: res.data.rentPrice.toString(),
           status: res.data.status
         };

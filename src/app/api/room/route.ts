@@ -13,6 +13,7 @@ export const GET = async (req: NextRequest) => {
   try {
     const cookies = req.cookies;
     const pgLocationId = cookies.get('pgLocationId')?.value;
+
     if (!pgLocationId) {
       throw new BadRequestError('Pg location is necessary');
     }
@@ -26,7 +27,6 @@ export const GET = async (req: NextRequest) => {
         id: true,
         roomId: true,
         pgId: true,
-        bedCount: true,
         roomNo: true,
         updatedAt: true,
         createdAt: true,
@@ -61,9 +61,9 @@ export const GET = async (req: NextRequest) => {
       const occupiedBeds = room.beds.filter(
         (bed) => bed.tenants.length > 0
       ).length;
-      const totalAmount = (room.rentPrice?.toNumber() || 0) * totalBeds || 0;
-      // Room is FULL if all beds are occupied, otherwise AVAILABLE
-      const status = occupiedBeds === totalBeds ? 'FULL' : 'AVAILABLE';
+      const totalAmount = (room.rentPrice?.toNumber() || 0) * totalBeds;
+      const status =
+        totalBeds > 0 && occupiedBeds === totalBeds ? 'FULL' : 'AVAILABLE';
 
       return {
         ...room,
@@ -89,7 +89,6 @@ export const GET = async (req: NextRequest) => {
 
 // Zod schema for room data validation
 const roomSchema = z.object({
-  bedCount: z.number().int().min(1, 'Bed count must be at least 1'),
   roomNo: z.string().min(1, 'Room number is required'),
   rentPrice: z.number().min(0, 'Rent price cannot be negative'),
   pgId: z.number().int().min(1, 'PG ID is required'),
@@ -109,16 +108,17 @@ export const POST = async (req: NextRequest) => {
         { status: 400 }
       );
     }
-    const { bedCount, roomNo, rentPrice, pgId } = parsedBody.data;
+
+    const { roomNo, rentPrice, pgId, images } = parsedBody.data;
 
     const roomData = {
       roomId: uuidv4(),
-      bedCount: Number(parsedBody.data.bedCount),
-      roomNo: parsedBody.data.roomNo,
-      rentPrice: Number(parsedBody.data.rentPrice),
-      pgId: Number(parsedBody.data.pgId),
-      images: parsedBody.data.images
+      roomNo,
+      rentPrice: Number(rentPrice),
+      pgId: Number(pgId),
+      images
     };
+
     const existingRoom = await prisma.rooms.findFirst({
       where: {
         roomNo: roomData.roomNo,
@@ -131,26 +131,13 @@ export const POST = async (req: NextRequest) => {
         'A room with this number already exists in the same PG.'
       );
     }
-    const result = await prisma.$transaction(async (prisma) => {
-      const newRoom = await prisma.rooms.create({
-        data: roomData
-      });
 
-      const beds = Array.from({ length: bedCount }, (_, index) => ({
-        bedNo: `BED${index + 1}`,
-        roomId: newRoom.id,
-        pgId: newRoom.pgId,
-        images: []
-      }));
-
-      await prisma.beds.createMany({ data: beds });
-      return newRoom;
-    });
+    const newRoom = await prisma.rooms.create({ data: roomData });
 
     return NextResponse.json(
       {
-        data: result,
-        message: 'successfully created the room and its beds',
+        data: newRoom,
+        message: 'Room created successfully',
         status: 201
       },
       { status: 201 }

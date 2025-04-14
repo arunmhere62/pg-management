@@ -14,7 +14,6 @@ import { roomFormSchema } from '.';
 interface IPgLocationFromProps {
   initialValue: {
     roomNo: string;
-    bedCount: string | '';
     rentPrice: string | '';
     images: string[];
   };
@@ -64,24 +63,6 @@ export default function RoomForm({
                     {...field}
                   />
                 </div>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={control}
-          name='bedCount'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Bed Count</FormLabel>
-              <FormControl>
-                <Input
-                  type='number'
-                  placeholder='Enter No of beds'
-                  {...field}
-                />
               </FormControl>
               <FormMessage />
             </FormItem>
