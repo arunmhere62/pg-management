@@ -1,8 +1,10 @@
 'use client';
 import { Separator } from '@/components/ui/separator';
+import { useSetBreadcrumbs } from '@/hooks/use-breadcrumbs';
 import { cn } from '@/lib/utils';
 import { fetchBedById } from '@/services/utils/api/bed-api';
 import axiosService from '@/services/utils/axios';
+import { formatDateToDDMMYYYY } from '@/services/utils/formaters';
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -23,7 +25,10 @@ interface IBedDetailsProps {
 }
 const BedDetails = ({ id }: { id: string }) => {
   const [bedDetails, setBedDetails] = useState<IBedDetailsProps>();
-
+  useSetBreadcrumbs([
+    { title: 'Bed', link: '/bed' },
+    { title: 'Details', link: '/bed' }
+  ]);
   useEffect(() => {
     const getBed = async () => {
       try {
@@ -40,7 +45,7 @@ const BedDetails = ({ id }: { id: string }) => {
     }
   }, [id]);
   return (
-    <div className='grid grid-cols-12 gap-x-8 rounded-xl border p-5'>
+    <div className='grid grid-cols-12 gap-y-4 rounded-xl border p-5 sm:gap-x-8'>
       <div className='col-span-12'>
         <h1 className='text-[20px] font-bold'>Bed Details</h1>
         <p className='mb-5 mt-2'>
@@ -48,7 +53,7 @@ const BedDetails = ({ id }: { id: string }) => {
         </p>
         <Separator className='mb-6' />
       </div>
-      <div className='col-span-4 rounded-xl border p-3'>
+      <div className='col-span-12 rounded-xl border p-3 sm:col-span-4'>
         <div
           className='h-[500px] w-full overflow-y-scroll'
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
@@ -67,7 +72,7 @@ const BedDetails = ({ id }: { id: string }) => {
         </div>
       </div>
 
-      <div className='col-span-5'>
+      <div className='col-span-12 sm:col-span-5'>
         <div className='mb-5 flex justify-between'>
           <p className='w-[100px] font-semibold'>Pg Location</p>
           <p className=''>{bedDetails?.pgLocations.locationName}</p>
@@ -91,11 +96,15 @@ const BedDetails = ({ id }: { id: string }) => {
         </div>
         <div className='mb-5 flex justify-between'>
           <p className='font-semibold'>Updated At:</p>
-          <p className=''>{bedDetails?.updatedAt}</p>
+          <p className=''>
+            {formatDateToDDMMYYYY(bedDetails?.updatedAt ?? '')}
+          </p>
         </div>
         <div className='flex justify-between'>
           <p className='font-semibold'>Created At:</p>
-          <p className=''>{bedDetails?.createdAt}</p>
+          <p className=''>
+            {formatDateToDDMMYYYY(bedDetails?.createdAt ?? '')}
+          </p>
         </div>
 
         {/* Created At */}

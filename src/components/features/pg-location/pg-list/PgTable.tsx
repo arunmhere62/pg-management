@@ -10,6 +10,7 @@ import PgDetails from '../pg-details/PgDetails';
 import { fetchPgLocationsList } from '@/services/utils/api/pg-location-api';
 import { TableDynamicDropdown } from '@/components/ui/large/TableDynamicDropdown';
 import { formatDateToDDMMYYYY } from '@/services/utils/formaters';
+import { useSetBreadcrumbs } from '@/hooks/use-breadcrumbs';
 
 export interface IPgListProps {
   id: number;
@@ -30,6 +31,7 @@ const PgList = () => {
   const [pgListData, setPgListData] = useState<IPgListProps[]>([]);
   const [pgDetails, setPgDetails] = useState<IPgListProps>();
   const [openPgDetails, setOpenPgDetails] = useState<boolean>(false);
+  useSetBreadcrumbs([{ title: 'Pg Location', link: '/pg-location' }]);
   useEffect(() => {
     const getPgList = async () => {
       try {
@@ -95,7 +97,7 @@ const PgList = () => {
     {
       field: 'images',
       headerName: 'Profile',
-      width: 100,
+      minWidth: 150,
       renderCell: (params: any) => {
         const image = params?.value?.[0] || [];
         return image ? (
@@ -113,13 +115,18 @@ const PgList = () => {
         );
       }
     },
-    { field: 'locationName', headerName: 'Location Name', flex: 1 },
-    { field: 'address', headerName: 'Address', flex: 1 },
-    { field: 'cityName', headerName: 'City', flex: 1 },
-    { field: 'stateName', headerName: 'State', flex: 1 },
-    { field: 'pincode', headerName: 'Pincode', flex: 1 },
-    { field: 'createdAt', headerName: 'Created At', flex: 1 },
-    { field: 'updatedAt', headerName: 'Updated At', flex: 1 }
+    {
+      field: 'locationName',
+      headerName: 'Location Name',
+      flex: 1,
+      minWidth: 150
+    },
+    { field: 'address', headerName: 'Address', flex: 1, minWidth: 150 },
+    { field: 'cityName', headerName: 'City', flex: 1, minWidth: 150 },
+    { field: 'stateName', headerName: 'State', flex: 1, minWidth: 150 },
+    { field: 'pincode', headerName: 'Pincode', flex: 1, minWidth: 150 },
+    { field: 'createdAt', headerName: 'Created At', flex: 1, minWidth: 150 },
+    { field: 'updatedAt', headerName: 'Updated At', flex: 1, minWidth: 150 }
   ];
   return (
     <>
@@ -137,6 +144,7 @@ const PgList = () => {
       />
       <div className='mt-6'>
         <GridTable
+          tableHeight='560px'
           columns={columns}
           rows={pgListData}
           loading={false}
@@ -147,7 +155,7 @@ const PgList = () => {
       </div>
       <div className='sm:p[p-0] p-10'>
         <Modal
-          contentClassName='w-[350px] rounded-lg sm:w-full'
+          contentClassName='w-[95%] rounded-lg sm:w-full'
           isOpen={openPgDetails}
           title='PG Details'
           onClose={() => {

@@ -19,6 +19,7 @@ import {
 } from '@/services/utils/api/common-api';
 import CreatePgForm from '../pg-location/pg-form/PgForm';
 import Cookies from 'js-cookie';
+import { useRouter } from 'next/navigation';
 
 export const formSchema = z.object({
   images: z
@@ -65,7 +66,7 @@ const NewPgCreate = ({ mode, initialData, id }: INewPgCreateProps) => {
   const [citiesList, setCitiesList] = useState<ICitiesListProps[]>([]);
   const [stateData, setStateData] = useState<IStateData[]>([]);
   const [cityData, setCityData] = useState<ICityData[]>([]);
-
+  const router = useRouter();
   const pageTitle = mode === 'create' ? 'Create New PG' : 'Edit PG';
 
   const defaultValues = {
@@ -132,14 +133,7 @@ const NewPgCreate = ({ mode, initialData, id }: INewPgCreateProps) => {
       if (mode === 'create') {
         const res = await createFirstPg(payload);
         if (res.status === 201) {
-          const pgLocationId =
-            res.data?.pgLocationId ||
-            res.data?.data?.pgLocationId ||
-            res.data?.data?.id;
-          if (pgLocationId) {
-            Cookies.set('pgLocationId', String(pgLocationId), { expires: 7 });
-            window.location.reload();
-          }
+          router.push('/dashboard/overview');
           console.log('data pg', res.data);
           toast.success('PG created successfully!');
           form.reset({
@@ -203,14 +197,23 @@ const NewPgCreate = ({ mode, initialData, id }: INewPgCreateProps) => {
   return (
     <Card className='mx-auto w-full'>
       <CardHeader>
-        <CardTitle className='pb-4 text-left text-2xl font-bold'>
-          {pageTitle}
-        </CardTitle>
+        <div className='flex justify-between'>
+          <CardTitle className='pb-4 text-left text-2xl font-bold'>
+            {pageTitle}
+          </CardTitle>
+          <Button type='submit' form='new-pg-create'>
+            {mode === 'create' ? 'Create New PG' : 'Save'}
+          </Button>
+        </div>
         <Separator />
       </CardHeader>
       <CardContent className='mt-1'>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
+          <form
+            id='new-pg-create'
+            onSubmit={form.handleSubmit(onSubmit)}
+            className='space-y-8'
+          >
             <CreatePgForm
               statesList={statesList}
               initialValue={defaultValues}
@@ -218,9 +221,6 @@ const NewPgCreate = ({ mode, initialData, id }: INewPgCreateProps) => {
               onSubmit={onSubmit}
               control={form.control}
             />
-            <Button type='submit'>
-              {mode === 'create' ? 'Create New PG' : 'Save'}
-            </Button>
           </form>
         </Form>
       </CardContent>

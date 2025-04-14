@@ -18,27 +18,9 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }) {
   // Persisting the sidebar state in the cookie.
-  const cookieStore = await cookies();
-  const defaultOpen = cookieStore.get('sidebar:state')?.value === 'true';
   return (
-    <KBar>
-      <SidebarProvider defaultOpen={defaultOpen}>
-        <AppSidebar />
-        <SidebarInset>
-          <Header />
-          {/* page main content */}
-          <PgRedirectWrapper>
-            <div className='px-4'>
-              <div className='mb-4 block rounded-xl border px-2 py-1 sm:hidden'>
-                <Breadcrumbs />
-              </div>
-              {children}
-            </div>
-          </PgRedirectWrapper>
-
-          {/* page main content ends */}
-        </SidebarInset>
-      </SidebarProvider>
-    </KBar>
+    <PgRedirectWrapper>
+      <div className='px-4'>{children}</div>
+    </PgRedirectWrapper>
   );
 }

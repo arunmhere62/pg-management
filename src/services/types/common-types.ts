@@ -105,6 +105,12 @@ export interface IEmployeeProps {
   pgId: number;
   isDeleted: boolean;
   organizationId: number;
+  address: string;
+  pincode: string;
+  country: string;
+  gender: string;
+  proofDocuments: string[];
+  profileImages: string[];
 }
 
 export interface IRoleProps {
@@ -115,4 +121,15 @@ export interface IRoleProps {
   updatedAt: string;
   organizationId: number;
   isDeleted: boolean;
+}
+
+export interface IStateDataProps {
+  id: number;
+  name: string;
+  isoCode: string;
+}
+
+export interface ICityDataProps {
+  id: number;
+  name: string;
 }

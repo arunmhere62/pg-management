@@ -1,5 +1,5 @@
 'use client';
-import PgList from '@/components/features/pg-location/pg-list';
+import PgList from '@/components/features/pg-location/pg-list/PgTable';
 import React from 'react';
 
 const Page = () => {

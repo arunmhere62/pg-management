@@ -46,15 +46,25 @@ export const POST = async (req: NextRequest) => {
     // 3. Fetch updated user details
     const updatedUser = await prisma.users.findUnique({
       where: { id: Number(userId) },
-      include: {
-        roles: true,
-        pgLocations: true
+      select: {
+        id: true,
+        pgId: true,
+        pgLocations: {
+          select: {
+            id: true,
+            locationName: true,
+            images: true,
+            address: true,
+            pincode: true,
+            stateId: true,
+            cityId: true
+          }
+        }
       }
     });
 
     console.log('updatedUser', updatedUser);
-
-    return NextResponse.json(
+    const response = NextResponse.json(
       {
         data: updatedUser,
         message: 'PG created and user updated',
@@ -62,6 +72,15 @@ export const POST = async (req: NextRequest) => {
       },
       { status: 201 }
     );
+
+    // Set a frontend-readable cookie
+    response.cookies.set('pgLocationId', String(newPG.id), {
+      httpOnly: false, // frontend can read it
+      path: '/',
+      maxAge: 60 * 60 * 24 * 30 // optional: 30 days
+    });
+
+    return response;
   } catch (error: any) {
     return errorHandler(error);
   }

@@ -68,9 +68,9 @@ const ImageUploader: React.FC<{
       fileInputRef.current.value = '';
     }
   };
-
+  // grid w-full max-w-sm items-center gap-1
   return (
-    <div className='grid w-full max-w-sm items-center gap-1'>
+    <div className=''>
       <Input
         ref={fileInputRef}
         id='picture'
@@ -80,7 +80,7 @@ const ImageUploader: React.FC<{
         onChange={handleFileChange}
       />
       {images.length > 0 && (
-        <div className='mt-2 grid grid-cols-3 gap-2'>
+        <div className='mt-2 flex gap-4'>
           {images.map((image, index) => (
             <div key={index} className='relative'>
               <Image
@@ -95,7 +95,7 @@ const ImageUploader: React.FC<{
                 onClick={() => removeImage(index)}
                 className='absolute right-0 top-0 m-1 rounded-full bg-black bg-opacity-50 p-1 text-white'
               >
-                <X size={16} />
+                <X size={15} />
               </button>
             </div>
           ))}

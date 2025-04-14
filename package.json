@@ -1,10 +1,9 @@
 {
-  "name": "next-shadcn-dashboard-starter",
+  "name": "pg-management-system",
   "version": "1.0.0",
   "private": true,
   "author": {
-    "name": "Kiran",
-    "url": "https://github.com/Kiranism"
+    "name": "Arun"
   },
   "scripts": {
     "dev": "next dev --turbopack",

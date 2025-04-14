@@ -31,6 +31,7 @@ import { IAdvancePaymentProps } from '../../advance-payment/advance-list/Advance
 import { Button } from '@/components/ui/button';
 import RefundReceipt from '../refund-receipt/RefundRecepit';
 import RefundReceiptForm from '../refund-receipt/RefundReceiptForm';
+import { useSetBreadcrumbs } from '@/hooks/use-breadcrumbs';
 
 interface IRefundPaymentListProps {
   id: number;
@@ -65,6 +66,7 @@ export const RefundPaymentTable = () => {
     useState<boolean>(false);
   const [selectedRefundId, setSelectedRefundId] = useState<number | null>(null);
 
+  useSetBreadcrumbs([{ title: 'Refund', link: '/payment/refund' }]);
   const getRefunds = async () => {
     try {
       const res = await fetchRefundList();
@@ -169,12 +171,12 @@ export const RefundPaymentTable = () => {
         );
       }
     },
-    { field: 'name', headerName: 'Name', minWidth: 100 },
-    { field: 'phoneNo', headerName: 'Phone No', minWidth: 130 },
+    { field: 'name', headerName: 'Name', minWidth: 150 },
+    { field: 'phoneNo', headerName: 'Phone No', minWidth: 150 },
     {
       field: 'roomNo',
       headerName: 'Room No',
-      minWidth: 130,
+      minWidth: 150,
       renderCell: (params: any) => (
         <span className='roomTableBadge'>{params.value}</span>
       )
@@ -182,7 +184,7 @@ export const RefundPaymentTable = () => {
     {
       field: 'bedNo',
       headerName: 'Bed No',
-      minWidth: 100,
+      minWidth: 150,
       renderCell: (params: any) => (
         <span className='bedTableBadge'>{params.value}</span>
       )
@@ -256,18 +258,21 @@ export const RefundPaymentTable = () => {
   ];
   return (
     <>
-      <HeaderButton
-        title='Refund Amount List'
-        buttons={[
-          {
-            label: 'Create New',
-            onClick: () => {
-              router.push('/payment/refund/new');
-            },
-            variant: 'default'
-          }
-        ]}
-      />
+      <div className='mb-3 mt-3'>
+        <HeaderButton
+          title='Refund Amount List'
+          buttons={[
+            {
+              label: 'Create New',
+              onClick: () => {
+                router.push('/payment/refund/new');
+              },
+              variant: 'default'
+            }
+          ]}
+        />
+      </div>
+
       <div className='mt-2'>
         <GridTable
           tableHeight='550px'
@@ -280,7 +285,7 @@ export const RefundPaymentTable = () => {
         />
       </div>
       <Modal
-        contentClassName='max-w-[800px] rounded-lg sm:w-full'
+        contentClassName='w-[95%] rounded-lg sm:w-full'
         isOpen={openReceiptDownloadModal}
         title=''
         onClose={() => {

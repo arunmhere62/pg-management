@@ -23,6 +23,7 @@ import { DotsVerticalIcon } from '@radix-ui/react-icons';
 import { Button } from '@/components/ui/button';
 import { IEmployeeProps, IRoleProps } from '@/services/types/common-types';
 import EmployeePassword from '../employee-form/password-form/EmployeePassword';
+import { useSetBreadcrumbs } from '@/hooks/use-breadcrumbs';
 
 export interface IEmployeeTableProps extends IEmployeeProps {
   roles: IRoleProps;
@@ -40,6 +41,7 @@ const EmployeesList = () => {
     null
   );
 
+  useSetBreadcrumbs([{ title: 'Employees', link: '/employee' }]);
   const getEmployees = async () => {
     setLoading(true);
     try {
@@ -108,7 +110,7 @@ const EmployeesList = () => {
                 variant='outline'
                 onClick={() => {
                   setSelectedEmployeeId(params.row.id);
-                  handleRemoveEmployee();
+                  setOpenEmployeeRemoveModal(true);
                 }}
               >
                 <Trash2 className='w-4 text-red-500 hover:text-black dark:hover:text-white' />
@@ -136,10 +138,10 @@ const EmployeesList = () => {
         </DropdownMenu>
       )
     },
-    { field: 'name', headerName: 'Name', flex: 1 },
-    { field: 'email', headerName: 'Email', flex: 1 },
-    { field: 'phone', headerName: 'Phone', flex: 1 },
-    { field: 'roleName', headerName: 'Role', flex: 1 },
+    { field: 'name', headerName: 'Name', flex: 1, minWidth: 150 },
+    { field: 'email', headerName: 'Email', flex: 1, minWidth: 150 },
+    { field: 'phone', headerName: 'Phone', flex: 1, minWidth: 150 },
+    { field: 'roleName', headerName: 'Role', flex: 1, minWidth: 150 },
     {
       field: 'status',
       headerName: 'Status',
@@ -159,6 +161,7 @@ const EmployeesList = () => {
       field: 'createdAt',
       headerName: 'Created At',
       flex: 1,
+      minWidth: 150,
       renderCell: (params: any) => (
         <span>{params.value ? formatDateToDDMMYYYY(params.value) : 'N/A'}</span>
       )
@@ -167,6 +170,7 @@ const EmployeesList = () => {
       field: 'updatedAt',
       headerName: 'Updated At',
       flex: 1,
+      minWidth: 150,
       renderCell: (params: any) => (
         <span>{params.value ? formatDateToDDMMYYYY(params.value) : 'N/A'}</span>
       )
@@ -201,7 +205,7 @@ const EmployeesList = () => {
       </div>
 
       <Modal
-        contentClassName='w-fit rounded-lg sm:w-full'
+        contentClassName='w-[95%] rounded-lg sm:w-full'
         isOpen={openEmployeeRemoveModal}
         title=''
         onClose={() => setOpenEmployeeRemoveModal(false)}
@@ -226,7 +230,7 @@ const EmployeesList = () => {
         </div>
       </Modal>
       <Modal
-        contentClassName='w-fit rounded-lg sm:w-full'
+        contentClassName='w-[95%] rounded-lg sm:w-full'
         isOpen={openEmployeePasswordModal}
         title='Change Employee Password'
         onClose={() => setOpenEmployeePasswordModal(false)}

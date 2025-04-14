@@ -1,6 +1,7 @@
 'use client';
 
 import { Separator } from '@/components/ui/separator';
+import { useSetBreadcrumbs } from '@/hooks/use-breadcrumbs';
 import { cn } from '@/lib/utils';
 import {
   IBedProps,
@@ -25,6 +26,10 @@ interface IAdvanceDetailsProps extends ITenantPaymentProps {
 const AdvanceDetails = ({ id }: { id: string }) => {
   const [advanceDetails, setAdvanceDetails] = useState<IAdvanceDetailsProps>();
 
+  useSetBreadcrumbs([
+    { title: 'Advance', link: '/payment/advance' },
+    { title: 'Details', link: '/advance' }
+  ]);
   useEffect(() => {
     const getBed = async () => {
       try {
@@ -41,13 +46,13 @@ const AdvanceDetails = ({ id }: { id: string }) => {
     }
   }, [id]);
   return (
-    <div className='grid grid-cols-12 gap-x-8 rounded-xl border p-5'>
+    <div className='grid grid-cols-12 gap-y-3 rounded-xl border p-5 sm:gap-x-8'>
       <div className='col-span-12'>
         <h1 className='text-[20px] font-bold'>Advance Details</h1>
         <p className='mb-5 mt-2'>Explore the complete details of this rent. </p>
         <Separator className='mb-6' />
       </div>
-      <div className='col-span-4 rounded-xl border p-3'>
+      <div className='col-span-12 rounded-xl border p-3 sm:col-span-4'>
         <div
           className='h-[500px] w-full overflow-y-scroll'
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
@@ -66,7 +71,7 @@ const AdvanceDetails = ({ id }: { id: string }) => {
         </div>
       </div>
 
-      <div className='col-span-4'>
+      <div className='col-span-12 sm:col-span-4'>
         <div className='rounded-xl border p-5'>
           <h1 className='mb-4 text-[20px] font-bold'>Tenant Details</h1>
           <Separator className='mb-4' />
@@ -100,7 +105,7 @@ const AdvanceDetails = ({ id }: { id: string }) => {
         </div>
         {/* Created At */}
       </div>
-      <div className='col-span-4'>
+      <div className='col-span-12 sm:col-span-4'>
         <div className='rounded-xl border p-5'>
           <h1 className='mb-4 text-[20px] font-bold'>PG Details</h1>
           <Separator className='mb-4' />

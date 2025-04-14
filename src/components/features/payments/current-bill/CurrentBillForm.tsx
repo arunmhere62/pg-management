@@ -64,9 +64,6 @@ const CurrentBillForm = ({
 
   return (
     <div>
-      <h1 className='mb-5 text-[18px] font-semibold'>
-        Add tenant current bill in the below form
-      </h1>
       <Form {...form}>
         <form onSubmit={handleSubmit(handleFormSubmit)} className='space-y-8'>
           <FormField
@@ -87,7 +84,7 @@ const CurrentBillForm = ({
             )}
           />
           <Button type='submit' disabled={loading} className='w-full'>
-            {loading ? 'Sending...' : 'Send Receipt'}
+            {loading ? 'Sending...' : 'Add Current Bill'}
           </Button>
         </form>
       </Form>

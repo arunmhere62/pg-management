@@ -13,6 +13,7 @@ import { ITenantListSelectProps, TenantDataProps } from '.';
 import Image from 'next/image';
 import { Separator } from '@/components/ui/separator';
 import { IndianRupee } from 'lucide-react';
+import { formatDateToDDMMYYYY } from '@/services/utils/formaters';
 
 interface IRentPaymentFromProps {
   initialValue: {
@@ -52,9 +53,9 @@ export default function RentForm({
 }: IRentPaymentFromProps) {
   return (
     <>
-      <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+      <div className='grid grid-cols-1 sm:gap-6 md:grid-cols-2'>
         {/* Left Section - Form */}
-        <div className='col-span-1 space-y-5'>
+        <div className='col-span-1 sm:space-y-5'>
           <FormField
             control={control}
             name='tenantId'
@@ -85,34 +86,32 @@ export default function RentForm({
               </FormItem>
             )}
           />
-          <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
-            <FormField
-              control={control}
-              name='startDate'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Start Date</FormLabel>
-                  <FormControl>
-                    <DatePicker value={field.value} onChange={field.onChange} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={control}
-              name='endDate'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>End Date</FormLabel>
-                  <FormControl>
-                    <DatePicker value={field.value} onChange={field.onChange} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+          <FormField
+            control={control}
+            name='startDate'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Start Date</FormLabel>
+                <FormControl>
+                  <DatePicker value={field.value} onChange={field.onChange} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={control}
+            name='endDate'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>End Date</FormLabel>
+                <FormControl>
+                  <DatePicker value={field.value} onChange={field.onChange} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
           <FormField
             control={control}
@@ -195,7 +194,7 @@ export default function RentForm({
         </div>
 
         {/* Right Section - Tenant Details */}
-        <div className='col-span-1 border-l border-gray-200 px-5'>
+        <div className='col-span-1 mt-3 border-gray-200 sm:mt-0 sm:border-l sm:px-5'>
           <div
             className='mb-4 flex h-fit w-full space-x-4 overflow-x-auto whitespace-nowrap rounded-lg border p-3'
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
@@ -241,11 +240,15 @@ export default function RentForm({
           </div>
           <div className='mb-5 flex justify-between'>
             <p className='font-semibold'>Updated At:</p>
-            <p>{tenantDetails?.updatedAt || 'N/A'}</p>
+            <p>
+              {formatDateToDDMMYYYY(tenantDetails?.updatedAt ?? '') || 'N/A'}
+            </p>
           </div>
           <div className='flex justify-between'>
             <p className='font-semibold'>Created At:</p>
-            <p>{tenantDetails?.createdAt || 'N/A'}</p>
+            <p>
+              {formatDateToDDMMYYYY(tenantDetails?.createdAt ?? '') || 'N/A'}
+            </p>
           </div>
           <Separator className='mb-4 mt-4' />
           <div>

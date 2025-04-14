@@ -18,6 +18,7 @@ import {
   fetchCitiesList,
   fetchStatesList
 } from '@/services/utils/api/common-api';
+import { useSetBreadcrumbs } from '@/hooks/use-breadcrumbs';
 
 export const formSchema = z.object({
   images: z
@@ -66,6 +67,11 @@ const MainPgForm = ({ mode, initialData, id }: IMainPgFormProps) => {
   const [cityData, setCityData] = useState<ICityData[]>([]);
 
   const pageTitle = mode === 'create' ? 'Create New PG' : 'Edit PG';
+
+  useSetBreadcrumbs([
+    { title: 'Pg Location', link: '/pg-location' },
+    { title: mode === 'create' ? 'New' : 'edit', link: '/pg-location/new' }
+  ]);
 
   const defaultValues = {
     images: [],

@@ -342,7 +342,7 @@ const InvoiceReceipt = ({
   tenantPaymentDetails?: IPaymentProps;
 }) => {
   const [pdfUrl, setPdfUrl] = useState('');
-
+  const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
     const generatePdf = async () => {
       const blob = await pdf(
@@ -350,26 +350,51 @@ const InvoiceReceipt = ({
       ).toBlob();
       setPdfUrl(URL.createObjectURL(blob));
     };
+
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
     generatePdf();
+
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
   return (
     <div className='grid p-6 text-right'>
-      {pdfUrl && (
+      {!isMobile && pdfUrl && (
         <iframe
           src={pdfUrl}
           width='100%'
-          height='400px'
-          style={{ border: 'none' }} // Removes border
+          height='500px'
+          style={{
+            width: '100%',
+            minHeight: '300px',
+            border: 'none',
+            overflowY: 'auto',
+            overflowX: 'hidden'
+          }}
         />
       )}
-
+      {isMobile && (
+        <Button
+          onClick={() => {
+            window.open(pdfUrl, '_blank');
+          }}
+          variant='default'
+          className='mt-3'
+        >
+          View PDF
+        </Button>
+      )}
       {/* Download Button */}
       <PDFDownloadLink
         document={<InvoicePdf tenantPaymentDetails={tenantPaymentDetails} />}
         fileName='invoice_receipt.pdf'
       >
         {({ loading }) => (
-          <Button className='mt-3' variant='outline'>
+          <Button className='mt-3 w-full' variant='outline'>
             {loading ? 'Generating PDF...' : 'Quick Download PDF'}
           </Button>
         )}

@@ -162,11 +162,17 @@ const RoomsList = () => {
     //   }
     // },
 
-    { field: 'locationName', headerName: 'Location Name', flex: 1 },
+    {
+      field: 'locationName',
+      headerName: 'Location Name',
+      flex: 1,
+      minWidth: 150
+    },
     {
       field: 'roomNo',
       headerName: 'Room No',
       flex: 1,
+      minWidth: 150,
       renderCell: (params: any) => (
         <span className='roomTableBadge'>{params.value}</span>
       )
@@ -184,7 +190,7 @@ const RoomsList = () => {
     {
       field: 'rentPrice',
       headerName: 'Bed Price',
-      minWidth: 100,
+      minWidth: 150,
       flex: 1,
       renderCell: (params: any) => (
         <span className='activeBadge'>₹{params.value}</span>
@@ -193,7 +199,7 @@ const RoomsList = () => {
     {
       field: 'totalAmount',
       headerName: 'Total Amount',
-      minWidth: 100,
+      minWidth: 160,
       flex: 1,
       renderCell: (params: any) => (
         <span className='activeBadge'>₹{params.value}</span>
@@ -202,7 +208,7 @@ const RoomsList = () => {
     {
       field: 'status',
       headerName: 'Status',
-      minWidth: 100,
+      minWidth: 150,
       flex: 1,
       renderCell: (params: any) => (
         <span
@@ -218,6 +224,7 @@ const RoomsList = () => {
       field: 'createdAt',
       headerName: 'Created At',
       flex: 1,
+      minWidth: 150,
       renderCell: (params: any) => (
         <span>{params.value ? formatDateToDDMMYYYY(params.value) : 'N/A'}</span>
       )
@@ -226,6 +233,7 @@ const RoomsList = () => {
       field: 'updatedAt',
       headerName: 'Updated At',
       flex: 1,
+      minWidth: 150,
       renderCell: (params: any) => (
         <span>{params.value ? formatDateToDDMMYYYY(params.value) : 'N/A'}</span>
       )

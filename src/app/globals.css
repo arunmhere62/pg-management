@@ -185,3 +185,13 @@ input:-webkit-autofill:active {
   background-color: transparent !important;
   box-shadow: 0 0 0px 1000px white inset !important;
 }
+
+@media (max-width: 500px) {
+  body
+    iframe:not(#tidio-chat-iframe):not(.hs-form-iframe):not(#chatIframe):not(
+      #popupIframe
+    ) {
+    width: 100% !important;
+    height: auto !important;
+  }
+}

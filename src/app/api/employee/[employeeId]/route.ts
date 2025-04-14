@@ -25,6 +25,42 @@ export const GET = async (
       where: {
         id: Number(employeeId),
         organizationId: Number(organizationId)
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+        roleId: true,
+        address: true,
+        country: true,
+        password: true,
+        gender: true,
+        cityId: true,
+        stateId: true,
+        pincode: true,
+        pgId: true,
+        profileImages: true,
+        proofDocuments: true,
+        roles: {
+          select: {
+            roleName: true,
+            id: true
+          }
+        },
+        state: {
+          select: {
+            name: true
+          }
+        },
+        city: {
+          select: {
+            name: true
+          }
+        }
       }
     });
     if (!res) {
@@ -50,6 +86,7 @@ export const PUT = async (
     const { error, session } = await ensureAuthenticated();
     const organizationId = session?.organizationId;
     const pgLocationId = req.cookies.get('pgLocationId')?.value;
+
     if (!pgLocationId) {
       throw new BadRequestError('Selected PG location missing');
     }
@@ -63,7 +100,20 @@ export const PUT = async (
       roleId: z.number().positive('Role is required'),
       status: z.enum(['ACTIVE', 'INACTIVE'], {
         required_error: 'Status is required'
-      })
+      }),
+      stateId: z.number().positive('Invalid state ID'),
+      cityId: z.number().positive('Invalid city ID'),
+      pincode: z.string().min(4, 'Pincode must be at least 4 digits'),
+      address: z.string().min(5, 'Address must be at least 5 characters'),
+      gender: z.enum(['MALE', 'FEMALE'], {
+        required_error: 'Gender is required'
+      }),
+      profileImages: z
+        .array(z.string())
+        .max(4, 'You can upload up to 4 profile images.'),
+      proofDocuments: z
+        .array(z.string())
+        .max(4, 'You can upload up to 4 proof documents.')
     });
 
     const parsed = updateSchema.safeParse(body);

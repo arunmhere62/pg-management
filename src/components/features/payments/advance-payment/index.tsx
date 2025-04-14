@@ -18,6 +18,7 @@ import {
   createAdvance,
   updateAdvance
 } from '@/services/utils/api/payment/advance-api';
+import { useSetBreadcrumbs } from '@/hooks/use-breadcrumbs';
 
 export const paymentFormSchema = z.object({
   tenantId: z.string().min(1, 'Please select a tenant.'),
@@ -106,6 +107,11 @@ const MainAdvancePayment = ({
   );
   const pageTitle =
     mode === 'create' ? 'Add Advance Payment' : 'Edit Advance Payment';
+
+  useSetBreadcrumbs([
+    { title: 'Advance', link: '/payment/advance' },
+    { title: mode === 'create' ? 'Create' : 'Edit' }
+  ]);
 
   useEffect(() => {
     const getTenants = async () => {

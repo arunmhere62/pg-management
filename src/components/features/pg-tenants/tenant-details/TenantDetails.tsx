@@ -7,6 +7,7 @@ import {
 } from '@/components/ui/accordion';
 
 import { Separator } from '@/components/ui/separator';
+import { useSetBreadcrumbs } from '@/hooks/use-breadcrumbs';
 import { cn } from '@/lib/utils';
 import { fetchTenantById } from '@/services/utils/api/tenant-api';
 import { formatDateToDDMMYYYY } from '@/services/utils/formaters';
@@ -95,7 +96,10 @@ interface IRoomDetailsProps {
 }
 const RoomDetails = ({ id }: { id: string }) => {
   const [roomDetails, setRoomDetails] = useState<IRoomDetailsProps>();
-
+  useSetBreadcrumbs([
+    { title: 'Tenant', link: '/tenant' },
+    { title: 'Details', link: '/tenant' }
+  ]);
   useEffect(() => {
     const getRoom = async () => {
       try {
@@ -119,7 +123,7 @@ const RoomDetails = ({ id }: { id: string }) => {
         </p>
         <Separator className='mb-6' />
       </div>
-      <div className='col-span-7 h-fit rounded-xl border p-3'>
+      <div className='col-span-12 h-fit rounded-xl border p-3 sm:col-span-7'>
         <div className='flex space-x-2'>
           <div
             className='h-fit w-full overflow-y-scroll rounded-xl border p-3'
@@ -154,7 +158,7 @@ const RoomDetails = ({ id }: { id: string }) => {
             ))}
           </div>
         </div>
-        <div className='mt-3'>
+        <div className='mt-5 sm:mt-3'>
           <div className='mb-5 flex justify-between'>
             <p className='w-[120px] font-semibold'>Tenant Name</p>
             <p className=''>{roomDetails?.name || 'N/A'}</p>
@@ -217,7 +221,7 @@ const RoomDetails = ({ id }: { id: string }) => {
         </div>
       </div>
 
-      <div className='col-span-5 h-fit space-y-2'>
+      <div className='col-span-12 mt-4 h-fit space-y-2 sm:col-span-5 sm:mt-0'>
         <div className='rounded-xl border p-3'>
           <h1 className='text-[20px] font-bold'>Rent Payments</h1>
           <Accordion type='single' collapsible className='w-full'>

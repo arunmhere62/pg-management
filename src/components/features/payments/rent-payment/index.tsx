@@ -15,6 +15,7 @@ import { format } from 'date-fns';
 import RentForm from './RentForm';
 import { createRent, updateRent } from '@/services/utils/api/payment/rent-api';
 import { fetchTenantsList } from '@/services/utils/api/tenant-api';
+import { useSetBreadcrumbs } from '@/hooks/use-breadcrumbs';
 
 export const rentPaymentFormSchema = z
   .object({
@@ -110,6 +111,12 @@ const MainRentPayment = ({
   const pageTitle =
     mode === 'create' ? 'Add Rent Payment' : 'Edit Rent Payment';
 
+  useSetBreadcrumbs([
+    { title: 'Rent', link: '/payment/rent' },
+    {
+      title: mode === 'create' ? 'Create' : 'Edit'
+    }
+  ]);
   useEffect(() => {
     const getTenants = async () => {
       try {
@@ -244,7 +251,7 @@ const MainRentPayment = ({
     <Card className='mx-auto w-full'>
       <CardHeader>
         <div className='flex justify-between'>
-          <CardTitle className='pb-4 text-left text-2xl font-bold'>
+          <CardTitle className='pb-4 text-left text-[20px] font-bold sm:text-2xl'>
             {pageTitle}
           </CardTitle>
           <Button type='submit' form='payment-form'>

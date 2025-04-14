@@ -16,6 +16,7 @@ import { Separator } from '@/components/ui/separator';
 import { useState } from 'react';
 import { format } from 'date-fns';
 import { IndianRupee } from 'lucide-react';
+import { formatDateToDDMMYYYY } from '@/services/utils/formaters';
 
 interface IPaymentFromProps {
   initialValue: {
@@ -53,9 +54,9 @@ export default function AdvanceForm({
 }: IPaymentFromProps) {
   return (
     <>
-      <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+      <div className='grid grid-cols-1 gap-2 sm:gap-6 md:grid-cols-2'>
         {/* Left Section - Form */}
-        <div className='col-span-1 space-y-5'>
+        <div className='col-span-1 sm:space-y-5'>
           <FormField
             control={control}
             name='tenantId'
@@ -168,7 +169,7 @@ export default function AdvanceForm({
         </div>
 
         {/* Right Section - Tenant Details */}
-        <div className='col-span-1 border-l border-gray-200 px-5'>
+        <div className='col-span-1 border-gray-200 sm:border-l sm:px-5'>
           <div
             className='mb-4 flex h-fit w-full space-x-4 overflow-x-auto whitespace-nowrap rounded-lg border p-3'
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
@@ -210,15 +211,23 @@ export default function AdvanceForm({
           </div>
           <div className='mb-5 flex justify-between'>
             <p className='w-[100px] font-semibold'>Status</p>
-            <p>{tenantDetails?.status || 'N/A'}</p>
+            <p
+              className={`${tenantDetails?.status === 'ACTIVE' ? 'activeBadge' : 'inactiveBadge'}`}
+            >
+              {tenantDetails?.status || 'N/A'}
+            </p>
           </div>
           <div className='mb-5 flex justify-between'>
             <p className='font-semibold'>Updated At:</p>
-            <p>{tenantDetails?.updatedAt || 'N/A'}</p>
+            <p>
+              {formatDateToDDMMYYYY(tenantDetails?.updatedAt ?? '') || 'N/A'}
+            </p>
           </div>
           <div className='flex justify-between'>
             <p className='font-semibold'>Created At:</p>
-            <p>{tenantDetails?.createdAt || 'N/A'}</p>
+            <p>
+              {formatDateToDDMMYYYY(tenantDetails?.createdAt ?? '') || 'N/A'}
+            </p>
           </div>
           <Separator className='mb-4 mt-4' />
           <div>
@@ -227,7 +236,9 @@ export default function AdvanceForm({
           <div className='mt-3 rounded-xl bg-[#f1f1f1] p-4'>
             <div className='flex justify-between'>
               <p className='font-semibold dark:text-black'>Status:</p>
-              <p className='dark:text-black'>
+              <p
+                className={`${paymentDetails.status === 'PAID' ? 'activeBadge' : 'inactiveBadge'}`}
+              >
                 {paymentDetails?.status || 'N/A'}
               </p>
             </div>

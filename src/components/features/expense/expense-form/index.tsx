@@ -22,6 +22,7 @@ import {
 } from '@/services/utils/api/expense-api';
 import ExpenseForm from './ExpenseForm';
 import { formatDateToDateTime } from '@/services/utils/formaters';
+import { useSetBreadcrumbs } from '@/hooks/use-breadcrumbs';
 
 export const expenseFormSchema = z.object({
   amount: z
@@ -44,7 +45,12 @@ interface IMainExpenseFormProps {
 const MainExpenseForm = ({ mode, initialData, id }: IMainExpenseFormProps) => {
   const { pgLocationId } = useSelector((state) => state.pgLocation);
   const pageTitle = mode === 'create' ? 'Add New Expense' : 'Edit Expense';
-
+  useSetBreadcrumbs([
+    { title: 'Expenses', link: '/expense' },
+    {
+      title: mode === 'create' ? 'Create' : 'Edit'
+    }
+  ]);
   const defaultValues = {
     amount: '',
     expenseName: '',

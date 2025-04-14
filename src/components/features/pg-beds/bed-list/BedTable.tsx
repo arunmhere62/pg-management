@@ -21,6 +21,7 @@ import { DotsVerticalIcon } from '@radix-ui/react-icons';
 import { Button } from '@/components/ui/button';
 import { SelectComboBox } from '@/components/ui/selectComboBox';
 import { IBedProps, IOptionTypeProps } from '@/services/types/common-types';
+import { useSetBreadcrumbs } from '@/hooks/use-breadcrumbs';
 interface IBedsProps {
   id: number;
   bedNo: string;
@@ -47,6 +48,7 @@ const BedsList = () => {
     useState<boolean>(false);
   const [selectedBedId, setSelectedBedId] = useState<number | null>(null);
 
+  useSetBreadcrumbs([{ title: 'Bed', link: '/bed' }]);
   useEffect(() => {
     if (selectedRoom) {
       const filteredBedsList = bedsData.filter(
@@ -196,11 +198,12 @@ const BedsList = () => {
     //   }
     // },
     // { field: 'tenantName', headerName: 'Name', flex: 1 },
-    { field: 'name', headerName: 'Name', flex: 1 },
+    { field: 'name', headerName: 'Name', flex: 1, minWidth: 150 },
 
     {
       field: 'roomNo',
       headerName: 'Room No',
+      minWidth: 150,
       flex: 1,
       renderCell: (params: any) => (
         <span className='roomTableBadge'>{params.value}</span>
@@ -210,6 +213,7 @@ const BedsList = () => {
       field: 'bedNo',
       headerName: 'Bed No',
       flex: 1,
+      minWidth: 150,
       renderCell: (params: any) => (
         <span className='bedTableBadge'>{params.value}</span>
       )
@@ -234,6 +238,7 @@ const BedsList = () => {
       field: 'createdAt',
       headerName: 'Created At',
       flex: 1,
+      minWidth: 150,
       renderCell: (params: any) => (
         <span>{params.value ? formatDateToDDMMYYYY(params.value) : 'N/A'}</span>
       )
@@ -242,6 +247,7 @@ const BedsList = () => {
       field: 'updatedAt',
       headerName: 'Updated At',
       flex: 1,
+      minWidth: 150,
       renderCell: (params: any) => (
         <span>{params.value ? formatDateToDDMMYYYY(params.value) : 'N/A'}</span>
       )

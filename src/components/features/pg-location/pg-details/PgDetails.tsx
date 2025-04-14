@@ -1,5 +1,5 @@
 import React from 'react';
-import { IPgListProps } from '../pg-list';
+import { IPgListProps } from '../pg-list/PgTable';
 import {
   Carousel,
   CarouselContent,

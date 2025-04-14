@@ -35,6 +35,7 @@ const PgSelection = () => {
           );
 
           setSelectedPg(firstPg.id.toString());
+          window.location.reload();
         }
       } catch (error) {
         toast.error('Error fetching PG locations');

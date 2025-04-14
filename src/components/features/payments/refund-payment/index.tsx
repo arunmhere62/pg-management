@@ -23,6 +23,7 @@ import {
   createRefund,
   updateRefund
 } from '@/services/utils/api/payment/refund-api';
+import { useSetBreadcrumbs } from '@/hooks/use-breadcrumbs';
 
 export const paymentFormSchema = z.object({
   tenantId: z.string().min(1, 'Please select a tenant.'),
@@ -110,7 +111,12 @@ const MainRefundPayment = ({
   );
   const pageTitle =
     mode === 'create' ? 'Add Refund Payment' : 'Edit Refund Payment';
-
+  useSetBreadcrumbs([
+    { title: 'Refund', link: '/payment/refund' },
+    {
+      title: mode === 'create' ? 'Create' : 'Edit'
+    }
+  ]);
   useEffect(() => {
     const getTenants = async () => {
       try {

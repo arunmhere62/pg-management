@@ -10,17 +10,27 @@ const EmployeeEdit = ({ id }: { id: string }) => {
     const getEmployee = async () => {
       try {
         const res = await fetchEmployeeById(id);
-        const formattedRes = {
-          id: res.data.id.toString(),
-          name: res.data.name,
-          phone: res.data.phone,
-          email: res.data.email,
-          address: res.data.address,
-          status: res.data.status,
-          password: res.data.password,
-          roleId: res.data.roleId.toString()
-        };
-        setEmployeeData(formattedRes);
+        console.log('employee data', res.data);
+
+        if (res.data) {
+          const formattedRes = {
+            name: res?.data?.name ?? '',
+            email: res?.data?.email ?? '',
+            phone: res?.data?.phone != null ? res.data.phone.toString() : '',
+            gender: res?.data?.gender ?? '',
+            roleId: res?.data?.roleId.toString(),
+            status: res?.data?.status ?? '',
+            cityId: res?.data?.cityId != null ? res.data.cityId.toString() : '',
+            stateId:
+              res?.data?.stateId != null ? res.data.stateId.toString() : '',
+            pincode: res?.data?.pincode ?? '',
+            address: res?.data?.address ?? '',
+            profileImages: res?.data?.profileImages ?? [],
+            proofDocuments: res?.data?.proofDocuments ?? []
+          };
+
+          setEmployeeData(formattedRes);
+        }
       } catch (error) {
         toast.error('Error fetching Employee data');
       }

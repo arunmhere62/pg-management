@@ -20,15 +20,27 @@ model users {
   pgId                                             Int?           @map("pg_id")
   isDeleted                                        Boolean?       @default(false) @map("is_deleted")
   organizationId                                   Int            @map("organization_id")
+  address                                          String?        @db.VarChar(255)
+  cityId                                          Int? @map("city_id")
+  stateId                                         Int? @map("state_id")
+  pincode                                          String?        @db.VarChar(20)
+  country                                          String?        @db.VarChar(100)
+  gender                                           users_gender?
+  proofDocuments                                   Json?          @map("proof_documents")
+  profileImages                                    Json?          @map("profile_images")
   organization_organization_created_byTousers      organization[] @relation("organization_created_byTousers")
   organization_organization_deleted_byTousers      organization[] @relation("organization_deleted_byTousers")
   organization_organization_updated_byTousers      organization[] @relation("organization_updated_byTousers")
   pgLocations                                      pg_locations[]
+  city                                             city?          @relation(fields: [cityId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_users_city")
   organization_users_organization_idToorganization organization   @relation("users_organization_idToorganization", fields: [organizationId], references: [id], onDelete: Cascade, map: "fk_users_organization")
   roles                                            roles          @relation(fields: [roleId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_users_role")
+  state                                            state?         @relation(fields: [stateId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_users_state")
 
   @@index([roleId], map: "fk_users_role")
   @@index([organizationId], map: "fk_users_organization")
+  @@index([cityId], map: "fk_users_city")
+  @@index([stateId], map: "fk_users_state")
 }
 
 model beds {
@@ -98,7 +110,7 @@ model expenses {
   createdAt     DateTime?     @default(now()) @map("created_at") @db.Timestamp(0)
   updatedAt     DateTime?     @default(now()) @map("updated_at") @db.Timestamp(0)
   isDeleted     Boolean?      @default(false) @map("is_deleted")
-  pg_locations  pg_locations? @relation(fields: [pgId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "expenses_ibfk_1")
+  pgLocations   pg_locations? @relation(fields: [pgId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "expenses_ibfk_1")
 
   @@index([pgId], map: "pg_location_id")
 }
@@ -224,6 +236,7 @@ model city {
   latitude    Decimal        @db.Decimal(10, 7)
   longitude   Decimal        @db.Decimal(10, 7)
   pgLocations pg_locations[]
+  users       users[]
 }
 
 model state {
@@ -235,6 +248,7 @@ model state {
   longitude   Decimal        @db.Decimal(10, 7)
   pgLocations pg_locations[]
   country     country        @relation(fields: [countryCode], references: [isoCode], onDelete: Cascade, map: "fk_state_country")
+  users       users[]
 
   @@index([countryCode], map: "fk_state_country")
 }
@@ -458,4 +472,9 @@ enum refund_payments_status {
 enum users_status {
   ACTIVE
   INACTIVE
+}
+
+enum users_gender {
+  MALE
+  FEMALE
 }

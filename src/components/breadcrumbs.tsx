@@ -16,18 +16,20 @@ import { useRouter } from 'next/navigation';
 
 export function Breadcrumbs() {
   const items = useSelector((state: RootState) => state.breadcrumb.items);
+  console.log('items', items);
+
   const router = useRouter();
 
   if (!items || items.length === 0) return null;
 
   return (
-    <Breadcrumb>
+    <Breadcrumb className=''>
       <BreadcrumbList>
-        {items.map((item, index) => (
+        {items?.map((item: any, index: any) => (
           <Fragment key={item.title}>
             {index !== items.length - 1 && (
               <>
-                <BreadcrumbItem className='hidden md:block'>
+                <BreadcrumbItem>
                   <BreadcrumbLink
                     asChild
                     className='cursor-pointer'
@@ -36,11 +38,12 @@ export function Breadcrumbs() {
                     <span>{item.title}</span>
                   </BreadcrumbLink>
                 </BreadcrumbItem>
-                <BreadcrumbSeparator className='hidden md:block'>
+                <BreadcrumbSeparator>
                   <Slash />
                 </BreadcrumbSeparator>
               </>
             )}
+
             {index === items.length - 1 && (
               <BreadcrumbPage>{item.title}</BreadcrumbPage>
             )}

@@ -17,12 +17,14 @@ import { DotsVerticalIcon } from '@radix-ui/react-icons';
 import { Button } from '@/components/ui/button';
 import { IExpensesProps } from '@/services/types/common-types';
 import { fetchExpenseList } from '@/services/utils/api/expense-api';
+import { useSetBreadcrumbs } from '@/hooks/use-breadcrumbs';
 
 const ExpensesList = () => {
   const router = useRouter();
   const [expenseData, setExpenseData] = useState<IExpensesProps[]>([]);
   const [loading, setLoading] = useState(false);
 
+  useSetBreadcrumbs([{ title: 'Expense', link: '/expense' }]);
   useEffect(() => {
     const getBeds = async () => {
       setLoading(true);
@@ -138,6 +140,7 @@ const ExpensesList = () => {
       field: 'createdAt',
       headerName: 'Created At',
       flex: 1,
+      minWidth: 150,
       renderCell: (params: any) => (
         <span>{params.value ? formatDateToDDMMYYYY(params.value) : 'N/A'}</span>
       )
@@ -146,6 +149,7 @@ const ExpensesList = () => {
       field: 'updatedAt',
       headerName: 'Updated At',
       flex: 1,
+      minWidth: 150,
       renderCell: (params: any) => (
         <span>{params.value ? formatDateToDDMMYYYY(params.value) : 'N/A'}</span>
       )

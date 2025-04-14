@@ -60,7 +60,16 @@ const employeeCreateSchema = z.object({
   password: z.string().min(4, 'Password must be at least 6 characters'),
   phone: z.string().min(10, 'Phone number must be at least 10 digits'),
   roleId: z.number().positive('Role ID must be a positive number'),
-  status: z.enum(['ACTIVE', 'INACTIVE']).default('ACTIVE')
+  status: z.enum(['ACTIVE', 'INACTIVE']).default('ACTIVE'),
+  stateId: z.number().positive('Invalid state ID'),
+  cityId: z.number().positive('Invalid city ID'),
+  pincode: z.string().optional(),
+  address: z.string().optional(),
+  profileImages: z.array(z.string()).optional(),
+  proofDocuments: z.array(z.string()).optional(),
+  gender: z.enum(['MALE', 'FEMALE'], {
+    required_error: 'Gender is required'
+  })
 });
 export const POST = async (req: NextRequest) => {
   try {
@@ -82,7 +91,21 @@ export const POST = async (req: NextRequest) => {
       throw new BadRequestError(parsedData.error.message);
     }
 
-    const { name, email, password, phone, roleId, status } = parsedData.data;
+    const {
+      name,
+      email,
+      password,
+      phone,
+      roleId,
+      status,
+      cityId,
+      stateId,
+      pincode,
+      address,
+      profileImages,
+      proofDocuments,
+      gender
+    } = parsedData.data;
 
     const newEmployee = await prisma.users.create({
       data: {
@@ -92,6 +115,13 @@ export const POST = async (req: NextRequest) => {
         phone,
         roleId,
         status,
+        cityId,
+        stateId,
+        pincode,
+        address,
+        profileImages,
+        proofDocuments,
+        gender,
         organizationId: Number(organizationId),
         pgId: Number(pgLocationId)
       }

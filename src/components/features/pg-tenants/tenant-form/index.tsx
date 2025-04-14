@@ -17,6 +17,7 @@ import { fetchRoomsList } from '@/services/utils/api/rooms-api';
 import { fetchBedsByRoomId } from '@/services/utils/api/bed-api';
 import { createTenant, updateTenant } from '@/services/utils/api/tenant-api';
 import { IOptionTypeProps } from '@/services/types/common-types';
+import { useSetBreadcrumbs } from '@/hooks/use-breadcrumbs';
 export const tenantFormSchema = z
   .object({
     tenantName: z.string().min(1, 'Tenant name is required'),
@@ -72,7 +73,12 @@ const MainTenantForm = ({
   const [selectedRoomId, setSelectedRoomId] = useState<string>('');
   const { pgLocationId } = useSelector((state) => state.pgLocation);
   const pageTitle = mode === 'create' ? 'Add New Tenant' : 'Edit Tenant';
-
+  useSetBreadcrumbs([
+    { title: 'Tenant', link: '/tenant' },
+    {
+      title: mode === 'create' ? 'Create' : 'Edit'
+    }
+  ]);
   useEffect(() => {
     const fetchRooms = async () => {
       try {

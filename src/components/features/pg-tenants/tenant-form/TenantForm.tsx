@@ -41,41 +41,40 @@ export default function TenantForm({
 }: IPgLocationFromProps) {
   return (
     <>
-      <FormField
-        control={control}
-        name='images'
-        render={({ field }) => (
-          <FormItem className='w-full'>
-            <FormLabel>Upload Tenant Images</FormLabel>
-            <FormControl>
-              <ImageUploader
-                initialImages={field.value || []}
-                onImagesUpload={(images) => field.onChange(images)}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+      <div className='grid grid-cols-1 gap-2 sm:gap-6 md:grid-cols-2'>
+        <FormField
+          control={control}
+          name='images'
+          render={({ field }) => (
+            <FormItem className='w-full'>
+              <FormLabel>Upload Tenant Images</FormLabel>
+              <FormControl>
+                <ImageUploader
+                  initialImages={field.value || []}
+                  onImagesUpload={(images) => field.onChange(images)}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-      <FormField
-        control={control}
-        name='proofDocuments'
-        render={({ field }) => (
-          <FormItem className='w-full'>
-            <FormLabel>Upload Tenant Proof Documents</FormLabel>
-            <FormControl>
-              <ImageUploader
-                initialImages={field.value || []}
-                onImagesUpload={(images) => field.onChange(images)}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+        <FormField
+          control={control}
+          name='proofDocuments'
+          render={({ field }) => (
+            <FormItem className='w-full'>
+              <FormLabel>Upload Tenant Proof Documents</FormLabel>
+              <FormControl>
+                <ImageUploader
+                  initialImages={field.value || []}
+                  onImagesUpload={(images) => field.onChange(images)}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <FormField
           control={control}
           name='tenantName'

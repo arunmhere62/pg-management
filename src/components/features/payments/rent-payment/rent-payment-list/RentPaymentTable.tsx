@@ -52,6 +52,7 @@ import ReceiptForm from '../receipt/ReceiptForm';
 import { SelectComboBox } from '@/components/ui/selectComboBox';
 import CurrentBillForm from '@/components/features/payments/current-bill/CurrentBillForm';
 import { updateCurrentBill } from '@/services/utils/api/payment/current-bill-api';
+import { useSetBreadcrumbs } from '@/hooks/use-breadcrumbs';
 
 interface IRentPaymentListProps {
   id: number;
@@ -115,6 +116,7 @@ const RentPaymentList = () => {
   >([]);
   const [openCurrentBillModal, setOpenCurrentBillModal] =
     useState<boolean>(false);
+  useSetBreadcrumbs([{ title: 'Rent', link: '/payment/rent' }]);
   useEffect(() => {
     if (selectedMonth && rentPaymentList.length) {
       const now = new Date();
@@ -289,12 +291,12 @@ const RentPaymentList = () => {
         );
       }
     },
-    { field: 'name', headerName: 'Name', minWidth: 100 },
-    { field: 'phoneNo', headerName: 'Phone No', minWidth: 130 },
+    { field: 'name', headerName: 'Name', minWidth: 150 },
+    { field: 'phoneNo', headerName: 'Phone No', minWidth: 150 },
     {
       field: 'roomNo',
       headerName: 'Room No',
-      minWidth: 130,
+      minWidth: 150,
       renderCell: (params: any) => (
         <span className='roomTableBadge'>{params.value}</span>
       )
@@ -302,7 +304,7 @@ const RentPaymentList = () => {
     {
       field: 'bedNo',
       headerName: 'Bed No',
-      minWidth: 100,
+      minWidth: 150,
       renderCell: (params: any) => (
         <span className='bedTableBadge'>{params.value}</span>
       )
@@ -376,18 +378,20 @@ const RentPaymentList = () => {
   ];
   return (
     <>
-      <HeaderButton
-        title='Rent Amount List'
-        buttons={[
-          {
-            label: 'Create New',
-            onClick: () => {
-              router.push('/payment/rent/new');
-            },
-            variant: 'default'
-          }
-        ]}
-      />
+      <div className='mb-3 mt-3'>
+        <HeaderButton
+          title='Rent Amount List'
+          buttons={[
+            {
+              label: 'Create New',
+              onClick: () => {
+                router.push('/payment/rent/new');
+              },
+              variant: 'default'
+            }
+          ]}
+        />
+      </div>
 
       <div className='mt-1 flex gap-3'>
         <div className='w-[200px]'>
@@ -423,7 +427,7 @@ const RentPaymentList = () => {
       </div>
 
       <Modal
-        contentClassName='max-w-[800px] rounded-lg sm:w-full'
+        contentClassName='w-[95%] rounded-lg sm:w-full'
         isOpen={openReceiptDownloadModal}
         title=''
         onClose={() => {
@@ -434,7 +438,7 @@ const RentPaymentList = () => {
         <InvoiceReceipt tenantPaymentDetails={tenantPaymentDetails} />
       </Modal>
       <Modal
-        contentClassName='w-fit rounded-lg sm:w-full'
+        contentClassName='w-[95%] rounded-lg sm:w-full'
         isOpen={openReceiptUploadModal}
         title='Rent Payment Receipt'
         onClose={() => {
@@ -445,7 +449,7 @@ const RentPaymentList = () => {
         <ReceiptForm />
       </Modal>
       <Modal
-        contentClassName='w-fit rounded-lg sm:w-full'
+        contentClassName='w-[95%] rounded-lg sm:w-full'
         isOpen={openRentRemoveConfirmModal}
         title=''
         onClose={() => {
@@ -474,13 +478,13 @@ const RentPaymentList = () => {
         </div>
       </Modal>
       <Modal
-        contentClassName='w-fit rounded-lg sm:w-full'
+        contentClassName='w-[95%] rounded-lg sm:w-full'
         isOpen={openCurrentBillModal}
-        title=''
+        title='Current Bill'
         onClose={() => {
           setOpenCurrentBillModal(false);
         }}
-        description='Add Current Bill'
+        description='Add tenant current bill in the below form'
       >
         <CurrentBillForm
           tenantPaymentId={selectedRentId}

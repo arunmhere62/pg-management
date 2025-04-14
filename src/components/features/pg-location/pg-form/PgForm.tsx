@@ -29,9 +29,9 @@ interface IPgLocationFromProps {
     address: string;
   };
   citiesList: ICitiesListProps[];
+  statesList: IStateListProps[];
   onSubmit: (values: z.infer<typeof formSchema>) => void;
   control: any;
-  statesList: IStateListProps[];
 }
 export default function CreatePgForm({
   initialValue,
@@ -42,25 +42,24 @@ export default function CreatePgForm({
 }: IPgLocationFromProps) {
   return (
     <>
-      <FormField
-        control={control}
-        name='images'
-        render={({ field }) => (
-          <FormItem className='w-full'>
-            <FormLabel>Upload PG Images</FormLabel>
-            <FormControl>
-              <ImageUploader
-                initialImages={field.value || []}
-                onImagesUpload={(images) => field.onChange(images)}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
       {/* ✅ Form Fields */}
-      <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+      <div className='grid grid-cols-1 gap-1 sm:gap-6 md:grid-cols-2'>
+        <FormField
+          control={control}
+          name='images'
+          render={({ field }) => (
+            <FormItem className='w-full'>
+              <FormLabel>Upload PG Images</FormLabel>
+              <FormControl>
+                <ImageUploader
+                  initialImages={field.value || []}
+                  onImagesUpload={(images) => field.onChange(images)}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <FormField
           control={control}
           name='locationName'

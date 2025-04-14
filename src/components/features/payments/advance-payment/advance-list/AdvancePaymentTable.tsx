@@ -38,6 +38,7 @@ import {
 } from 'date-fns';
 import { SelectComboBox } from '@/components/ui/selectComboBox';
 import { monthOptions } from '@/services/data/data';
+import { useSetBreadcrumbs } from '@/hooks/use-breadcrumbs';
 
 interface IAdvancePaymentListProps {
   id: number;
@@ -99,6 +100,7 @@ export const AdvancePaymentTable = () => {
   >([]);
   const [selectedMonth, setSelectedMonth] = useState<string>('this_month');
 
+  useSetBreadcrumbs([{ title: 'Advance', link: '/payment/advance' }]);
   const getPayments = async () => {
     try {
       const res = await fetchAdvanceList();
@@ -242,12 +244,12 @@ export const AdvancePaymentTable = () => {
         );
       }
     },
-    { field: 'name', headerName: 'Name', minWidth: 100 },
-    { field: 'phoneNo', headerName: 'Phone No', minWidth: 130 },
+    { field: 'name', headerName: 'Name', minWidth: 150 },
+    { field: 'phoneNo', headerName: 'Phone No', minWidth: 150 },
     {
       field: 'roomNo',
       headerName: 'Room No',
-      minWidth: 130,
+      minWidth: 150,
       renderCell: (params: any) => (
         <span className='roomTableBadge'>{params.value}</span>
       )
@@ -255,7 +257,7 @@ export const AdvancePaymentTable = () => {
     {
       field: 'bedNo',
       headerName: 'Bed No',
-      minWidth: 100,
+      minWidth: 150,
       renderCell: (params: any) => (
         <span className='bedTableBadge'>{params.value}</span>
       )
@@ -302,18 +304,21 @@ export const AdvancePaymentTable = () => {
 
   return (
     <>
-      <HeaderButton
-        title='Advance Amount List'
-        buttons={[
-          {
-            label: 'Create New',
-            onClick: () => {
-              router.push('/payment/advance/new');
-            },
-            variant: 'default'
-          }
-        ]}
-      />
+      <div className='mb-3 mt-3'>
+        <HeaderButton
+          title='Advance Amount List'
+          buttons={[
+            {
+              label: 'Create New',
+              onClick: () => {
+                router.push('/payment/advance/new');
+              },
+              variant: 'default'
+            }
+          ]}
+        />
+      </div>
+
       <div className='mt-1 flex gap-3'>
         <div className='w-[200px]'>
           <SelectComboBox
@@ -345,7 +350,7 @@ export const AdvancePaymentTable = () => {
         />
       </div>
       <Modal
-        contentClassName='max-w-[800px] rounded-lg sm:w-full'
+        contentClassName='w-[95%] rounded-lg sm:w-full'
         isOpen={openReceiptDownloadModal}
         title=''
         onClose={() => {
@@ -356,7 +361,7 @@ export const AdvancePaymentTable = () => {
         <AdvanceReceipt tenantPaymentDetails={tenantPaymentDetails} />
       </Modal>
       <Modal
-        contentClassName='w-fit rounded-lg sm:w-full'
+        contentClassName='w-[95%] rounded-lg sm:w-full'
         isOpen={openReceiptUploadModal}
         title='Advance Payment Receipt'
         onClose={() => {

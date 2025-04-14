@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import BedForm from './BedForm';
 import { fetchRoomsList } from '@/services/utils/api/rooms-api';
 import { createBed, updateBed } from '@/services/utils/api/bed-api';
+import { useSetBreadcrumbs } from '@/hooks/use-breadcrumbs';
 
 export const roomFormSchema = z.object({
   images: z.array(z.string()).optional(),
@@ -57,7 +58,13 @@ const MainBedForm = ({ mode, initialData, id }: IMainBedFormProps) => {
   );
   const [roomList, setRoomList] = useState<IRoomListProps[]>([]);
   const pageTitle = mode === 'create' ? 'Create New Bed' : 'Edit Bed';
-
+  useSetBreadcrumbs([
+    { title: 'Bed', link: '/bed' },
+    {
+      title: mode === 'create' ? 'Create' : 'Edit',
+      link: '/bed'
+    }
+  ]);
   useEffect(() => {
     const getRoomList = async () => {
       try {

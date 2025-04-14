@@ -40,6 +40,7 @@ import { Modal } from '@/components/ui/modal';
 import { SelectComboBox } from '@/components/ui/selectComboBox';
 import { monthOptions } from '@/services/data/data';
 import CurrentBillForm from '../../payments/current-bill/CurrentBillForm';
+import { useSetBreadcrumbs } from '@/hooks/use-breadcrumbs';
 
 interface ITenantListProps {
   id: number;
@@ -74,7 +75,7 @@ const TenantList = () => {
   const [selectedRoom, setSelectedRoom] = useState<string>('');
   const [openTenantRemoveConfirmModal, setOpenTenantRemoveConfirmModal] =
     useState<boolean>(false);
-
+  useSetBreadcrumbs([{ title: 'Tenant', link: '/tenant' }]);
   const getTenants = async () => {
     try {
       const res = await fetchTenantsList({ isDeleted: 'false' });
@@ -286,12 +287,12 @@ const TenantList = () => {
     //     );
     //   }
     // },
-    { field: 'name', headerName: 'Name', minWidth: 140, flex: 1 },
+    { field: 'name', headerName: 'Name', minWidth: 150, flex: 1 },
     // { field: 'email', headerName: 'Email', minWidth: 140, flex: 1 },
     {
       field: 'roomNo',
       headerName: 'Room No',
-      minWidth: 130,
+      minWidth: 150,
       flex: 1,
       renderCell: (params: any) => (
         <span className='roomTableBadge'>{params.value}</span>
@@ -300,18 +301,18 @@ const TenantList = () => {
     {
       field: 'bedNo',
       headerName: 'Bed No',
-      minWidth: 130,
+      minWidth: 150,
       flex: 1,
       renderCell: (params: any) => (
         <span className='bedTableBadge'>{params.value}</span>
       )
     },
 
-    { field: 'phoneNo', headerName: 'Phone No', minWidth: 130, flex: 1 },
+    { field: 'phoneNo', headerName: 'Phone No', flex: 1, minWidth: 150 },
     {
       field: 'status',
       headerName: 'Status',
-      minWidth: 120,
+      minWidth: 150,
       flex: 1,
       renderCell: (params: any) => (
         <span
@@ -326,7 +327,7 @@ const TenantList = () => {
     {
       field: 'isRentPaid',
       headerName: 'Rent Status',
-      minWidth: 120,
+      minWidth: 150,
       flex: 1,
       renderCell: (params: any) => (
         <span className={cn(params.value ? 'activeBadge' : 'inactiveBadge')}>
@@ -337,7 +338,7 @@ const TenantList = () => {
     {
       field: 'isAdvancePaid',
       headerName: 'Advance Status',
-      minWidth: 120,
+      minWidth: 150,
       flex: 1,
       renderCell: (params: any) => (
         <span className={cn(params.value ? 'activeBadge' : 'inactiveBadge')}>
@@ -348,25 +349,25 @@ const TenantList = () => {
     {
       field: 'startDate',
       headerName: 'Start Date ',
-      minWidth: 120,
+      minWidth: 150,
       flex: 1
     },
     {
       field: 'endDate',
       headerName: 'End Date',
-      minWidth: 120,
+      minWidth: 150,
       flex: 1
     },
     {
       field: 'checkInDate',
       headerName: 'Check In ',
-      minWidth: 120,
+      minWidth: 150,
       flex: 1
     },
     {
       field: 'checkOutDate',
       headerName: 'Check Out ',
-      minWidth: 120,
+      minWidth: 150,
       flex: 1,
       renderCell: (params: any) => (
         <span>{params.value ? formatDateToDDMMYYYY(params.value) : 'N/A'}</span>
@@ -375,7 +376,7 @@ const TenantList = () => {
     {
       field: 'createdAt',
       headerName: 'Created At',
-      minWidth: 130,
+      minWidth: 150,
       flex: 1,
 
       renderCell: (params: any) => (
@@ -387,7 +388,7 @@ const TenantList = () => {
     {
       field: 'updatedAt',
       headerName: 'Updated At',
-      minWidth: 130,
+      minWidth: 150,
       flex: 1,
       renderCell: (params: any) => (
         <span>
@@ -419,32 +420,29 @@ const TenantList = () => {
           }
         ]}
       />
-      <div className='mt-3 flex gap-3'>
-        <div className='w-[200px]'>
-          <SelectComboBox
-            options={monthOptions}
-            value={selectedMonth}
-            onChange={(e: string | null) => setSelectedMonth(e || 'this_month')}
-          />
-        </div>
+      <div className='mt-2 grid grid-cols-2 gap-2 md:grid-cols-6'>
+        <SelectComboBox
+          options={monthOptions}
+          value={selectedMonth}
+          onChange={(e: string | null) => setSelectedMonth(e || 'this_month')}
+        />
         <Button variant='outline' onClick={() => setSelectedMonth('')}>
-          Clear Month Filter
+          Clear Month
         </Button>
-        <div className='w-[200px]'>
-          <SelectComboBox
-            options={uniqueRooms.map((room) => ({
-              label: room.roomNo,
-              value: room.id.toString()
-            }))}
-            value={selectedRoom}
-            onChange={(e: string | null) => setSelectedRoom(e || '')}
-            placeholder='Select Room No'
-          />
-        </div>
+        <SelectComboBox
+          options={uniqueRooms.map((room) => ({
+            label: room.roomNo,
+            value: room.id.toString()
+          }))}
+          value={selectedRoom}
+          onChange={(e: string | null) => setSelectedRoom(e || '')}
+          placeholder='Select Room'
+        />
         <Button variant='outline' onClick={() => setSelectedRoom('')}>
-          Clear Room Filter
+          Clear Room
         </Button>
       </div>
+
       <div className='mt-6'>
         <GridTable
           tableHeight='550px'

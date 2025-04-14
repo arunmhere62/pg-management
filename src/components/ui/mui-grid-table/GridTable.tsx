@@ -9,6 +9,7 @@ import {
   GridToolbar
 } from '@mui/x-data-grid';
 import Skeleton from '@mui/material/Skeleton';
+import { useSidebar } from '../sidebar';
 
 interface GridTableProps {
   columns: GridColDef[];
@@ -30,25 +31,34 @@ const GridTable: React.FC<GridTableProps> = ({
   tableHeight
 }) => {
   const apiRef = useGridApiRef();
+  const { state } = useSidebar();
   const containerRef = React.useRef<HTMLDivElement>(null);
-  const [tableWidth, setTableWidth] = React.useState<number>(380); // Default width
   const [theme, setTheme] = React.useState<string>('light'); // Store theme state
+  const [screenWidth, setScreenWidth] = React.useState<number>(
+    typeof window !== 'undefined' ? window.innerWidth : 360
+  );
 
-  // ✅ Read theme from localStorage on component mount
+  React.useEffect(() => {
+    const handleResize = () => {
+      setScreenWidth(window.innerWidth);
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize(); // Initialize
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+  // ✅ Adjust width based on sidebar state
+  const sidebarWidth = state === 'expanded' ? 256 : 48; // 16rem or 3rem in px
+  const tableWidth =
+    screenWidth >= 768 ? screenWidth - sidebarWidth - 47 : screenWidth - 47;
+
+  // ✅ Read theme from localStorage on mount
   React.useEffect(() => {
     const savedTheme = localStorage.getItem('theme') || 'light';
     setTheme(savedTheme);
-
-    const handleResize = () => {
-      if (containerRef.current) {
-        setTableWidth(containerRef.current.clientWidth); // ✅ Capture div's width
-      }
-    };
-
-    handleResize(); // Set initial size
-    window.addEventListener('resize', handleResize); // Listen for window resize
-
-    return () => window.removeEventListener('resize', handleResize); // Cleanup
   }, []);
 
   // ✅ Listen for theme changes in localStorage & detect user interaction
@@ -94,13 +104,12 @@ const GridTable: React.FC<GridTableProps> = ({
   }));
 
   return (
-    <div ref={containerRef} className='flex w-full justify-center'>
+    <div ref={containerRef} className=''>
       <div
         style={{
-          padding: '',
-          width: `${tableWidth}px`,
+          width: tableWidth,
           maxWidth: '100%',
-          height: `${tableHeight ?? '600px'}`
+          height: tableHeight || '600px'
         }}
       >
         <DataGrid
