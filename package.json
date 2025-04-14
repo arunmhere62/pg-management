@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "author": {
-    "name": "Arun"
+    "name": "Arun",
+    "url": "https://github.com/arunmhere62"
   },
   "scripts": {
     "dev": "next dev --turbopack",
