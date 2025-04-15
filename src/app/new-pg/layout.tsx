@@ -3,7 +3,7 @@ import KBar from '@/components/kbar';
 import AppSidebar from '@/components/layout/app-sidebar';
 import Header from '@/components/layout/header';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
-import PgRedirectWrapper from '@/lib/PgRedirectWrapper';
+import AuthGuardWrapper from '@/lib/AuthGuard';
 import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
 
@@ -19,8 +19,8 @@ export default async function DashboardLayout({
 }) {
   // Persisting the sidebar state in the cookie.
   return (
-    <PgRedirectWrapper>
+    <AuthGuardWrapper>
       <div className='px-4'>{children}</div>
-    </PgRedirectWrapper>
+    </AuthGuardWrapper>
   );
 }

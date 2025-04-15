@@ -3,7 +3,7 @@ import KBar from '@/components/kbar';
 import AppSidebar from '@/components/layout/app-sidebar';
 import Header from '@/components/layout/header';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
-import PgRedirectWrapper from '@/lib/PgRedirectWrapper';
+import AuthGuardWrapper from '@/lib/AuthGuard';
 import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
 
@@ -26,15 +26,15 @@ export default async function DashboardLayout({
         <AppSidebar />
         <SidebarInset>
           <Header />
-          {/* page main content */}
-          <PgRedirectWrapper>
+          <AuthGuardWrapper>
+            {/* page main content */}
             <div className='px-4'>
               <div className='mb-4 block rounded-xl border px-2 py-1 sm:hidden'>
                 <Breadcrumbs />
               </div>
               {children}
             </div>
-          </PgRedirectWrapper>
+          </AuthGuardWrapper>
 
           {/* page main content ends */}
         </SidebarInset>

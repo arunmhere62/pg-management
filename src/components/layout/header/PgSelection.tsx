@@ -38,7 +38,8 @@ const PgSelection = () => {
           window.location.reload();
         }
       } catch (error) {
-        toast.error('Error fetching PG locations');
+        console.error('Error fetching PG locations', error);
+        // toast.error('Error fetching PG locations');
       }
     };
     getPgList();
