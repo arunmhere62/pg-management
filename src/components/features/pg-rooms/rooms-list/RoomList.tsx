@@ -163,12 +163,6 @@ const RoomsList = () => {
     // },
 
     {
-      field: 'locationName',
-      headerName: 'Location Name',
-      flex: 1,
-      minWidth: 150
-    },
-    {
       field: 'roomNo',
       headerName: 'Room No',
       flex: 1,
@@ -263,7 +257,7 @@ const RoomsList = () => {
           hideFooter={false}
         />
         <Modal
-          contentClassName='w-[350px] rounded-lg sm:w-full'
+          contentClassName='w-[95%] rounded-lg sm:w-full'
           isOpen={openBedModal}
           title=''
           onClose={() => {

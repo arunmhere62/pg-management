@@ -19,13 +19,13 @@ import {
   PopoverTrigger
 } from '@/components/ui/popover';
 
-// Define props type
 type SelectComboBoxProps = {
   options: { value: string; label: string }[];
   placeholder?: string;
   value: string;
   onChange: (value: string) => void;
   disabled?: boolean;
+  showSearch?: boolean; // ✅ New prop
 };
 
 export function SelectComboBox({
@@ -33,7 +33,8 @@ export function SelectComboBox({
   placeholder = 'Select an option',
   value,
   onChange,
-  disabled = false
+  disabled = false,
+  showSearch = false
 }: SelectComboBoxProps) {
   const [open, setOpen] = React.useState(false);
 
@@ -55,14 +56,16 @@ export function SelectComboBox({
       </PopoverTrigger>
       <PopoverContent className='w-[var(--radix-popover-trigger-width)] p-0'>
         <Command>
-          <CommandInput placeholder='Search...' className='h-9' />
+          {showSearch && ( // ✅ Conditionally show the search input
+            <CommandInput placeholder='Search...' className='h-9' />
+          )}
           <CommandList>
             <CommandEmpty>No options found.</CommandEmpty>
             <CommandGroup>
               {options.map((option) => (
                 <CommandItem
                   key={option.value}
-                  value={option.label} // ✅ Fix: Use option.label instead of option.value
+                  value={option.label}
                   onSelect={() => {
                     onChange(option.value);
                     setOpen(false);

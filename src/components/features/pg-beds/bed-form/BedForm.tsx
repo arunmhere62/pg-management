@@ -17,6 +17,8 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
+import { SelectComboBox } from '@/components/ui/selectComboBox';
+import { IOptionTypeProps } from '@/services/types/common-types';
 
 interface IPgLocationFromProps {
   initialValue: {
@@ -24,7 +26,7 @@ interface IPgLocationFromProps {
     roomNo: string;
     images: string[];
   };
-  roomList: IRoomListProps[];
+  roomList: IOptionTypeProps[];
   onSubmit: (values: z.infer<typeof roomFormSchema>) => void;
   control: any;
   mode: 'create' | 'edit';
@@ -38,49 +40,36 @@ export default function BedForm({
 }: IPgLocationFromProps) {
   return (
     <>
-      <FormField
-        control={control}
-        name='images'
-        render={({ field }) => (
-          <FormItem className='w-full'>
-            <FormLabel>Upload PG Images</FormLabel>
-            <FormControl>
-              <ImageUploader
-                initialImages={field.value || []}
-                onImagesUpload={(images) => field.onChange(images)}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+      <div className='grid grid-cols-1 gap-1 sm:gap-6 md:grid-cols-2'>
+        <FormField
+          control={control}
+          name='images'
+          render={({ field }) => (
+            <FormItem className='w-full'>
+              <FormLabel>Upload PG Images</FormLabel>
+              <FormControl>
+                <ImageUploader
+                  initialImages={field.value || []}
+                  onImagesUpload={(images) => field.onChange(images)}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <FormField
           control={control}
           name='roomNo'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Room No</FormLabel>
-              <Select
-                disabled={mode === 'edit' ? true : false}
-                onValueChange={field.onChange}
+              <FormLabel>Room</FormLabel>
+              <SelectComboBox
+                showSearch
+                options={roomList || []}
+                placeholder='Select a room'
                 value={field.value}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder='Select' />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent className='max-h-[300px] overflow-y-auto'>
-                  {roomList &&
-                    roomList.length > 0 &&
-                    roomList.map((room, index) => (
-                      <SelectItem key={index} value={String(room.id)}>
-                        {room.roomNo}
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
+                onChange={field.onChange}
+              />
               <FormMessage />
             </FormItem>
           )}

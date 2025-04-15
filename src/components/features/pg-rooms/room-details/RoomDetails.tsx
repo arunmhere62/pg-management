@@ -108,7 +108,7 @@ const RoomDetails = ({ id }: { id: string }) => {
           </div>
           <div className='mb-5 flex justify-between'>
             <p className='w-[120px] font-semibold'>No of Beds:</p>
-            <p>{roomDetails?.bedCount}</p>
+            <p>{roomDetails?.beds.length ?? 'N/A'}</p>
           </div>
           <div className='mb-5 flex justify-between'>
             <p className='w-[120px] font-semibold'>Rent Price</p>
@@ -142,7 +142,8 @@ const RoomDetails = ({ id }: { id: string }) => {
             <p className='font-semibold'>Total Beds Amount:</p>
             <p className='flex items-center'>
               <IndianRupee className='mr-1 w-4' />
-              {Number(roomDetails?.bedCount) * Number(roomDetails?.rentPrice)}
+              {Number(roomDetails?.beds.length) *
+                Number(roomDetails?.rentPrice)}
             </p>
           </div>
         </div>

@@ -94,6 +94,8 @@ const TenantList = () => {
         };
       });
       if (res.data) {
+        console.log('formattedRes', formattedRes);
+
         setTenantList(formattedRes);
       }
     } catch (error) {
@@ -348,13 +350,13 @@ const TenantList = () => {
     },
     {
       field: 'startDate',
-      headerName: 'Start Date ',
+      headerName: 'Rent Start ',
       minWidth: 150,
       flex: 1
     },
     {
       field: 'endDate',
-      headerName: 'End Date',
+      headerName: 'Rent End',
       minWidth: 150,
       flex: 1
     },
@@ -362,7 +364,12 @@ const TenantList = () => {
       field: 'checkInDate',
       headerName: 'Check In ',
       minWidth: 150,
-      flex: 1
+      flex: 1,
+      renderCell: (params: any) => (
+        <span className=''>
+          {params.value ? formatDateToMonDDYYYY(params.value) : 'N/A'}
+        </span>
+      )
     },
     {
       field: 'checkOutDate',
@@ -370,7 +377,9 @@ const TenantList = () => {
       minWidth: 150,
       flex: 1,
       renderCell: (params: any) => (
-        <span>{params.value ? formatDateToDDMMYYYY(params.value) : 'N/A'}</span>
+        <span>
+          {params.value ? formatDateToMonDDYYYY(params.value) : 'N/A'}
+        </span>
       )
     },
     {

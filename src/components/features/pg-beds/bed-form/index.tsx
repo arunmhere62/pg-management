@@ -14,6 +14,7 @@ import BedForm from './BedForm';
 import { fetchRoomsList } from '@/services/utils/api/rooms-api';
 import { createBed, updateBed } from '@/services/utils/api/bed-api';
 import { useSetBreadcrumbs } from '@/hooks/use-breadcrumbs';
+import { IOptionTypeProps } from '@/services/types/common-types';
 
 export const roomFormSchema = z.object({
   images: z.array(z.string()).optional(),
@@ -56,7 +57,7 @@ const MainBedForm = ({ mode, initialData, id }: IMainBedFormProps) => {
   const { pgLocationId, pgLocationName } = useSelector(
     (state) => state.pgLocation
   );
-  const [roomList, setRoomList] = useState<IRoomListProps[]>([]);
+  const [roomList, setRoomList] = useState<IOptionTypeProps[]>([]);
   const pageTitle = mode === 'create' ? 'Create New Bed' : 'Edit Bed';
   useSetBreadcrumbs([
     { title: 'Bed', link: '/bed' },
@@ -69,13 +70,20 @@ const MainBedForm = ({ mode, initialData, id }: IMainBedFormProps) => {
     const getRoomList = async () => {
       try {
         const res = await fetchRoomsList();
-        if (res.data) setRoomList(res.data);
+        if (res.data) {
+          const options = res.data.map((data: IRoomListProps) => ({
+            label: data.roomNo.toString(),
+            value: data.id.toString()
+          }));
+          setRoomList(options);
+        }
       } catch (error) {
         toast.error('Failed to fetch room list:');
       }
     };
     getRoomList();
   }, []);
+  console.log('options', roomList);
 
   const defaultValues = {
     bedNo: '',

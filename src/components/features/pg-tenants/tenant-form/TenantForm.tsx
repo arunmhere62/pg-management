@@ -190,6 +190,7 @@ export default function TenantForm({
             <FormItem>
               <FormLabel>Room</FormLabel>
               <SelectComboBox
+                showSearch
                 options={roomList || []}
                 placeholder='Select a room'
                 value={field.value}
@@ -206,6 +207,7 @@ export default function TenantForm({
             <FormItem>
               <FormLabel>Bed</FormLabel>
               <SelectComboBox
+                showSearch
                 options={bedsList || []}
                 placeholder='Select a bed'
                 value={field.value}

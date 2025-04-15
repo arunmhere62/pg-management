@@ -89,7 +89,7 @@ const MainRoomForm = ({ mode, initialData, id }: IMainRoomFormProps) => {
       } else if (mode === 'edit') {
         const res = await updateRoom(payload, String(id));
         if (res.status === 200) {
-          toast.success('PG updated successfully!');
+          toast.success('Room updated successfully!');
           form.reset({
             roomNo: '',
             rentPrice: '',

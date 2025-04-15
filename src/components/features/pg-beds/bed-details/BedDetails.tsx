@@ -46,7 +46,7 @@ const BedDetails = ({ id }: { id: string }) => {
     }
   }, [id]);
   return (
-    <div className='grid grid-cols-12 gap-y-4 rounded-xl border p-5 sm:gap-x-8'>
+    <div className='mb-4 grid grid-cols-12 gap-y-4 rounded-xl border p-5 sm:gap-x-8'>
       <div className='col-span-12'>
         <h1 className='text-[20px] font-bold'>Bed Details</h1>
         <p className='mb-5 mt-2'>

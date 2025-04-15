@@ -115,7 +115,7 @@ const RoomDetails = ({ id }: { id: string }) => {
     }
   }, [id]);
   return (
-    <div className='grid grid-cols-12 gap-x-8 rounded-xl border p-5'>
+    <div className='mb-4 grid grid-cols-1 gap-3 rounded-xl border p-5 sm:gap-1 md:grid-cols-12 md:gap-x-8'>
       <div className='col-span-12'>
         <h1 className='text-[20px] font-bold'>Tenant Details</h1>
         <p className='mb-5 mt-2'>
@@ -124,7 +124,7 @@ const RoomDetails = ({ id }: { id: string }) => {
         </p>
         <Separator className='mb-6' />
       </div>
-      <div className='col-span-12 h-fit rounded-xl border p-3 sm:col-span-7'>
+      <div className='col-span-12 h-fit md:col-span-6'>
         <div className='flex space-x-2'>
           <ImageCarousel images={roomDetails?.images || []} />
         </div>
@@ -191,7 +191,7 @@ const RoomDetails = ({ id }: { id: string }) => {
         </div>
       </div>
 
-      <div className='col-span-12 mt-4 h-fit space-y-2 sm:col-span-5 sm:mt-0'>
+      <div className='col-span-12 mt-4 h-fit space-y-2 sm:mt-0 md:col-span-6'>
         <div className='rounded-xl border p-3'>
           <h1 className='text-[20px] font-bold'>Rent Payments</h1>
           <Accordion type='single' collapsible className='w-full'>
