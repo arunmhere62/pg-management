@@ -82,6 +82,7 @@ const PgSelection = () => {
       Cookies.set('pgLocationId', selectedPgData.id.toString(), {
         expires: 30
       }); // Update cookie
+      location.reload(); // Reload the page to apply changes
     }
   };
 
