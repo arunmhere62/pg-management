@@ -11,7 +11,6 @@ import { useDispatch, useSelector } from '@/store';
 import { fetchPgLocationsList } from '@/services/utils/api/pg-location-api';
 import Cookies from 'js-cookie'; // For cookie handling
 import { toast } from 'sonner';
-import { useRouter } from 'next/navigation';
 
 interface IPgListProps {
   id: number;
@@ -23,7 +22,6 @@ const PgSelection = () => {
   const [selectedPg, setSelectedPg] = useState<string | undefined>();
   const [pgListData, setPgListData] = useState<IPgListProps[]>([]);
   const dispatch = useDispatch();
-  const router = useRouter();
 
   useEffect(() => {
     const getPgList = async () => {
@@ -81,7 +79,9 @@ const PgSelection = () => {
           name: selectedPgData.locationName
         })
       );
-      location.reload();
+      Cookies.set('pgLocationId', selectedPgData.id.toString(), {
+        expires: 30
+      }); // Update cookie
     }
   };
 
