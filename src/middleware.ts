@@ -1,39 +1,27 @@
-import { getToken } from 'next-auth/jwt';
+// middleware.ts
+import { auth } from '@/lib/auth'; // Make sure this points to your `NextAuth(authConfig)`
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export async function middleware(req: NextRequest) {
-  try {
-    const secret = process.env.NEXTAUTH_SECRET;
-    if (!secret) {
-      console.error('NEXTAUTH_SECRET is not set');
-      return NextResponse.redirect(new URL('/login', req.url));
-    }
+export function middleware(request: NextRequest) {
+  const session = auth();
+  const url = request.nextUrl.clone();
 
-    const token = await getToken({
-      req,
-      secret,
-      secureCookie: process.env.NODE_ENV === 'production'
-    });
+  console.log('Token in middleware:', {
+    exists: !!session,
+    url: request.url,
+    env: process.env.NODE_ENV
+  });
 
-    console.log('Token in middleware:', {
-      exists: !!token,
-      url: req.url,
-      env: process.env.NODE_ENV
-    });
-
-    if (!token) {
-      return NextResponse.redirect(new URL('/login', req.url));
-    }
-    return NextResponse.next();
-  } catch (error) {
-    console.error('Middleware error:', error);
-    return NextResponse.redirect(new URL('/login', req.url));
+  if (!session) {
+    url.pathname = '/';
+    return NextResponse.redirect(url);
   }
+
+  return NextResponse.next();
 }
 
+// Paths you want middleware to run on
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|login).*)']
+  matcher: ['/dashboard/:path*', '/profile/:path*'] // customize as needed
 };
-
-export const runtime = 'nodejs';

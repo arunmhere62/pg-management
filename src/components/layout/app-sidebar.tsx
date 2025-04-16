@@ -57,6 +57,14 @@ export default function AppSidebar() {
   const pathname = usePathname();
   const { state, isMobile } = useSidebar();
 
+  // Filter navigation items based on user role
+  const filteredNavItems = React.useMemo(() => {
+    const userRole = session?.roleName?.toUpperCase();
+    if (!userRole) return [];
+
+    return navItems.filter((item) => item.roles.includes(userRole));
+  }, [session?.roleName]);
+  type IconName = keyof typeof Icons;
   return (
     <Sidebar collapsible='icon'>
       <SidebarHeader>
@@ -74,8 +82,10 @@ export default function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupLabel>Overview</SidebarGroupLabel>
           <SidebarMenu>
-            {navItems.map((item) => {
-              const Icon = item.icon ? Icons[item.icon] : Icons.logo;
+            {filteredNavItems.map((item) => {
+              const Icon = item.icon
+                ? Icons[item.icon as IconName]
+                : Icons.logo;
               return item?.items && item?.items?.length > 0 ? (
                 <Collapsible
                   key={item.title}
@@ -200,29 +210,11 @@ export default function AppSidebar() {
                     <CreditCard />
                     Billing
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Bell />
-                    Notifications
+                  <DropdownMenuItem onClick={() => signOut()}>
+                    <LogOut />
+                    Sign out
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={() => {
-                    // Clear localStorage (runs on client side)
-                    localStorage.clear();
-
-                    // Clear cookies (optional – mostly handled by signOut depending on usage)
-                    document.cookie = 'pgLocationId=; Max-Age=0; path=/';
-
-                    // Trigger NextAuth signOut
-                    signOut({
-                      callbackUrl: process.env.NEXT_PUBLIC_LOGOUT_REDIRECT
-                    }); // optional: redirect to homepage after logout
-                  }}
-                >
-                  <LogOut />
-                  Log out
-                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </SidebarMenuItem>

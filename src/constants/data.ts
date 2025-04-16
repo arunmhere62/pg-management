@@ -1,4 +1,4 @@
-import { NavItem } from 'types';
+import { NavItem } from '@/types';
 
 export type Product = {
   photo_url: string;
@@ -19,7 +19,8 @@ export const navItems: NavItem[] = [
     icon: 'dashboard',
     isActive: false,
     shortcut: ['b', 'b'],
-    items: []
+    items: [],
+    roles: ['ADMIN', 'EMPLOYEE']
   },
   {
     title: 'Pg Locations',
@@ -27,7 +28,17 @@ export const navItems: NavItem[] = [
     icon: 'building',
     isActive: false,
     shortcut: ['p', 'p'],
-    items: []
+    items: [],
+    roles: ['ADMIN']
+  },
+  {
+    title: 'View PG',
+    url: '/pg-location/view',
+    icon: 'building',
+    isActive: false,
+    shortcut: ['p', 'v'],
+    items: [],
+    roles: ['EMPLOYEE']
   },
   {
     title: 'Rooms',
@@ -35,7 +46,17 @@ export const navItems: NavItem[] = [
     icon: 'dashboard',
     isActive: false,
     shortcut: ['r', 'r'],
-    items: []
+    items: [],
+    roles: ['ADMIN']
+  },
+  {
+    title: 'View Rooms',
+    url: '/room/view',
+    icon: 'dashboard',
+    isActive: false,
+    shortcut: ['r', 'v'],
+    items: [],
+    roles: ['EMPLOYEE']
   },
   {
     title: 'Beds',
@@ -43,16 +64,35 @@ export const navItems: NavItem[] = [
     icon: 'bed',
     isActive: false,
     shortcut: ['d', 'd'],
-    items: []
+    items: [],
+    roles: ['ADMIN']
   },
-
+  {
+    title: 'View Beds',
+    url: '/bed/view',
+    icon: 'bed',
+    isActive: false,
+    shortcut: ['d', 'v'],
+    items: [],
+    roles: ['EMPLOYEE']
+  },
   {
     title: 'Tenants',
     url: '/tenant',
     icon: 'tenants',
     isActive: false,
     shortcut: ['tn', 'tn'],
-    items: []
+    items: [],
+    roles: ['ADMIN']
+  },
+  {
+    title: 'View Tenants',
+    url: '/tenant/view',
+    icon: 'tenants',
+    isActive: false,
+    shortcut: ['tn', 'v'],
+    items: [],
+    roles: ['EMPLOYEE']
   },
   {
     title: 'Visitors',
@@ -60,48 +100,62 @@ export const navItems: NavItem[] = [
     icon: 'dashboard',
     isActive: false,
     shortcut: ['v', 'v'],
-    items: []
+    items: [],
+    roles: ['ADMIN']
   },
-
+  {
+    title: 'View Visitors',
+    url: '/visitor/view',
+    icon: 'dashboard',
+    isActive: false,
+    shortcut: ['v', 'vv'],
+    items: [],
+    roles: ['EMPLOYEE']
+  },
   {
     title: 'Rent ',
     url: '/payment/rent',
     icon: 'money',
     isActive: false,
-    shortcut: ['v', 'v'],
-    items: []
+    shortcut: ['r', 'p'],
+    items: [],
+    roles: ['ADMIN']
   },
   {
     title: 'Advance',
     url: '/payment/advance',
     icon: 'money',
     isActive: false,
-    shortcut: ['v', 'v'],
-    items: []
+    shortcut: ['a', 'p'],
+    items: [],
+    roles: ['ADMIN']
   },
   {
     title: 'Refund',
     url: '/payment/refund',
     icon: 'money',
     isActive: false,
-    shortcut: ['v', 'v'],
-    items: []
+    shortcut: ['rf', 'p'],
+    items: [],
+    roles: ['ADMIN']
   },
   {
     title: 'Expenses',
     url: '/expense',
     icon: 'expense',
     isActive: false,
-    shortcut: ['v', 'v'],
-    items: []
+    shortcut: ['e', 'x'],
+    items: [],
+    roles: ['ADMIN']
   },
   {
     title: 'Employee',
     url: '/employee',
     icon: 'users',
     isActive: false,
-    shortcut: ['v', 'v'],
-    items: []
+    shortcut: ['e', 'm'],
+    items: [],
+    roles: ['ADMIN']
   }
 ];
 

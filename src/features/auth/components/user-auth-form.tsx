@@ -56,7 +56,10 @@ export default function UserAuthForm() {
       } else {
         toast.success('Signed In Successfully!');
         const session = await getSession();
+        console.log('session data fe', session);
+
         const pgLocationId = session?.pgLocationId;
+        console.log('pgLocationId', pgLocationId);
 
         if (pgLocationId) {
           Cookies.set('pgLocationId', pgLocationId);
