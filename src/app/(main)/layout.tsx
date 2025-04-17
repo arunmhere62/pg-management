@@ -2,6 +2,7 @@ import { Breadcrumbs } from '@/components/breadcrumbs';
 import KBar from '@/components/kbar';
 import AppSidebar from '@/components/layout/app-sidebar';
 import Header from '@/components/layout/header';
+import { SessionExpiryHandler } from '@/components/session-expiry-handler';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import AuthGuardWrapper from '@/lib/AuthGuard';
 import type { Metadata } from 'next';
@@ -27,6 +28,8 @@ export default async function DashboardLayout({
         <SidebarInset>
           <Header />
           <AuthGuardWrapper>
+            {/* Session expiry handler */}
+            <SessionExpiryHandler />
             {/* page main content */}
             <div className='px-4'>
               <div className='mb-4 block rounded-xl border px-2 py-1 sm:hidden'>

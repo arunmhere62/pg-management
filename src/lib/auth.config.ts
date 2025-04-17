@@ -88,7 +88,7 @@ const authConfig = {
   ],
   session: {
     strategy: 'jwt' as const,
-    maxAge: 30 * 24 * 60 * 60
+    maxAge: 30
   },
   callbacks: {
     async jwt({ token, user }: { token: JWT; user?: User }) {
@@ -117,8 +117,8 @@ const authConfig = {
   },
   trustHost: true,
   pages: {
-    signIn: '/',
-    error: '/'
+    signIn: '/login',
+    error: '/login'
   },
   secret: process.env.NEXTAUTH_SECRET
 };

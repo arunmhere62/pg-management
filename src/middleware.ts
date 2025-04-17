@@ -3,8 +3,8 @@ import { auth } from '@/lib/auth'; // Make sure this points to your `NextAuth(au
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export function middleware(request: NextRequest) {
-  const session = auth();
+export async function middleware(request: NextRequest) {
+  const session = await auth();
   const url = request.nextUrl.clone();
 
   console.log('Token in middleware:', {
@@ -13,8 +13,9 @@ export function middleware(request: NextRequest) {
     env: process.env.NODE_ENV
   });
 
+  // Check if session exists
   if (!session) {
-    url.pathname = '/';
+    url.pathname = '/login';
     return NextResponse.redirect(url);
   }
 
