@@ -2,6 +2,7 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import prisma from '@/lib/prisma';
 import type { Session, User } from 'next-auth';
 import { JWT } from 'next-auth/jwt';
+import { APP_CONFIG } from '@/constants/data';
 
 const authConfig = {
   providers: [
@@ -88,11 +89,13 @@ const authConfig = {
   ],
   session: {
     strategy: 'jwt' as const,
-    maxAge: 30
+    maxAge: APP_CONFIG.SESSION_EXPIRY_SECONDS
   },
   callbacks: {
     async jwt({ token, user }: { token: JWT; user?: User }) {
       if (user) {
+        const expirySeconds = APP_CONFIG.SESSION_EXPIRY_SECONDS;
+        const expiryTimestamp = Date.now() + expirySeconds * 1000;
         token.id = user.id?.toString() ?? '';
         token.email = user.email?.toString() ?? '';
         token.name = user.name?.toString() ?? '';
@@ -101,6 +104,8 @@ const authConfig = {
         token.roleName = user.roleName;
         token.pgLocationId = user.pgLocationId ?? null;
         token.organizationId = user.organizationId ?? null;
+        token.expirySeconds = expirySeconds;
+        token.expiryTimestamp = expiryTimestamp; // ✅ new
       }
       return token;
     },
@@ -112,6 +117,8 @@ const authConfig = {
       session.roleName = token.roleName as string;
       session.pgLocationId = token.pgLocationId as string | null;
       session.organizationId = token.organizationId as string;
+      session.expirySeconds = token.expirySeconds as number;
+      session.expiryTimestamp = token.expiryTimestamp as number; // ✅ new
       return session;
     }
   },

@@ -16,13 +16,13 @@ export async function middleware(request: NextRequest) {
   // Check if session exists
   if (!session) {
     url.pathname = '/login';
+    url.searchParams.set('callbackUrl', request.nextUrl.pathname); // optional: add return-to path
     return NextResponse.redirect(url);
   }
 
   return NextResponse.next();
 }
 
-// Paths you want middleware to run on
 export const config = {
-  matcher: ['/dashboard/:path*', '/profile/:path*'] // customize as needed
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|login|register).*)']
 };

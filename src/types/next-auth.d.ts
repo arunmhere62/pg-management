@@ -18,6 +18,8 @@ declare module 'next-auth' {
     roleName: string;
     pgLocationId: string | null;
     organizationId: string;
+    expirySeconds: number;
+    expiryTimestamp: number;
   }
 }
 

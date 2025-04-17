@@ -11,6 +11,11 @@ export type Product = {
   updated_at: string;
 };
 
+// one data
+export const APP_CONFIG = {
+  SESSION_EXPIRY_SECONDS: 60 * 60 * 24
+};
+
 //Info: The following data is used for the sidebar navigation and Cmd K bar.
 export const navItems: NavItem[] = [
   {
