@@ -11,9 +11,7 @@ export const GET = async (req: NextRequest) => {
     const { error, session } = await ensureAuthenticated();
     const organizationId = session?.organizationId;
     const pgLocationId = cookies.get('pgLocationId')?.value;
-    console.log('organizationId', organizationId);
     if (!pgLocationId) throw new BadRequestError('Select pg location');
-    console.log('hello worldj');
     const res = await prisma.users.findMany({
       where: {
         organizationId: Number(organizationId),
@@ -37,8 +35,6 @@ export const GET = async (req: NextRequest) => {
         }
       }
     });
-    console.log('res data', res);
-
     return NextResponse.json(
       {
         message: 'Employees fetched successfully',
@@ -48,8 +44,6 @@ export const GET = async (req: NextRequest) => {
       { status: 200 }
     );
   } catch (error) {
-    console.log('error', error);
-
     return errorHandler(error);
   }
 };
@@ -84,8 +78,6 @@ export const POST = async (req: NextRequest) => {
     }
 
     const body = await req.json();
-    console.log('body data', body);
-
     const parsedData = employeeCreateSchema.safeParse(body);
     if (!parsedData.success) {
       throw new BadRequestError(parsedData.error.message);

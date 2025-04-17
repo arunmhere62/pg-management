@@ -12,7 +12,6 @@ export const GET = async (
   { params }: { params: Promise<{ expenseId: string }> }
 ) => {
   try {
-    console.log('hello world expense');
     const { expenseId } = await params;
     const pgLocationId = req.cookies.get('pgLocationId')?.value;
     if (!pgLocationId) {

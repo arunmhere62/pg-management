@@ -88,7 +88,6 @@ export const GET = async (req: NextRequest) => {
       const roomRent = Number(room.rentPrice ?? 0);
       return total + bedCount * roomRent;
     }, 0);
-    console.log('totalPrice', totalRoomsPrice);
 
     const monthlyMap: Record<string, MonthlySummary> = {};
 
@@ -164,9 +163,6 @@ export const GET = async (req: NextRequest) => {
         ...summary
       })
     );
-
-    console.log('📊 Monthly Financial Overview:', monthlyMap);
-
     const occupiedCount = beds.filter((bed) => bed.tenants.length > 0).length;
     const vacantCount = beds.length - occupiedCount;
 

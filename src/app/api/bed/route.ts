@@ -163,7 +163,6 @@ export const POST = async (req: NextRequest) => {
       { status: 201 }
     );
   } catch (error: any) {
-    console.log('Error in POST /bed:', error);
     return errorHandler(error);
   }
 };

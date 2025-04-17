@@ -1,7 +1,9 @@
 'use client';
+
 import NewPgCreate from '@/components/features/new-pg/NewPgCreate';
 import { Button } from '@/components/ui/button';
 import { signOut } from 'next-auth/react';
+import { useEffect } from 'react';
 
 export default function NewPgPage() {
   const handleLogout = () => {
@@ -11,30 +13,31 @@ export default function NewPgPage() {
   };
 
   return (
-    <div className='flex min-h-screen items-center justify-center bg-gray-100 p-4'>
-      <div className='grid w-full max-w-5xl grid-cols-1 gap-6 rounded-2xl bg-white p-8 shadow-lg md:grid-cols-2'>
-        {/* Left Column: Form */}
-        <div>
-          <h2 className='mb-2 text-2xl font-semibold'>
-            Create a PG to Get Started
-          </h2>
-          <p className='mb-6 text-sm text-gray-600'>
-            You must create a PG location to begin using the application. This
-            allows you to manage tenants, rooms, beds, rent payments, and more.
-          </p>
+    <div className='flex min-h-screen items-center justify-center py-10 sm:px-6'>
+      <div className='w-full rounded-xl border bg-white p-3 sm:max-w-2xl sm:p-8'>
+        <h2 className='mb-2 text-3xl font-bold text-gray-800'>
+          Welcome! Let’s Get Started 🚀
+        </h2>
+        <p className='mb-6 text-gray-600'>
+          To begin using the application, you need to create your first PG
+          location. This will enable you to manage rooms, tenants, rent
+          payments, and more.
+        </p>
 
-          <NewPgCreate mode='create' />
-        </div>
+        <NewPgCreate mode='create' />
 
-        {/* Right Column: Logout Option */}
-        <div className='flex flex-col items-center justify-center border-l border-gray-200 pl-6'>
-          <p className='mb-4 text-center text-sm text-gray-700'>
-            Don’t want to continue? You can go back to login and try again
-            later.
+        <div className='mt-8 border-t pt-6'>
+          <p className='mb-4 text-center text-sm text-gray-500'>
+            Don’t want to continue right now? You can return to login anytime.
           </p>
-          <Button onClick={handleLogout} className='w-[150px]'>
-            Go Back To Login
-          </Button>
+          <div className='flex justify-center'>
+            <Button
+              onClick={handleLogout}
+              className='w-[180px] bg-red-500 text-white hover:bg-red-600'
+            >
+              Go Back To Login
+            </Button>
+          </div>
         </div>
       </div>
     </div>

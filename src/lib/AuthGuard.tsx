@@ -1,8 +1,8 @@
 'use client';
 
-import Cookies from 'js-cookie';
+import { useSelector } from '@/store';
 import { useSession } from 'next-auth/react';
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 export default function PgRedirectWrapper({
@@ -12,45 +12,36 @@ export default function PgRedirectWrapper({
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { status } = useSession(); // from NextAuth
-  const [loading, setLoading] = useState(true);
-
-  console.log('status', status);
+  const { pgLocationId } = useSelector((state) => state.pgLocation);
+  const { data: session, status } = useSession();
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    if (status === 'loading') return; // wait for session check
+    if (status === 'loading') return;
 
-    // ✅ Prevent authenticated users from accessing "/" (e.g. login page)
-    if (status === 'authenticated' && pathname === '/login') {
-      router.replace('/dashboard/overview');
-      return;
-    }
-
-    // ❌ Redirect unauthenticated users
-    if (status === 'unauthenticated' && pathname !== '/login') {
+    if (!session && pathname !== '/login') {
       router.replace('/login');
       return;
     }
 
-    // ✅ pgLocationId check
-    const pgLocationId = Cookies.get('pgLocationId');
-
-    if (pathname === '/new-pg') {
-      if (pgLocationId) {
-        router.replace('/dashboard/overview');
-      } else {
-        setLoading(false); // allow access to /new-pg if no pgLocationId
-      }
-    } else {
-      if (!pgLocationId && status === 'authenticated') {
-        router.replace('/new-pg'); // force user to select pg
-      } else {
-        setLoading(false);
-      }
+    if (session && !pgLocationId && pathname !== '/new-pg') {
+      router.replace('/new-pg');
+      return;
     }
-  }, [pathname, router, status]);
 
-  if (loading) return null;
+    if (
+      session &&
+      pgLocationId &&
+      (pathname === '/login' || pathname === '/new-pg')
+    ) {
+      router.replace('/dashboard/overview');
+      return;
+    }
+
+    setReady(true);
+  }, [session, status, pgLocationId, pathname, router]);
+
+  if (!ready) return null;
 
   return <>{children}</>;
 }

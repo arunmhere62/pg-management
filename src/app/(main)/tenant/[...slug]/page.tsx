@@ -15,7 +15,6 @@ const Page = () => {
   if (slug.length === 2) {
     [type, id] = slug;
   }
-  console.log('bedId', bedId);
 
   if (slug[0] === 'new') {
     return (

@@ -213,6 +213,7 @@ export default function EmployeeForm({
             <FormItem>
               <FormLabel>State</FormLabel>
               <SelectComboBox
+                showSearch
                 options={statesList || []}
                 placeholder='Select a State'
                 value={field.value}
@@ -229,6 +230,7 @@ export default function EmployeeForm({
             <FormItem>
               <FormLabel>City</FormLabel>
               <SelectComboBox
+                showSearch
                 options={citiesList || []}
                 placeholder='Select a City'
                 value={field.value}

@@ -187,8 +187,6 @@ const MainEmployeeForm = ({
     values: CreateEmployeeFormValues | EditEmployeeFormValues
   ) => {
     try {
-      console.log('values', values);
-
       const payload = {
         name: values.name,
         email: values.email,

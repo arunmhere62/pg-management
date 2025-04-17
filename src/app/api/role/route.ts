@@ -12,12 +12,10 @@ export const GET = async (req: NextRequest) => {
     if (!pgLocationId) throw new BadRequestError('Select PG location');
     const res = await prisma.roles.findMany({
       where: {
-        organizationId: Number(organizationId),
+        // organizationId: Number(organizationId),
         isDeleted: false
       }
     });
-    console.log('res data', res);
-
     return NextResponse.json(
       {
         message: 'Expenses fetched successfully',

@@ -134,7 +134,6 @@ const NewPgCreate = ({ mode, initialData, id }: INewPgCreateProps) => {
         const res = await createFirstPg(payload);
         if (res.status === 201) {
           router.push('/dashboard/overview');
-          console.log('data pg', res.data);
           toast.success('PG created successfully!');
           form.reset({
             images: [],
@@ -144,6 +143,7 @@ const NewPgCreate = ({ mode, initialData, id }: INewPgCreateProps) => {
             pincode: '',
             address: ''
           });
+          location.reload();
         }
       } else if (mode === 'edit') {
         const res = await updatePgLocation(payload, String(id));
@@ -195,18 +195,7 @@ const NewPgCreate = ({ mode, initialData, id }: INewPgCreateProps) => {
   }, [form.watch('state')]);
 
   return (
-    <Card className='mx-auto w-full'>
-      <CardHeader>
-        <div className='flex justify-between'>
-          <CardTitle className='pb-4 text-left text-2xl font-bold'>
-            {pageTitle}
-          </CardTitle>
-          <Button type='submit' form='new-pg-create'>
-            {mode === 'create' ? 'Create New PG' : 'Save'}
-          </Button>
-        </div>
-        <Separator />
-      </CardHeader>
+    <Card className='mx-auto w-full border-none shadow-none'>
       <CardContent className='mt-1'>
         <Form {...form}>
           <form
@@ -221,6 +210,9 @@ const NewPgCreate = ({ mode, initialData, id }: INewPgCreateProps) => {
               onSubmit={onSubmit}
               control={form.control}
             />
+            <Button type='submit' form='new-pg-create'>
+              {mode === 'create' ? 'Create New PG' : 'Save'}
+            </Button>
           </form>
         </Form>
       </CardContent>

@@ -8,7 +8,6 @@ import { z } from 'zod';
 export const GET = async (req: NextRequest) => {
   try {
     const session = await auth();
-    console.log('session', session);
 
     if (!session || !session.user) {
       return NextResponse.json(
@@ -18,8 +17,6 @@ export const GET = async (req: NextRequest) => {
     }
     const userId = session?.user.id;
     const organizationId = session?.organizationId;
-
-    console.log('organizationId', organizationId);
 
     if (!userId || !organizationId) {
       throw new BadRequestError('User ID or organization not found in session');

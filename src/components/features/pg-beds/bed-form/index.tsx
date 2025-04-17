@@ -83,8 +83,6 @@ const MainBedForm = ({ mode, initialData, id }: IMainBedFormProps) => {
     };
     getRoomList();
   }, []);
-  console.log('options', roomList);
-
   const defaultValues = {
     bedNo: '',
     roomNo: '',

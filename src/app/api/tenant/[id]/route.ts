@@ -183,9 +183,6 @@ export const PUT = async (
     if (occupiedBed) {
       throw new BadRequestError('Bed is already occupied');
     }
-    console.log('parsed', parsedData.data);
-    console.log('body', body);
-
     const tenant = await prisma.tenants.update({
       where: { id: Number(id), isDeleted: false },
       data: parsedData.data

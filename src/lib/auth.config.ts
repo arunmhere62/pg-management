@@ -55,7 +55,6 @@ const authConfig = {
             }
           }
         });
-        console.log('user data', user);
         if (!user) {
           return Promise.reject(new Error('Email not found'));
         }
@@ -63,11 +62,7 @@ const authConfig = {
         if (credentials.password !== user.password) {
           return Promise.reject(new Error('Incorrect password'));
         }
-
-        console.log('user data', user);
-
         const isValidPassword = password === user.password;
-
         if (!isValidPassword) {
           throw new Error(
             JSON.stringify({ code: 401, message: 'Incorrect password.' })

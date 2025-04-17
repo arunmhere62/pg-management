@@ -10,8 +10,6 @@ const EmployeeEdit = ({ id }: { id: string }) => {
     const getEmployee = async () => {
       try {
         const res = await fetchEmployeeById(id);
-        console.log('employee data', res.data);
-
         if (res.data) {
           const formattedRes = {
             name: res?.data?.name ?? '',

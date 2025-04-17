@@ -118,8 +118,6 @@ const MainAdvancePayment = ({
       try {
         const res = await fetchTenantsList();
         if (res.data) {
-          console.log('tenant list', res.data);
-
           setTenantData(res.data);
           setTenantList(
             res.data.map((tenant: any) => ({

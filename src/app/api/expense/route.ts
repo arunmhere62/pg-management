@@ -19,8 +19,6 @@ export const GET = async (req: NextRequest) => {
         isDeleted: false
       }
     });
-    console.log('res data', res);
-
     return NextResponse.json(
       {
         message: 'Expenses fetched successfully',

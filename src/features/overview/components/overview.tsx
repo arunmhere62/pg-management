@@ -14,8 +14,9 @@ import { PieGraph } from './pie-graph';
 import { RecentSales } from './recent-sales';
 import { FinancialOverview } from './DashboardFinanacialOverview';
 import { useEffect, useState } from 'react';
-import { fetchDashboardOverview } from '@/services/utils/api/dashboard';
+import { fetchDashboardOverview } from '@/services/utils/api/dashboard-api';
 import { useSetBreadcrumbs } from '@/hooks/use-breadcrumbs';
+import { useSelector } from '@/store';
 
 export interface IFinancialOverviewProps {
   month: string;
@@ -37,12 +38,11 @@ interface IDashboardOverview {
 export default function OverViewPage() {
   const [dashboardOverview, setDashboardOverview] =
     useState<IDashboardOverview | null>(null);
+  const { pgLocationId } = useSelector((state) => state.pgLocation);
 
   useSetBreadcrumbs([
     { title: 'Dashboard Overview', link: '/dashboard/overview' }
   ]);
-  console.log('dashboardOverview', dashboardOverview);
-
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -54,9 +54,10 @@ export default function OverViewPage() {
         console.error('Failed to load statistics:', err);
       }
     };
-
-    fetchData();
-  }, []);
+    if (pgLocationId) {
+      fetchData();
+    }
+  }, [pgLocationId]);
 
   return (
     <PageContainer>

@@ -62,8 +62,6 @@ export const POST = async (req: NextRequest) => {
         }
       }
     });
-
-    console.log('updatedUser', updatedUser);
     const response = NextResponse.json(
       {
         data: updatedUser,

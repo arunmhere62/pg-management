@@ -14,7 +14,6 @@ export const GET = async (
 ) => {
   try {
     const { employeeId } = await params;
-    console.log('hello world expense');
     const { error, session } = await ensureAuthenticated();
     const organizationId = session?.organizationId;
     const pgLocationId = req.cookies.get('pgLocationId')?.value;

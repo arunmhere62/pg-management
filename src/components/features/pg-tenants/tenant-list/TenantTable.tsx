@@ -94,8 +94,6 @@ const TenantList = () => {
         };
       });
       if (res.data) {
-        console.log('formattedRes', formattedRes);
-
         setTenantList(formattedRes);
       }
     } catch (error) {
@@ -147,14 +145,9 @@ const TenantList = () => {
   // Filter tenants based on selected room
   useEffect(() => {
     if (selectedRoom) {
-      console.log('sdfsdfsd room', selectedRoom);
-      console.log(selectedRoom);
-
       const filtered = tenantList.filter(
         (tenant) => String(tenant.rooms.id) === selectedRoom
       );
-      console.log('filtered', filtered);
-
       setFilteredTenantData(filtered);
     } else {
       setFilteredTenantData(tenantList);

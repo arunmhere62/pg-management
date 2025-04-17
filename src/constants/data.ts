@@ -25,7 +25,7 @@ export const navItems: NavItem[] = [
     isActive: false,
     shortcut: ['b', 'b'],
     items: [],
-    roles: ['ADMIN', 'EMPLOYEE']
+    roles: ['ADMIN']
   },
   {
     title: 'Pg Locations',
@@ -34,17 +34,9 @@ export const navItems: NavItem[] = [
     isActive: false,
     shortcut: ['p', 'p'],
     items: [],
-    roles: ['ADMIN']
+    roles: ['ADMIN', 'EMPLOYEE']
   },
-  {
-    title: 'View PG',
-    url: '/pg-location/view',
-    icon: 'building',
-    isActive: false,
-    shortcut: ['p', 'v'],
-    items: [],
-    roles: ['EMPLOYEE']
-  },
+
   {
     title: 'Rooms',
     url: '/room',
@@ -52,17 +44,9 @@ export const navItems: NavItem[] = [
     isActive: false,
     shortcut: ['r', 'r'],
     items: [],
-    roles: ['ADMIN']
+    roles: ['ADMIN', 'EMPLOYEE']
   },
-  {
-    title: 'View Rooms',
-    url: '/room/view',
-    icon: 'dashboard',
-    isActive: false,
-    shortcut: ['r', 'v'],
-    items: [],
-    roles: ['EMPLOYEE']
-  },
+
   {
     title: 'Beds',
     url: '/bed',
@@ -70,17 +54,9 @@ export const navItems: NavItem[] = [
     isActive: false,
     shortcut: ['d', 'd'],
     items: [],
-    roles: ['ADMIN']
+    roles: ['ADMIN', 'EMPLOYEE']
   },
-  {
-    title: 'View Beds',
-    url: '/bed/view',
-    icon: 'bed',
-    isActive: false,
-    shortcut: ['d', 'v'],
-    items: [],
-    roles: ['EMPLOYEE']
-  },
+
   {
     title: 'Tenants',
     url: '/tenant',
@@ -88,17 +64,9 @@ export const navItems: NavItem[] = [
     isActive: false,
     shortcut: ['tn', 'tn'],
     items: [],
-    roles: ['ADMIN']
+    roles: ['ADMIN', 'EMPLOYEE']
   },
-  {
-    title: 'View Tenants',
-    url: '/tenant/view',
-    icon: 'tenants',
-    isActive: false,
-    shortcut: ['tn', 'v'],
-    items: [],
-    roles: ['EMPLOYEE']
-  },
+
   {
     title: 'Visitors',
     url: '/visitor',
@@ -106,17 +74,9 @@ export const navItems: NavItem[] = [
     isActive: false,
     shortcut: ['v', 'v'],
     items: [],
-    roles: ['ADMIN']
+    roles: ['ADMIN', 'EMPLOYEE']
   },
-  {
-    title: 'View Visitors',
-    url: '/visitor/view',
-    icon: 'dashboard',
-    isActive: false,
-    shortcut: ['v', 'vv'],
-    items: [],
-    roles: ['EMPLOYEE']
-  },
+
   {
     title: 'Rent ',
     url: '/payment/rent',
@@ -124,7 +84,7 @@ export const navItems: NavItem[] = [
     isActive: false,
     shortcut: ['r', 'p'],
     items: [],
-    roles: ['ADMIN']
+    roles: ['ADMIN', 'EMPLOYEE']
   },
   {
     title: 'Advance',
@@ -133,7 +93,7 @@ export const navItems: NavItem[] = [
     isActive: false,
     shortcut: ['a', 'p'],
     items: [],
-    roles: ['ADMIN']
+    roles: ['ADMIN', 'EMPLOYEE']
   },
   {
     title: 'Refund',
@@ -142,7 +102,7 @@ export const navItems: NavItem[] = [
     isActive: false,
     shortcut: ['rf', 'p'],
     items: [],
-    roles: ['ADMIN']
+    roles: ['ADMIN', 'EMPLOYEE']
   },
   {
     title: 'Expenses',
@@ -151,7 +111,7 @@ export const navItems: NavItem[] = [
     isActive: false,
     shortcut: ['e', 'x'],
     items: [],
-    roles: ['ADMIN']
+    roles: ['ADMIN', 'EMPLOYEE']
   },
   {
     title: 'Employee',

@@ -16,8 +16,6 @@ import { useRouter } from 'next/navigation';
 
 export function Breadcrumbs() {
   const items = useSelector((state: RootState) => state.breadcrumb.items);
-  console.log('items', items);
-
   const router = useRouter();
 
   if (!items || items.length === 0) return null;
