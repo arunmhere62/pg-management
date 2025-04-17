@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { signOut, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import Cookies from 'js-cookie';
 
 export function SessionExpiryHandler() {
   const router = useRouter();
@@ -43,13 +44,7 @@ export function SessionExpiryHandler() {
 
     // Set a timeout to automatically log out after session expires
     const logoutTimer = setTimeout(async () => {
-      console.log('Session expired, logging out...');
-      // Try to forcefully clear cookie (won’t affect HTTP-only cookies but safe fallback)
-      document.cookie = 'next-auth.session-token=; Max-Age=0; path=/;';
-      document.cookie =
-        '__Secure-next-auth.session-token=; Max-Age=0; path=/; Secure; SameSite=Lax;';
-      document.cookie =
-        '__Host-next-auth.session-token=; Max-Age=0; path=/; Secure; SameSite=Lax;';
+      Cookies.remove('pgLocationId');
       await signOut({ redirect: true, callbackUrl: '/login' });
     }, secondsLeft * 1000);
 
