@@ -41,15 +41,20 @@ interface IFinancialOverviewParentProps {
 export function FinancialOverview({
   financialOverview
 }: IFinancialOverviewParentProps) {
-  // transform data
-  const chartData = financialOverview.map((item) => ({
-    month: new Date(item.month + '-01').toLocaleString('default', {
-      month: 'short'
-    }), // "2025-04" → "Apr"
-    income: item.monthlyIncome,
-    expenses: item.monthlyExpenses,
-    profit: item.netProfit
-  }));
+  // transform data and sort chronologically (oldest to newest)
+  const chartData = financialOverview
+    .map((item) => ({
+      month: new Date(item.month + '-01').toLocaleString('default', {
+        month: 'short'
+      }), // "2025-04" → "Apr"
+      // Store original date for sorting
+      originalDate: new Date(item.month + '-01'),
+      income: item.monthlyIncome,
+      expenses: item.monthlyExpenses,
+      profit: item.netProfit
+    }))
+    // Sort by date (oldest first)
+    .sort((a, b) => a.originalDate.getTime() - b.originalDate.getTime());
   const hasData = chartData.length > 0;
   return (
     <Card>

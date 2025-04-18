@@ -47,6 +47,7 @@ interface ISummaryCardProps {
   availableBeds: number;
   totalRoomsPrice: number;
   roomSharing: Record<string, number>;
+  totalRooms: number; // Add total rooms property
 }
 
 interface ITenantPayment {
@@ -68,10 +69,33 @@ interface ITenantActivity {
   newTenants: number;
   removedTenants: number;
   totalAdvances: number;
+  thisMonthAdvances: number; // Add this month's advances
+  lastMonthAdvances: number;
   totalRefunds: number;
   recentRents: ITenantPayment[];
   recentAdvances: any[];
   recentRefunds: any[];
+  recentJoinedTenants: {
+    id: number;
+    name: string;
+    email: string;
+    phoneNo: string;
+    createdAt: string;
+  }[];
+  lastMonthJoinedTenants: {
+    id: number;
+    name: string;
+    email: string;
+    phoneNo: string;
+    createdAt: string;
+  }[];
+  lastMonthExpenses: {
+    id: number;
+    amount: number;
+    expenseDate: string;
+    description: string;
+  }[];
+  lastMonthTotalExpenses: number;
 }
 
 interface IDashboardOverview {
@@ -361,9 +385,7 @@ export default function PGDashboard() {
                     <span className='text-sm font-medium'>Total Rooms</span>
                   </div>
                   <span className='font-bold'>
-                    {Object.values(
-                      dashboardOverview?.summaryCard?.roomSharing || {}
-                    ).reduce((sum, count) => sum + count, 0)}
+                    {dashboardOverview?.summaryCard?.totalRooms || 0}
                   </span>
                 </div>
 
@@ -444,10 +466,13 @@ export default function PGDashboard() {
                     </div>
                   </div>
                   <div className='rounded-lg border p-3'>
-                    <div className='text-sm font-medium'>Advance Payments</div>
+                    <div className='text-sm font-medium'>
+                      This Month Advances
+                    </div>
                     <div className='mt-2 text-2xl font-bold'>
                       {formatCurrency(
-                        dashboardOverview?.tenantActivity?.totalAdvances || 0
+                        dashboardOverview?.tenantActivity?.thisMonthAdvances ||
+                          0
                       )}
                     </div>
                   </div>
@@ -460,7 +485,306 @@ export default function PGDashboard() {
                     </div>
                   </div>
                 </div>
+
+                {/* Last Month's Expenses */}
+                <div className='mt-6'>
+                  <h3 className='mb-2 text-sm font-medium'>
+                    Last Month's Expenses
+                  </h3>
+                  <div className='rounded-lg border p-3'>
+                    <div className='flex items-center justify-between'>
+                      <span className='text-sm text-muted-foreground'>
+                        Total Last Month
+                      </span>
+                      <span className='font-medium'>
+                        {formatCurrency(
+                          dashboardOverview?.tenantActivity
+                            ?.lastMonthTotalExpenses || 0
+                        )}
+                      </span>
+                    </div>
+                    <ScrollArea className='mt-2 h-[100px]'>
+                      {dashboardOverview?.tenantActivity?.lastMonthExpenses &&
+                      dashboardOverview.tenantActivity.lastMonthExpenses
+                        .length > 0 ? (
+                        // Safe to map since we've checked for existence and length
+                        dashboardOverview.tenantActivity.lastMonthExpenses.map(
+                          (expense) => (
+                            <div
+                              key={expense.id}
+                              className='flex items-center justify-between py-1 text-sm'
+                            >
+                              <span className='text-muted-foreground'>
+                                {expense.description || 'Expense'}
+                              </span>
+                              <span>{formatCurrency(expense.amount)}</span>
+                            </div>
+                          )
+                        )
+                      ) : (
+                        <p className='py-2 text-center text-xs text-muted-foreground'>
+                          No expenses recorded last month.
+                        </p>
+                      )}
+                    </ScrollArea>
+                  </div>
+                </div>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Recent Activity Tabs */}
+          <Card className='col-span-4'>
+            <CardHeader>
+              <CardTitle>Recent Activity</CardTitle>
+              <CardDescription>
+                Latest transactions and tenant activity
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Tabs defaultValue='rents'>
+                <TabsList className='mb-4'>
+                  <TabsTrigger value='rents'>Recent Rents</TabsTrigger>
+                  <TabsTrigger value='advances'>Recent Advances</TabsTrigger>
+                  <TabsTrigger value='refunds'>Recent Refunds</TabsTrigger>
+                  <TabsTrigger value='tenants'>New Tenants</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value='rents'>
+                  <ScrollArea className='h-[200px]'>
+                    <div className='space-y-4'>
+                      {dashboardOverview?.tenantActivity?.recentRents?.map(
+                        (payment) => (
+                          <div
+                            key={payment.id}
+                            className='flex items-center gap-4'
+                          >
+                            <Avatar>
+                              <AvatarFallback>
+                                {payment.tenants.name
+                                  .substring(0, 2)
+                                  .toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className='flex-1 space-y-1'>
+                              <p className='text-sm font-medium leading-none'>
+                                {payment.tenants.name}
+                              </p>
+                              <p className='text-sm text-muted-foreground'>
+                                {payment.paymentMethod} •{' '}
+                                {new Date(
+                                  payment.paymentDate
+                                ).toLocaleDateString()}
+                              </p>
+                            </div>
+                            <div className='flex flex-col items-end'>
+                              <p className='text-sm font-medium'>
+                                {formatCurrency(payment.amountPaid)}
+                              </p>
+                              <p
+                                className={`text-xs ${payment.status === 'PAID' ? 'text-green-500' : 'text-amber-500'}`}
+                              >
+                                {payment.status}
+                              </p>
+                            </div>
+                          </div>
+                        )
+                      )}
+                      {(!dashboardOverview?.tenantActivity?.recentRents ||
+                        dashboardOverview.tenantActivity.recentRents.length ===
+                          0) && (
+                        <p className='py-4 text-center text-muted-foreground'>
+                          No recent rent payments found
+                        </p>
+                      )}
+                    </div>
+                  </ScrollArea>
+                </TabsContent>
+
+                <TabsContent value='advances'>
+                  <ScrollArea className='h-[200px]'>
+                    <div className='space-y-4'>
+                      {dashboardOverview?.tenantActivity?.recentAdvances?.map(
+                        (advance) => (
+                          <div
+                            key={advance.id}
+                            className='flex items-center gap-4'
+                          >
+                            <Avatar>
+                              <AvatarFallback>
+                                {advance.tenants.name
+                                  .substring(0, 2)
+                                  .toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className='flex-1 space-y-1'>
+                              <p className='text-sm font-medium leading-none'>
+                                {advance.tenants.name}
+                              </p>
+                              <p className='text-sm text-muted-foreground'>
+                                {advance.paymentMethod} •{' '}
+                                {new Date(
+                                  advance.paymentDate
+                                ).toLocaleDateString()}
+                              </p>
+                            </div>
+                            <div className='flex flex-col items-end'>
+                              <p className='text-sm font-medium'>
+                                {formatCurrency(advance.amountPaid)}
+                              </p>
+                              <p className='text-xs text-green-500'>Advance</p>
+                            </div>
+                          </div>
+                        )
+                      )}
+                      {(!dashboardOverview?.tenantActivity?.recentAdvances ||
+                        dashboardOverview.tenantActivity.recentAdvances
+                          .length === 0) && (
+                        <p className='py-4 text-center text-muted-foreground'>
+                          No recent advance payments found
+                        </p>
+                      )}
+                    </div>
+                  </ScrollArea>
+                </TabsContent>
+
+                <TabsContent value='refunds'>
+                  <ScrollArea className='h-[200px]'>
+                    <div className='space-y-4'>
+                      {dashboardOverview?.tenantActivity?.recentRefunds?.map(
+                        (refund) => (
+                          <div
+                            key={refund.id}
+                            className='flex items-center gap-4'
+                          >
+                            <Avatar>
+                              <AvatarFallback>
+                                {refund.tenants.name
+                                  .substring(0, 2)
+                                  .toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className='flex-1 space-y-1'>
+                              <p className='text-sm font-medium leading-none'>
+                                {refund.tenants.name}
+                              </p>
+                              <p className='text-sm text-muted-foreground'>
+                                Refund •{' '}
+                                {new Date(
+                                  refund.createdAt
+                                ).toLocaleDateString()}
+                              </p>
+                            </div>
+                            <div className='flex flex-col items-end'>
+                              <p className='text-sm font-medium'>
+                                {formatCurrency(refund.amountPaid)}
+                              </p>
+                              <p className='text-xs text-red-500'>Refund</p>
+                            </div>
+                          </div>
+                        )
+                      )}
+                      {(!dashboardOverview?.tenantActivity?.recentRefunds ||
+                        dashboardOverview.tenantActivity.recentRefunds
+                          .length === 0) && (
+                        <p className='py-4 text-center text-muted-foreground'>
+                          No recent refunds found
+                        </p>
+                      )}
+                    </div>
+                  </ScrollArea>
+                </TabsContent>
+
+                <TabsContent value='tenants'>
+                  <ScrollArea className='h-[200px]'>
+                    <div className='space-y-4'>
+                      <h3 className='text-sm font-medium'>Joined Last Month</h3>
+                      {dashboardOverview?.tenantActivity
+                        ?.lastMonthJoinedTenants &&
+                      dashboardOverview.tenantActivity.lastMonthJoinedTenants
+                        .length > 0 ? (
+                        // Safe to map since we've checked for existence and length
+                        dashboardOverview.tenantActivity.lastMonthJoinedTenants.map(
+                          (tenant) => (
+                            <div
+                              key={tenant.id}
+                              className='flex items-center gap-4'
+                            >
+                              <Avatar>
+                                <AvatarFallback>
+                                  {tenant.name.substring(0, 2).toUpperCase()}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className='flex-1 space-y-1'>
+                                <p className='text-sm font-medium leading-none'>
+                                  {tenant.name}
+                                </p>
+                                <p className='text-sm text-muted-foreground'>
+                                  {tenant.phoneNo} • Joined{' '}
+                                  {new Date(
+                                    tenant.createdAt
+                                  ).toLocaleDateString()}
+                                </p>
+                              </div>
+                              <div className='flex flex-col items-end'>
+                                <p className='text-xs text-green-500'>
+                                  Last Month
+                                </p>
+                              </div>
+                            </div>
+                          )
+                        )
+                      ) : (
+                        <p className='py-2 text-center text-xs text-muted-foreground'>
+                          No tenants joined last month
+                        </p>
+                      )}
+
+                      <h3 className='mt-4 text-sm font-medium'>
+                        Recently Joined (All)
+                      </h3>
+                      {dashboardOverview?.tenantActivity?.recentJoinedTenants?.map(
+                        (tenant) => (
+                          <div
+                            key={tenant.id}
+                            className='flex items-center gap-4'
+                          >
+                            <Avatar>
+                              <AvatarFallback>
+                                {tenant.name.substring(0, 2).toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className='flex-1 space-y-1'>
+                              <p className='text-sm font-medium leading-none'>
+                                {tenant.name}
+                              </p>
+                              <p className='text-sm text-muted-foreground'>
+                                {tenant.phoneNo} • Joined{' '}
+                                {new Date(
+                                  tenant.createdAt
+                                ).toLocaleDateString()}
+                              </p>
+                            </div>
+                            <div className='flex flex-col items-end'>
+                              <p className='text-xs text-green-500'>
+                                New Tenant
+                              </p>
+                            </div>
+                          </div>
+                        )
+                      )}
+                      {(!dashboardOverview?.tenantActivity
+                        ?.recentJoinedTenants ||
+                        dashboardOverview.tenantActivity.recentJoinedTenants
+                          .length === 0) && (
+                        <p className='py-4 text-center text-muted-foreground'>
+                          No recently joined tenants found
+                        </p>
+                      )}
+                    </div>
+                  </ScrollArea>
+                </TabsContent>
+              </Tabs>
             </CardContent>
           </Card>
         </div>

@@ -103,11 +103,15 @@ export const GET = async (req: NextRequest) => {
       const sharing = room.beds.length;
       const key = `${sharing} Sharing`;
       if (sharingCountMap[key]) {
-        sharingCountMap[key] + 1;
+        // Fix: This was not incrementing properly - it was calculating the value but not storing it
+        sharingCountMap[key] += 1;
       } else {
         sharingCountMap[key] = 1;
       }
     });
+
+    // Calculate total rooms correctly
+    const totalRooms = rooms.length;
     const totalRoomsPrice = rooms.reduce((total, room) => {
       const bedCount = room.beds.length;
       const roomRent = Number(room.rentPrice ?? 0);
@@ -261,10 +265,32 @@ export const GET = async (req: NextRequest) => {
       monthlyMap[month].monthlyExpenses += amount;
     }
 
-    // 5️⃣ Calculate net profit
+    // 5️⃣ Calculate net profit (accounting for refunds)
+    const refundsByMonth: Record<string, number> = {};
+
+    // Get refunds by month
+    const refundPayments = await prisma.refund_payments.findMany({
+      where: { pgId: Number(pgLocationId), isDeleted: false },
+      select: { amountPaid: true, createdAt: true }
+    });
+
+    // Process refunds by month
+    for (const refund of refundPayments) {
+      const month = formatMonth(refund.createdAt);
+      if (!month) continue;
+      const amount = Number(refund.amountPaid ?? 0);
+      if (!refundsByMonth[month]) {
+        refundsByMonth[month] = 0;
+      }
+      refundsByMonth[month] += amount;
+    }
+
+    // Calculate net profit (income - expenses - refunds)
     for (const month in monthlyMap) {
       const summary = monthlyMap[month];
-      summary.netProfit = summary.monthlyIncome - summary.monthlyExpenses;
+      const monthlyRefunds = refundsByMonth[month] || 0;
+      summary.netProfit =
+        summary.monthlyIncome - summary.monthlyExpenses - monthlyRefunds;
     }
     const financialOverviewArray = Object.entries(monthlyMap).map(
       ([month, summary]) => ({
@@ -275,7 +301,70 @@ export const GET = async (req: NextRequest) => {
     const occupiedCount = beds.filter((bed) => bed.tenants.length > 0).length;
     const vacantCount = beds.length - occupiedCount;
 
-    // Calculate total advances and refunds
+    // Define date ranges for this month and last month
+    const today = new Date();
+
+    // This month (1st day to current day)
+    const thisMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+    const thisMonthEnd = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate(),
+      23,
+      59,
+      59
+    );
+
+    // Last month (1st day to last day)
+    const lastMonth = today.getMonth() - 1;
+    const lastMonthYear = today.getFullYear() + (lastMonth < 0 ? -1 : 0);
+    const normalizedLastMonth = lastMonth < 0 ? 11 : lastMonth;
+    const lastMonthStart = new Date(lastMonthYear, normalizedLastMonth, 1);
+    const lastMonthEnd = new Date(
+      lastMonthYear,
+      normalizedLastMonth + 1,
+      0,
+      23,
+      59,
+      59
+    );
+
+    console.log(
+      'This month date range:',
+      thisMonthStart.toISOString(),
+      'to',
+      thisMonthEnd.toISOString()
+    );
+    console.log(
+      'Last month date range:',
+      lastMonthStart.toISOString(),
+      'to',
+      lastMonthEnd.toISOString()
+    );
+
+    // Calculate this month's advances (what the user wants)
+    const thisMonthAdvances = advancePayments
+      .filter((payment) => {
+        if (!payment.paymentDate) return false;
+        const paymentDate = new Date(payment.paymentDate);
+        return paymentDate >= thisMonthStart && paymentDate <= thisMonthEnd;
+      })
+      .reduce((total, payment) => {
+        return total + Number(payment.amountPaid || 0);
+      }, 0);
+
+    // Keep last month's advances for reference
+    const lastMonthAdvances = advancePayments
+      .filter((payment) => {
+        if (!payment.paymentDate) return false;
+        const paymentDate = new Date(payment.paymentDate);
+        return paymentDate >= lastMonthStart && paymentDate <= lastMonthEnd;
+      })
+      .reduce((total, payment) => {
+        return total + Number(payment.amountPaid || 0);
+      }, 0);
+
+    // Calculate total advances (all time)
     const totalAdvances = advancePayments.reduce((total, payment) => {
       return total + Number(payment.amountPaid || 0);
     }, 0);
@@ -288,15 +377,98 @@ export const GET = async (req: NextRequest) => {
       }
     });
 
+    // Get tenants joined in the last month
+    const lastMonthJoinedTenants = await prisma.tenants.findMany({
+      where: {
+        pgId: Number(pgLocationId),
+        isDeleted: false,
+        createdAt: {
+          gte: lastMonthStart,
+          lte: lastMonthEnd
+        }
+      },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phoneNo: true,
+        createdAt: true
+      }
+    });
+
+    // Get recently joined tenants (last 5, regardless of month)
+    const recentJoinedTenants = await prisma.tenants.findMany({
+      where: {
+        pgId: Number(pgLocationId),
+        isDeleted: false
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 5,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phoneNo: true,
+        createdAt: true
+      }
+    });
+
+    // We already defined the date range above
+
+    const lastMonthExpenses = await prisma.otherExpenses.findMany({
+      where: {
+        pgId: Number(pgLocationId),
+        isDeleted: false,
+        expenseDate: {
+          gte: lastMonthStart,
+          lte: lastMonthEnd
+        }
+      },
+      orderBy: {
+        expenseDate: 'desc'
+      },
+      select: {
+        id: true,
+        amount: true,
+        expenseDate: true,
+        description: true
+      }
+    });
+
+    console.log('Found last month expenses:', lastMonthExpenses.length);
+
+    const lastMonthTotalExpenses = lastMonthExpenses.reduce(
+      (total, expense) => {
+        const amount = Number(expense.amount || 0);
+        console.log(
+          'Expense amount:',
+          amount,
+          'Description:',
+          expense.description
+        );
+        return total + amount;
+      },
+      0
+    );
+
+    console.log('Total expenses calculated:', lastMonthTotalExpenses);
+
     // Prepare tenant activity data
     const tenantActivity = {
       newTenants: newTenantsCount,
       removedTenants: removedTenantsCount,
       totalAdvances: totalAdvances,
+      thisMonthAdvances: thisMonthAdvances, // Add this month's advances
+      lastMonthAdvances: lastMonthAdvances,
       totalRefunds: Number(totalRefunds._sum?.amountPaid || 0),
       recentRents: recentRentPayments,
       recentAdvances: recentAdvancePayments,
-      recentRefunds: recentRefundPayments
+      recentRefunds: recentRefundPayments,
+      recentJoinedTenants: recentJoinedTenants,
+      lastMonthJoinedTenants: lastMonthJoinedTenants,
+      lastMonthExpenses: lastMonthExpenses,
+      lastMonthTotalExpenses: lastMonthTotalExpenses
     };
 
     const summaryCard = {
@@ -305,7 +477,8 @@ export const GET = async (req: NextRequest) => {
       occupiedBeds: occupiedCount,
       availableBeds: vacantCount,
       totalRoomsPrice: totalRoomsPrice,
-      roomSharing: sharingCountMap
+      roomSharing: sharingCountMap,
+      totalRooms: totalRooms // Add the correct total rooms count
     };
 
     const result = {
