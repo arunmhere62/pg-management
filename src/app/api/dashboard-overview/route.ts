@@ -2,6 +2,7 @@ import prisma from '@/lib/prisma';
 import { BadRequestError, errorHandler } from '@/services/utils/error';
 import { NextRequest, NextResponse } from 'next/server';
 import dayjs from 'dayjs';
+import { Prisma } from '@prisma/client';
 
 const formatMonth = (date: Date | null) => {
   if (!date) return null;
@@ -12,6 +13,30 @@ type MonthlySummary = {
   monthlyIncome: number;
   monthlyExpenses: number;
   netProfit: number;
+};
+
+type RecentPayment = {
+  id: number;
+  tenantId: number;
+  amountPaid: number;
+  paymentDate: Date;
+  paymentMethod: string;
+  status: string;
+  tenants: {
+    id: number;
+    name: string;
+    phoneNumber: string;
+  };
+};
+
+type TenantActivity = {
+  newTenants: number;
+  removedTenants: number;
+  totalAdvances: number;
+  totalRefunds: number;
+  recentRents: RecentPayment[];
+  recentAdvances: any[];
+  recentRefunds: any[];
 };
 export const GET = async (req: NextRequest) => {
   try {
@@ -92,7 +117,19 @@ export const GET = async (req: NextRequest) => {
     const monthlyMap: Record<string, MonthlySummary> = {};
 
     // 1️⃣ Fetch all data
-    const [rentPayments, advancePayments, expenses] = await Promise.all([
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const [
+      rentPayments,
+      advancePayments,
+      expenses,
+      recentRentPayments,
+      recentAdvancePayments,
+      recentRefundPayments,
+      newTenantsCount,
+      removedTenantsCount
+    ] = await Promise.all([
       prisma.tenant_payments.findMany({
         where: { pgId: Number(pgLocationId), isDeleted: false },
         select: { amountPaid: true, paymentDate: true }
@@ -104,6 +141,78 @@ export const GET = async (req: NextRequest) => {
       prisma.otherExpenses.findMany({
         where: { pgId: Number(pgLocationId), isDeleted: false },
         select: { amount: true, expenseDate: true }
+      }),
+      // Recent rent payments (last 5)
+      prisma.tenant_payments.findMany({
+        where: { pgId: Number(pgLocationId), isDeleted: false },
+        orderBy: { paymentDate: 'desc' },
+        take: 5,
+        include: {
+          tenants: {
+            select: {
+              id: true,
+              name: true,
+              // Use fields that exist in your schema
+              email: true,
+              phoneNo: true
+            }
+          }
+        }
+      }),
+      // Recent advance payments (last 5)
+      prisma.advance_payments.findMany({
+        where: { pgId: Number(pgLocationId), isDeleted: false },
+        orderBy: { paymentDate: 'desc' },
+        take: 5,
+        include: {
+          tenants: {
+            select: {
+              id: true,
+              name: true,
+              // Use fields that exist in your schema
+              email: true,
+              phoneNo: true
+            }
+          }
+        }
+      }),
+      // Recent refund payments (last 5)
+      prisma.refund_payments.findMany({
+        where: { pgId: Number(pgLocationId), isDeleted: false },
+        // Use a field that exists in your schema
+        orderBy: { createdAt: 'desc' },
+        take: 5,
+        include: {
+          tenants: {
+            select: {
+              id: true,
+              name: true,
+              // Use fields that exist in your schema
+              email: true,
+              phoneNo: true
+            }
+          }
+        }
+      }),
+      // New tenants in last 30 days
+      prisma.tenants.count({
+        where: {
+          pgId: Number(pgLocationId),
+          isDeleted: false,
+          createdAt: {
+            gte: thirtyDaysAgo
+          }
+        }
+      }),
+      // Removed tenants in last 30 days
+      prisma.tenants.count({
+        where: {
+          pgId: Number(pgLocationId),
+          isDeleted: true,
+          updatedAt: {
+            gte: thirtyDaysAgo
+          }
+        }
       })
     ]);
 
@@ -166,6 +275,30 @@ export const GET = async (req: NextRequest) => {
     const occupiedCount = beds.filter((bed) => bed.tenants.length > 0).length;
     const vacantCount = beds.length - occupiedCount;
 
+    // Calculate total advances and refunds
+    const totalAdvances = advancePayments.reduce((total, payment) => {
+      return total + Number(payment.amountPaid || 0);
+    }, 0);
+
+    const totalRefunds = await prisma.refund_payments.aggregate({
+      where: { pgId: Number(pgLocationId), isDeleted: false },
+      _sum: {
+        // Use a field that exists in your schema
+        amountPaid: true
+      }
+    });
+
+    // Prepare tenant activity data
+    const tenantActivity = {
+      newTenants: newTenantsCount,
+      removedTenants: removedTenantsCount,
+      totalAdvances: totalAdvances,
+      totalRefunds: Number(totalRefunds._sum?.amountPaid || 0),
+      recentRents: recentRentPayments,
+      recentAdvances: recentAdvancePayments,
+      recentRefunds: recentRefundPayments
+    };
+
     const summaryCard = {
       totalTenant: totalTenant,
       totalBeds: beds?.length,
@@ -174,9 +307,11 @@ export const GET = async (req: NextRequest) => {
       totalRoomsPrice: totalRoomsPrice,
       roomSharing: sharingCountMap
     };
+
     const result = {
       financialOverview: financialOverviewArray,
-      summaryCard: summaryCard
+      summaryCard: summaryCard,
+      tenantActivity: tenantActivity
     };
 
     return NextResponse.json({ data: result, status: 200, message: 'Success' });
@@ -184,71 +319,3 @@ export const GET = async (req: NextRequest) => {
     return errorHandler(error);
   }
 };
-
-// {
-//     "dashboard": {
-//       "summaryCards": [
-//         {
-//           "title": "Total Tenants",
-//           "value": 120,
-//         },
-//         {
-//           "title": "Occupied Beds",
-//           "value": 115,
-//         },
-//         {
-//           "title": "Available Beds",
-//           "value": 15,
-//         },
-//         {
-//           "title": "Total Employees",
-//           "value": 10,
-//         }
-//       ],
-//       "financialOverview": {
-//         "monthlyIncome": 250000,
-//         "monthlyExpenses": 150000,
-//         "netProfit": 100000,
-//       },
-//       "recentJoins": [
-//         {
-//           "tenantName": "John Doe",
-//           "activity": "Checked In",
-//           "date": "2025-04-04",
-//           "roomNo": "A-201",
-//           "bedNo": "B-01"
-//         },
-//         {
-//           "tenantName": "Jane Smith",
-//           "activity": "Checked Out",
-//           "date": "2025-04-03",
-//           "roomNo": "B-102",
-//           "bedNo": "B-03"
-//         }
-//       ],
-//       "expensesBreakdown": [
-//         {
-//           "expenseType": "Utilities",
-//           "amount": 50000
-//         },
-//         {
-//           "expenseType": "Maintenance",
-//           "amount": 30000
-//         },
-//         {
-//           "expenseType": "Salary",
-//           "amount": 70000
-//         }
-//       ],
-//       "alerts": [
-//         {
-//           "type": "Pending Payments",
-//           "count": 12
-//         },
-//         {
-//           "type": "Upcoming Check-outs",
-//           "count": 5
-//         }
-//       ]
-//     }
-//   }
