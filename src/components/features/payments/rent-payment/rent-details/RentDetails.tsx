@@ -129,7 +129,6 @@ const RentDetails = ({ id }: { id: string }) => {
               {formatDateToDDMMYYYY(rentDetails?.endDate ?? '')}
             </p>
           </div>
-
           <div className='mb-5 flex justify-between'>
             <p className='font-semibold'>Updated At:</p>
             <p className=''>

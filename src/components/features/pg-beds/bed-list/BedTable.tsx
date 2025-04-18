@@ -300,7 +300,7 @@ const BedsList = () => {
         />
       </div>
       <Modal
-        contentClassName='w-fit rounded-lg sm:w-full'
+        contentClassName='w-[95%] rounded-lg sm:w-full'
         isOpen={openBedRemoveConfirmModal}
         title=''
         onClose={() => {

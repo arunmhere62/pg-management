@@ -44,12 +44,12 @@ export interface IRoomListProps {
 const RoomsList = () => {
   const router = useRouter();
   const [roomsList, setRoomsList] = useState<IRoomListProps[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [tableLoading, setTableLoading] = useState(false);
   const [openBedModal, setOpenBedModal] = useState<boolean>(false);
   useSetBreadcrumbs([{ title: 'Rooms', link: '/' }]);
   useEffect(() => {
     const getPgList = async () => {
-      setLoading(true);
+      setTableLoading(true);
       try {
         const res = await fetchRoomsList();
         if (res.data) {
@@ -78,7 +78,7 @@ const RoomsList = () => {
 
         toast.error(errorMessage);
       } finally {
-        setLoading(false);
+        setTableLoading(false);
       }
     };
     getPgList();
@@ -251,7 +251,7 @@ const RoomsList = () => {
         <GridTable
           columns={columns}
           rows={roomsList || []}
-          loading={loading}
+          loading={tableLoading}
           rowHeight={90}
           showToolbar={true}
           hideFooter={false}

@@ -31,9 +31,11 @@ const PgList = () => {
   const [pgListData, setPgListData] = useState<IPgListProps[]>([]);
   const [pgDetails, setPgDetails] = useState<IPgListProps>();
   const [openPgDetails, setOpenPgDetails] = useState<boolean>(false);
+  const [tableLoading, setTableLoading] = useState<boolean>(false);
   useSetBreadcrumbs([{ title: 'Pg Location', link: '/pg-location' }]);
   useEffect(() => {
     const getPgList = async () => {
+      setTableLoading(true);
       try {
         const res = await fetchPgLocationsList();
         const formattedRes = res.data.map((data: IPgListProps) => ({
@@ -52,6 +54,8 @@ const PgList = () => {
         setPgListData(formattedRes);
       } catch (error) {
         throw error;
+      } finally {
+        setTableLoading(false);
       }
     };
     getPgList();
@@ -94,27 +98,27 @@ const PgList = () => {
         // </div>
       )
     },
-    {
-      field: 'images',
-      headerName: 'Profile',
-      minWidth: 150,
-      renderCell: (params: any) => {
-        const image = params?.value?.[0] || [];
-        return image ? (
-          <div className='mt-2.5'>
-            <Image
-              src={image}
-              alt='Profile'
-              width={50}
-              height={50}
-              className='h-[40px] w-[60px] rounded-md object-cover'
-            />
-          </div>
-        ) : (
-          <span>No Image</span>
-        );
-      }
-    },
+    // {
+    //   field: 'images',
+    //   headerName: 'Profile',
+    //   minWidth: 150,
+    //   renderCell: (params: any) => {
+    //     const image = params?.value?.[0] || [];
+    //     return image ? (
+    //       <div className='mt-2.5'>
+    //         <Image
+    //           src={image}
+    //           alt='Profile'
+    //           width={50}
+    //           height={50}
+    //           className='h-[40px] w-[60px] rounded-md object-cover'
+    //         />
+    //       </div>
+    //     ) : (
+    //       <span>No Image</span>
+    //     );
+    //   }
+    // },
     {
       field: 'locationName',
       headerName: 'Location Name',
@@ -147,7 +151,7 @@ const PgList = () => {
           tableHeight='560px'
           columns={columns}
           rows={pgListData}
-          loading={false}
+          loading={tableLoading}
           rowHeight={80}
           showToolbar={true}
           hideFooter={false}

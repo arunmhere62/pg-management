@@ -84,6 +84,8 @@ export const AdvancePaymentTable = () => {
   const [advancePaymentList, setAdvancePaymentList] = useState<
     IAdvancePaymentListProps[]
   >([]);
+  const [tableLoading, setTableLoading] = useState<boolean>(false);
+
   const [openReceiptDownloadModal, setOpenReceiptDownloadModal] =
     useState<boolean>(false);
   const [openReceiptUploadModal, setOpenReceiptUploadModal] =
@@ -102,6 +104,7 @@ export const AdvancePaymentTable = () => {
 
   useSetBreadcrumbs([{ title: 'Advance', link: '/payment/advance' }]);
   const getPayments = async () => {
+    setTableLoading(true);
     try {
       const res = await fetchAdvanceList();
       if (res.data) {
@@ -119,6 +122,8 @@ export const AdvancePaymentTable = () => {
       }
     } catch (error) {
       toast.error('Fetching the payments list failed try again later');
+    } finally {
+      setTableLoading(false);
     }
   };
   useEffect(() => {
@@ -343,7 +348,7 @@ export const AdvancePaymentTable = () => {
           tableHeight='520px'
           columns={columns}
           rows={advancePaymentList}
-          loading={false}
+          loading={tableLoading}
           rowHeight={80}
           showToolbar={true}
           hideFooter={false}
@@ -372,13 +377,13 @@ export const AdvancePaymentTable = () => {
         <AdvanceReceiptForm />
       </Modal>
       <Modal
-        contentClassName='w-fit rounded-lg sm:w-full'
+        contentClassName='w-[95%] rounded-lg sm:w-full'
         isOpen={openAdvanceRemoveConfirmModal}
         title=''
         onClose={() => {
           setOpenAdvanceRemoveConfirmModal(false);
         }}
-        description='Are you sure you want to remove this tenant?'
+        description='Are you sure you want to remove this advance payment?'
       >
         <div className='flex w-full items-center justify-center gap-4'>
           <Button

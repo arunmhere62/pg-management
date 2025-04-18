@@ -1,5 +1,6 @@
 'use client';
 
+import { ImageCarousel } from '@/components/ui/ImageCarousel';
 import { Separator } from '@/components/ui/separator';
 import { useSetBreadcrumbs } from '@/hooks/use-breadcrumbs';
 import { cn } from '@/lib/utils';
@@ -13,6 +14,8 @@ import {
 import { fetchBedById } from '@/services/utils/api/bed-api';
 import { fetchAdvanceById } from '@/services/utils/api/payment/advance-api';
 import { fetchRentById } from '@/services/utils/api/payment/rent-api';
+import { formatDateToDDMMYYYY } from '@/services/utils/formaters';
+import { IndianRupee } from 'lucide-react';
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -52,29 +55,12 @@ const AdvanceDetails = ({ id }: { id: string }) => {
         <p className='mb-5 mt-2'>Explore the complete details of this rent. </p>
         <Separator className='mb-6' />
       </div>
-      <div className='col-span-12 rounded-xl border p-3 sm:col-span-4'>
-        <div
-          className='h-[500px] w-full overflow-y-scroll'
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-        >
-          {advanceDetails?.tenants.images?.map((img: string, index: number) => (
-            <div key={index}>
-              <Image
-                alt=''
-                src={img}
-                width={1000}
-                height={1000}
-                className='h-[300px] w-full rounded-lg object-contain'
-              />
-            </div>
-          ))}
-        </div>
-      </div>
+      <div className='col-span-12 rounded-xl border p-3 sm:col-span-6'>
+        <h1 className='mb-4 text-[20px] font-bold'>Tenant Details</h1>
+        <Separator className='mb-4' />
+        <ImageCarousel images={advanceDetails?.tenants.images || []} />
 
-      <div className='col-span-12 sm:col-span-4'>
-        <div className='rounded-xl border p-5'>
-          <h1 className='mb-4 text-[20px] font-bold'>Tenant Details</h1>
-          <Separator className='mb-4' />
+        <div className='rounded-xl p-5'>
           <div className='mb-5 flex justify-between'>
             <p className='w-[100px] font-semibold'>Tenant Name</p>
             <p className=''>{advanceDetails?.tenants?.name}</p>
@@ -98,16 +84,22 @@ const AdvanceDetails = ({ id }: { id: string }) => {
           </div>
           <div className='mb-5 flex justify-between'>
             <p className='font-semibold'>Status:</p>
-            <p className={cn('w-fit rounded-lg px-3 py-0.5 text-[14px]')}>
+            <p
+              className={cn(
+                advanceDetails?.status === 'PAID'
+                  ? 'activeBadge'
+                  : 'inactiveBadge'
+              )}
+            >
               {advanceDetails?.tenants?.status.toLocaleUpperCase()}
             </p>
           </div>
         </div>
-        {/* Created At */}
       </div>
-      <div className='col-span-12 sm:col-span-4'>
+
+      <div className='col-span-12 sm:col-span-6'>
         <div className='rounded-xl border p-5'>
-          <h1 className='mb-4 text-[20px] font-bold'>PG Details</h1>
+          <h1 className='mb-4 text-[20px] font-bold'>Advance Details</h1>
           <Separator className='mb-4' />
           <div className='mb-5 flex justify-between'>
             <p className='w-[100px] font-semibold'>Pg Location</p>
@@ -125,17 +117,42 @@ const AdvanceDetails = ({ id }: { id: string }) => {
 
           <div className='mb-5 flex justify-between'>
             <p className='font-semibold'>Status:</p>
-            <p className={cn('w-fit rounded-lg px-3 py-0.5 text-[14px]')}>
+            <p
+              className={cn(
+                advanceDetails?.status === 'PAID'
+                  ? 'activeBadge'
+                  : 'inactiveBadge'
+              )}
+            >
               {advanceDetails?.status?.toLocaleUpperCase()}
             </p>
           </div>
           <div className='mb-5 flex justify-between'>
             <p className='font-semibold'>Updated At:</p>
-            <p className=''>{advanceDetails?.updatedAt}</p>
+            <p className=''>
+              {formatDateToDDMMYYYY(advanceDetails?.updatedAt ?? '')}
+            </p>
           </div>
-          <div className='flex justify-between'>
+          <div className='mb-5 flex justify-between'>
             <p className='font-semibold'>Created At:</p>
-            <p className=''>{advanceDetails?.createdAt}</p>
+            <p className=''>
+              {formatDateToDDMMYYYY(advanceDetails?.createdAt ?? '')}
+            </p>
+          </div>
+          <div className='mb-5 flex justify-between'>
+            <p className='font-semibold'>Advance Amount:</p>
+            <p className='flex'>
+              <IndianRupee className='w-4' />
+              {advanceDetails?.amountPaid}
+            </p>
+          </div>
+          <div className='mb-5 flex justify-between'>
+            <p className='font-semibold'> Current Bill:</p>
+            <p className='flex'>
+              {' '}
+              <IndianRupee className='w-4' />
+              {advanceDetails?.currentBill ?? 'N/A'}
+            </p>
           </div>
         </div>
       </div>

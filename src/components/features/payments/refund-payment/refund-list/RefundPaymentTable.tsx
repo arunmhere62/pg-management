@@ -56,6 +56,7 @@ export const RefundPaymentTable = () => {
   const [refundPaymentList, setRefundPaymentList] = useState<
     IRefundPaymentListProps[]
   >([]);
+  const [tableLoading, setTableLoading] = useState<boolean>(false);
   const [openReceiptDownloadModal, setOpenReceiptDownloadModal] =
     useState<boolean>(false);
   const [openReceiptUploadModal, setOpenReceiptUploadModal] =
@@ -68,6 +69,7 @@ export const RefundPaymentTable = () => {
 
   useSetBreadcrumbs([{ title: 'Refund', link: '/payment/refund' }]);
   const getRefunds = async () => {
+    setTableLoading(true);
     try {
       const res = await fetchRefundList();
       if (res.data) {
@@ -85,6 +87,8 @@ export const RefundPaymentTable = () => {
       }
     } catch (error) {
       toast.error('Fetching the Refunds list failed try again later');
+    } finally {
+      setTableLoading(false);
     }
   };
   useEffect(() => {
@@ -278,7 +282,7 @@ export const RefundPaymentTable = () => {
           tableHeight='550px'
           columns={columns}
           rows={refundPaymentList}
-          loading={false}
+          loading={tableLoading}
           rowHeight={80}
           showToolbar={true}
           hideFooter={false}
@@ -296,7 +300,7 @@ export const RefundPaymentTable = () => {
         <RefundReceipt tenantPaymentDetails={tenantPaymentDetails} />
       </Modal>
       <Modal
-        contentClassName='w-fit rounded-lg sm:w-full'
+        contentClassName='w-[95%] rounded-lg sm:w-full'
         isOpen={openReceiptUploadModal}
         title='Refund Payment Receipt'
         onClose={() => {
@@ -307,7 +311,7 @@ export const RefundPaymentTable = () => {
         <RefundReceiptForm />
       </Modal>
       <Modal
-        contentClassName='w-fit rounded-lg sm:w-full'
+        contentClassName='w-[95%] rounded-lg sm:w-full'
         isOpen={openRefundRemoveConfirmModal}
         title=''
         onClose={() => {

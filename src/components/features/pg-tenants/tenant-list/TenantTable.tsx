@@ -67,6 +67,8 @@ interface ITenantListProps {
 const TenantList = () => {
   const router = useRouter();
   const [tenantList, setTenantList] = useState<ITenantListProps[]>([]);
+  const [tableLoading, setTableLoading] = useState<boolean>(false);
+
   const [selectedTenantId, setSelectedTenantId] = useState<number | null>(null);
   const [selectedMonth, setSelectedMonth] = useState<string>('this_month');
   const [filteredTenantData, setFilteredTenantData] = useState<
@@ -77,6 +79,7 @@ const TenantList = () => {
     useState<boolean>(false);
   useSetBreadcrumbs([{ title: 'Tenant', link: '/tenant' }]);
   const getTenants = async () => {
+    setTableLoading(true);
     try {
       const res = await fetchTenantsList({ isDeleted: 'false' });
       const formattedRes = res.data.map((d: ITenantListProps) => {
@@ -98,6 +101,8 @@ const TenantList = () => {
       }
     } catch (error) {
       throw new Error('Fetching the tenant list failed');
+    } finally {
+      setTableLoading(false);
     }
   };
   useEffect(() => {
@@ -159,7 +164,7 @@ const TenantList = () => {
       if (selectedTenantId) {
         const res = await removeTenant(String(selectedTenantId));
         if (res.status === 200) {
-          toast.success('Bed is deleted successfully!');
+          toast.success('Tenant removed from bed successfully!');
           getTenants();
         }
       }
@@ -450,14 +455,14 @@ const TenantList = () => {
           tableHeight='550px'
           columns={columns}
           rows={filteredTenantData ?? tenantList}
-          loading={false}
+          loading={tableLoading}
           rowHeight={80}
           showToolbar={true}
           hideFooter={false}
         />
       </div>
       <Modal
-        contentClassName='w-fit rounded-lg sm:w-full'
+        contentClassName='w-[95%] rounded-lg sm:w-full'
         isOpen={openTenantRemoveConfirmModal}
         title=''
         onClose={() => {

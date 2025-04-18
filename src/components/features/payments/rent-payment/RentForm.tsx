@@ -13,7 +13,10 @@ import { ITenantListSelectProps, TenantDataProps } from '.';
 import Image from 'next/image';
 import { Separator } from '@/components/ui/separator';
 import { IndianRupee } from 'lucide-react';
-import { formatDateToDDMMYYYY } from '@/services/utils/formaters';
+import {
+  formatDateToDDMMYYYY,
+  formatDateToMonDDYYYY
+} from '@/services/utils/formaters';
 
 interface IRentPaymentFromProps {
   initialValue: {
@@ -56,6 +59,14 @@ export default function RentForm({
       <div className='grid grid-cols-1 sm:gap-6 md:grid-cols-2'>
         {/* Left Section - Form */}
         <div className='col-span-1 sm:space-y-5'>
+          {tenantDetails && (
+            <h1 className='mb-3 flex justify-between rounded-lg bg-[#f0f0f0] p-2'>
+              Tenant&rsquo;s Check In Date{' '}
+              <span className='font-bold'>
+                {formatDateToMonDDYYYY(tenantDetails?.checkInDate ?? '')}
+              </span>
+            </h1>
+          )}
           <FormField
             control={control}
             name='tenantId'

@@ -16,6 +16,7 @@ import RentForm from './RentForm';
 import { createRent, updateRent } from '@/services/utils/api/payment/rent-api';
 import { fetchTenantsList } from '@/services/utils/api/tenant-api';
 import { useSetBreadcrumbs } from '@/hooks/use-breadcrumbs';
+import { Modal } from '@/components/ui/modal';
 
 export const rentPaymentFormSchema = z
   .object({
@@ -96,6 +97,11 @@ const MainRentPayment = ({
   const [tenantDetails, setTenantDetails] = useState<TenantDataProps | null>(
     null
   );
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [formValues, setFormValues] = useState<z.infer<
+    typeof rentPaymentFormSchema
+  > | null>(null);
+
   const [paymentDetails, setPaymentDetails] = useState({
     status: '',
     paymentDate: '',
@@ -254,9 +260,6 @@ const MainRentPayment = ({
           <CardTitle className='pb-4 text-left text-[20px] font-bold sm:text-2xl'>
             {pageTitle}
           </CardTitle>
-          <Button type='submit' form='payment-form'>
-            {mode === 'create' ? 'Add Payment' : 'Save'}
-          </Button>
         </div>
         <Separator />
       </CardHeader>
@@ -264,7 +267,10 @@ const MainRentPayment = ({
         <Form {...form}>
           <form
             id='payment-form'
-            onSubmit={form.handleSubmit(onSubmit)}
+            onSubmit={form.handleSubmit((values) => {
+              setFormValues(values);
+              setShowConfirmation(true);
+            })}
             className='space-y-8'
           >
             <RentForm
@@ -276,9 +282,78 @@ const MainRentPayment = ({
               onSubmit={onSubmit}
               control={form.control}
             />
+            <div className='w-full text-right'>
+              <Button className='' type='submit' form='payment-form'>
+                {mode === 'create' ? 'Add Payment' : 'Save'}
+              </Button>
+            </div>
           </form>
         </Form>
       </CardContent>
+      <Modal
+        isOpen={showConfirmation}
+        title='Confirm Submission'
+        onClose={() => setShowConfirmation(false)}
+        contentClassName='w-[90%] sm:w-full rounded-lg'
+        description=''
+      >
+        <p>Are you sure you want to submit this rent payment?</p>
+        <div className='mt-4 space-y-4'>
+          <div className='rounded-md border p-6 shadow-sm'>
+            <h2 className='mb-4 text-lg font-semibold text-gray-800'>
+              Please confirm the payment details
+            </h2>
+
+            <div className='space-y-4 text-sm text-gray-700'>
+              <div className='flex justify-between'>
+                <span className='font-medium'>Tenant Name:</span>
+                <span>{tenantDetails?.name ?? 'N/A'}</span>
+              </div>
+              <div className='flex justify-between'>
+                <span className='font-medium'>Payment Method:</span>
+                <span>{paymentDetails?.paymentMethod ?? 'N/A'}</span>
+              </div>
+              <div className='flex justify-between'>
+                <span className='font-medium'>Payment Date:</span>
+                <span>{paymentDetails?.paymentDate ?? 'N/A'}</span>
+              </div>
+              <div className='flex justify-between'>
+                <span className='font-medium'>Rent Amount:</span>
+                <span>₹{tenantDetails?.rooms.rentPrice ?? 'N/A'}</span>
+              </div>
+              <div className='flex justify-between'>
+                <span className='font-medium'>Amount Paying:</span>
+                <span>₹{paymentDetails?.amountPaid ?? 'N/A'}</span>
+              </div>
+              <div className='flex justify-between md:col-span-2'>
+                <span className='font-medium'>Remarks:</span>
+                <span className='text-right'>
+                  {paymentDetails?.remarks || 'N/A'}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className='mt-4 flex justify-end gap-4'>
+            <Button
+              variant='outline'
+              onClick={() => setShowConfirmation(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                if (formValues) {
+                  onSubmit(formValues);
+                }
+                setShowConfirmation(false);
+              }}
+            >
+              Confirm Payment
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </Card>
   );
 };

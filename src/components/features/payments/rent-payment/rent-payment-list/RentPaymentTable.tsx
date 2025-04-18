@@ -99,6 +99,7 @@ const RentPaymentList = () => {
   const [rentPaymentList, setRentPaymentList] = useState<
     IRentPaymentListProps[]
   >([]);
+  const [tableLoading, setTableLoading] = useState<boolean>(false);
   const [openReceiptDownloadModal, setOpenReceiptDownloadModal] =
     useState<boolean>(false);
   const [openReceiptUploadModal, setOpenReceiptUploadModal] =
@@ -156,6 +157,7 @@ const RentPaymentList = () => {
   }, [selectedMonth, rentPaymentList]);
 
   const getPayments = async () => {
+    setTableLoading(true);
     try {
       const res = await fetchRentsList();
       if (res.data) {
@@ -173,6 +175,8 @@ const RentPaymentList = () => {
       }
     } catch (error) {
       toast.error('Fetching the payments list failed try again later');
+    } finally {
+      setTableLoading(false);
     }
   };
 
@@ -419,7 +423,7 @@ const RentPaymentList = () => {
           tableHeight='530px'
           columns={columns}
           rows={filteredPaymentData ?? rentPaymentList}
-          loading={false}
+          loading={tableLoading}
           rowHeight={80}
           showToolbar={true}
           hideFooter={false}
@@ -455,7 +459,7 @@ const RentPaymentList = () => {
         onClose={() => {
           setOpenRentRemoveConfirmModal(false);
         }}
-        description='Are you sure you want to delete the Advance Payment?'
+        description='Are you sure you want to delete the Rent Payment?'
       >
         <div className='flex w-full items-center justify-center gap-4'>
           <Button
