@@ -121,6 +121,15 @@ export const navItems: NavItem[] = [
     shortcut: ['e', 'm'],
     items: [],
     roles: ['ADMIN']
+  },
+  {
+    title: 'Employee Salary',
+    url: '/employee-salary',
+    icon: 'users',
+    isActive: false,
+    shortcut: ['e', 'm'],
+    items: [],
+    roles: ['ADMIN']
   }
 ];
 

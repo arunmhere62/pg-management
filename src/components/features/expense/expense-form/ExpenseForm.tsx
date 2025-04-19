@@ -111,7 +111,7 @@ export default function ExpenseForm({
           name='remarks'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Remarks</FormLabel>
+              <FormLabel>Description</FormLabel>
               <FormControl>
                 <Input type='text' placeholder='Enter Remarks' {...field} />
               </FormControl>

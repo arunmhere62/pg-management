@@ -141,9 +141,7 @@ const ExpensesList = () => {
       headerName: 'Payment Method',
       minWidth: 150,
       renderCell: (params: any) => (
-        <span className='rounded-lg bg-[#fff1bb] px-2 py-1 font-bold text-[#000000]'>
-          {params.value}
-        </span>
+        <span className='paymentBadge'>{params.value}</span>
       )
     },
     {

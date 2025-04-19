@@ -8,34 +8,35 @@ datasource db {
 }
 
 model users {
-  id                                               Int            @id @default(autoincrement()) @map("s_no")
-  name                                             String         @db.VarChar(100)
-  email                                            String         @unique(map: "email") @db.VarChar(100)
-  password                                         String         @db.VarChar(255)
-  phone                                            String?        @db.VarChar(15)
-  status                                           users_status?  @default(ACTIVE)
-  createdAt                                        DateTime?      @default(now()) @map("created_at") @db.Timestamp(0)
-  updatedAt                                        DateTime?      @default(now()) @map("updated_at") @db.Timestamp(0)
-  roleId                                           Int            @map("role_id")
-  pgId                                             Int?           @map("pg_id")
-  isDeleted                                        Boolean?       @default(false) @map("is_deleted")
-  organizationId                                   Int            @map("organization_id")
-  address                                          String?        @db.VarChar(255)
-  cityId                                           Int?           @map("city_id")
-  stateId                                          Int?           @map("state_id")
-  pincode                                          String?        @db.VarChar(20)
-  country                                          String?        @db.VarChar(100)
+  id                                               Int              @id @default(autoincrement()) @map("s_no")
+  name                                             String           @db.VarChar(100)
+  email                                            String           @unique(map: "email") @db.VarChar(100)
+  password                                         String           @db.VarChar(255)
+  phone                                            String?          @db.VarChar(15)
+  status                                           users_status?    @default(ACTIVE)
+  createdAt                                        DateTime?        @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt                                        DateTime?        @default(now()) @map("updated_at") @db.Timestamp(0)
+  roleId                                           Int              @map("role_id")
+  pgId                                             Int?             @map("pg_id")
+  isDeleted                                        Boolean?         @default(false) @map("is_deleted")
+  organizationId                                   Int              @map("organization_id")
+  address                                          String?          @db.VarChar(255)
+  cityId                                           Int?             @map("city_id")
+  stateId                                          Int?             @map("state_id")
+  pincode                                          String?          @db.VarChar(20)
+  country                                          String?          @db.VarChar(100)
   gender                                           users_gender?
-  proofDocuments                                   Json?          @map("proof_documents")
-  profileImages                                    Json?          @map("profile_images")
-  organization_organization_created_byTousers      organization[] @relation("organization_created_byTousers")
-  organization_organization_deleted_byTousers      organization[] @relation("organization_deleted_byTousers")
-  organization_organization_updated_byTousers      organization[] @relation("organization_updated_byTousers")
+  proofDocuments                                   Json?            @map("proof_documents")
+  profileImages                                    Json?            @map("profile_images")
+  employee_salary                                  EmployeeSalary[]
+  organization_organization_created_byTousers      organization[]   @relation("organization_created_byTousers")
+  organization_organization_deleted_byTousers      organization[]   @relation("organization_deleted_byTousers")
+  organization_organization_updated_byTousers      organization[]   @relation("organization_updated_byTousers")
   pgLocations                                      pg_locations[]
-  city                                             city?          @relation(fields: [cityId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_users_city")
-  organization_users_organization_idToorganization organization   @relation("users_organization_idToorganization", fields: [organizationId], references: [id], onDelete: Cascade, map: "fk_users_organization")
-  roles                                            roles          @relation(fields: [roleId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_users_role")
-  state                                            state?         @relation(fields: [stateId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_users_state")
+  city                                             city?            @relation(fields: [cityId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_users_city")
+  organization_users_organization_idToorganization organization     @relation("users_organization_idToorganization", fields: [organizationId], references: [id], onDelete: Cascade, map: "fk_users_organization")
+  roles                                            roles            @relation(fields: [roleId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_users_role")
+  state                                            state?           @relation(fields: [stateId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_users_state")
 
   @@index([roleId], map: "fk_users_role")
   @@index([organizationId], map: "fk_users_organization")
@@ -79,6 +80,7 @@ model pg_locations {
   organizationId  Int                  @map("organization_id")
   advancePayments advance_payments[]
   beds            beds[]
+  employee_salary EmployeeSalary[]
   expenses        expenses[]
   city            city?                @relation(fields: [cityId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_city")
   organization    organization         @relation(fields: [organizationId], references: [id], onDelete: Cascade, map: "fk_pg_organization")
@@ -98,18 +100,18 @@ model pg_locations {
 }
 
 model expenses {
-  id            Int           @id @default(autoincrement()) @map("s_no")
-  pgId          Int?          @map("pg_id")
-  expenseType   String?       @map("expense_type") @db.VarChar(100)
-  amount        Decimal?      @db.Decimal(10, 2)
-  paidTo        String?       @map("paid_to") @db.VarChar(100)
-  paidDate      DateTime?     @map("paid_date") @db.Date
-  paymentMethod String?       @map("payment_method") @db.VarChar(50)
-  remarks       String?       @db.VarChar(255)
-  createdAt     DateTime?     @default(now()) @map("created_at") @db.Timestamp(0)
-  updatedAt     DateTime?     @default(now()) @map("updated_at") @db.Timestamp(0)
-  isDeleted     Boolean?      @default(false) @map("is_deleted")
-  pgLocations   pg_locations? @relation(fields: [pgId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "expenses_ibfk_1")
+  id            Int                      @id @default(autoincrement()) @map("s_no")
+  pgId          Int?                     @map("pg_id")
+  expenseType   String?                  @map("expense_type") @db.VarChar(100)
+  amount        Decimal?                 @db.Decimal(10, 2)
+  paidTo        String?                  @map("paid_to") @db.VarChar(100)
+  paidDate      DateTime?                @map("paid_date") @db.Date
+  paymentMethod expenses_payment_method? @default(CASH) @map("payment_method")
+  remarks       String?                  @db.VarChar(255)
+  createdAt     DateTime?                @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt     DateTime?                @default(now()) @map("updated_at") @db.Timestamp(0)
+  isDeleted     Boolean?                 @default(false) @map("is_deleted")
+  pgLocations   pg_locations?            @relation(fields: [pgId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "expenses_ibfk_1")
 
   @@index([pgId], map: "pg_location_id")
 }
@@ -383,6 +385,28 @@ model organization {
   @@index([updatedBy], map: "fk_org_updated_by")
 }
 
+model EmployeeSalary {
+  id            Int                             @id @default(autoincrement()) @map("s_no")
+  userId        Int                             @map("user_id")
+  salaryAmount  Decimal                         @map("salary_amount") @db.Decimal(10, 2)
+  month         Int
+  year          Int
+  paidDate      DateTime?                       @map("paid_date") @db.Date
+  paymentMethod employee_salary_payment_method? @map("payment_method")
+  remarks       String?                         @db.VarChar(255)
+  isDeleted     Boolean?                        @default(false) @map("is_deleted")
+  createdAt     DateTime?                       @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt     DateTime?                       @default(now()) @map("updated_at") @db.Timestamp(0)
+  pgId         Int? @map("pg_id")
+  pg_locations  pg_locations?                   @relation(fields: [pgId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_pg_location_id")
+  users         users                           @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_user_id")
+
+  @@unique([userId, month, year], map: "unique_user_month_year")
+  @@index([userId], map: "idx_user_id")
+  @@index([pgId], map: "fk_pg_location_id")
+  @@map("employee_salary")
+}
+
 enum roles_status {
   ACTIVE
   INACTIVE
@@ -459,4 +483,18 @@ enum users_status {
 enum users_gender {
   MALE
   FEMALE
+}
+
+enum employee_salary_payment_method {
+  GPAY
+  PHONEPE
+  CASH
+  BANK_TRANSFER
+}
+
+enum expenses_payment_method {
+  GPAY
+  PHONEPE
+  CASH
+  BANK_TRANSFER
 }

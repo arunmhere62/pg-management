@@ -1,3 +1,26 @@
+export interface IUserProps {
+  id: number;
+  name: string;
+  email: string;
+  password: string;
+  phone?: string | null;
+  status?: 'ACTIVE' | 'INACTIVE';
+  createdAt?: Date | string;
+  updatedAt?: Date | string;
+  roleId: number;
+  pgId?: number | null;
+  isDeleted?: boolean;
+  organizationId: number;
+  address?: string | null;
+  cityId?: number | null;
+  stateId?: number | null;
+  pincode?: string | null;
+  country?: string | null;
+  gender?: 'MALE' | 'FEMALE';
+  proofDocuments?: any;
+  profileImages?: any;
+}
+
 export interface IBedProps {
   id: number;
   bedNo: string;
@@ -133,4 +156,18 @@ export interface IStateDataProps {
 export interface ICityDataProps {
   id: number;
   name: string;
+}
+
+export interface IEmployeeSalaryProps {
+  id: number;
+  userId: number;
+  salaryAmount: number;
+  month: number;
+  year: number;
+  paidDate?: Date;
+  paymentMethod?: 'GPAY' | 'PHONEPE' | 'CASH' | 'BANK_TRANSFER';
+  remarks?: string;
+  isDeleted?: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
 }

@@ -1,5 +1,6 @@
 import prisma from '@/lib/prisma';
 import { BadRequestError, errorHandler } from '@/services/utils/error';
+import { expenses_payment_method } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -67,7 +68,7 @@ export const POST = async (req: NextRequest) => {
         amount,
         expenseType,
         paidTo,
-        paymentMethod,
+        paymentMethod: paymentMethod as expenses_payment_method,
         remarks,
         paidDate,
         pgId: Number(pgLocationId)

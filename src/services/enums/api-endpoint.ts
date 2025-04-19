@@ -35,6 +35,10 @@ export const API_ENDPOINT = {
     expense: '/api/expense',
     expense_ById: '/api/expense/:id'
   },
+  EMPLOYEE_SALARY: {
+    employee_salary: '/api/employee-salary',
+    employee_salary_ById: '/api/employee-salary/:id'
+  },
   PAYMENT: {
     payment_rent: '/api/payment/rent',
     payment_rent_byId: '/api/payment/rent/:id',

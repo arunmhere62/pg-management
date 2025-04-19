@@ -42,3 +42,9 @@ export const formatDateToMonDDYYYY = (dateString: string): string => {
     return dateString;
   }
 };
+
+export function formatToISO(dateString: string) {
+  const [day, month, year] = dateString.split('-');
+  const date = new Date(`${year}-${month}-${day}`);
+  return date.toISOString(); // "2025-04-19T00:00:00.000Z"
+}
