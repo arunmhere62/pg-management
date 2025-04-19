@@ -141,10 +141,10 @@ const PgDashboard = () => {
 
   return (
     <PageContainer>
-      <div className='flex flex-1 flex-col space-y-4'>
+      <div className='flex flex-1 flex-col space-y-6 px-1'>
         {/* Month Selector */}
-        <div className='flex items-center justify-between'>
-          <h2 className='text-2xl font-bold'>Financial Dashboard</h2>
+        <div className='grid grid-cols-1 items-center gap-2 sm:gap-4 md:grid-cols-2'>
+          <h2 className='text-xl font-bold sm:text-2xl'>Financial Dashboard</h2>
           <MonthSelector
             selectedMonth={selectedMonth}
             selectedYear={selectedYear}
@@ -188,9 +188,9 @@ const PgDashboard = () => {
         />
 
         {/* PG Statistics */}
-        <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-7'>
+        <div className='grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2'>
           {/* Financial Overview Chart */}
-          <div className='col-span-4'>
+          <div className=''>
             <FinancialOverview
               financialOverview={
                 dashboardData.financial?.financialOverview || []
@@ -204,7 +204,7 @@ const PgDashboard = () => {
           />
         </div>
 
-        <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-7'>
+        <div className='grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-7'>
           {/* Property Details */}
           <PropertyDetails
             totalRooms={dashboardData.summary?.propertyStats?.totalRooms || 0}
@@ -234,8 +234,8 @@ const PgDashboard = () => {
             }
           />
         </div>
-        {/* // i want 6 col 6 col */}
-        <div className='grid-col-1 grid gap-4 lg:grid-cols-2'>
+        {/* Equal width columns on larger screens */}
+        <div className='grid grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-2'>
           {/* Expenses Display */}
           <ExpensesDisplay
             recentExpenses={dashboardData.expenses?.recentExpenses || []}

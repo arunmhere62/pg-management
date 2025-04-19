@@ -68,7 +68,7 @@ export function FinancialOverview({
         <CardDescription>Income vs Expenses vs Profit</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className='min-h-[270px]'>
+        <div className=''>
           {hasData ? (
             <ChartContainer config={chartConfig}>
               <BarChart accessibilityLayer data={chartData}>

@@ -34,7 +34,7 @@ interface RecentPaymentsProps {
 
 export function RecentPayments({ recentPayments }: RecentPaymentsProps) {
   return (
-    <Card className='col-span-3'>
+    <Card className=''>
       <CardHeader>
         <CardTitle>Recent Payments</CardTitle>
         <CardDescription>Latest rent payments received</CardDescription>

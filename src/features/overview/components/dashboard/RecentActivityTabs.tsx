@@ -87,28 +87,39 @@ export function RecentActivityTabs({
       </CardHeader>
       <CardContent>
         <Tabs defaultValue='rents'>
-          <TabsList className='mb-4'>
-            <TabsTrigger value='rents'>Recent Rents</TabsTrigger>
-            <TabsTrigger value='advances'>Recent Advances</TabsTrigger>
-            <TabsTrigger value='refunds'>Recent Refunds</TabsTrigger>
-            <TabsTrigger value='tenants'>New Tenants</TabsTrigger>
+          <TabsList className='mb-4 w-full justify-start gap-1 overflow-x-scroll sm:overflow-hidden'>
+            <TabsTrigger className='text-xs sm:text-sm' value='rents'>
+              Rents
+            </TabsTrigger>
+            <TabsTrigger className='text-xs sm:text-sm' value='advances'>
+              Advances
+            </TabsTrigger>
+            <TabsTrigger className='text-xs sm:text-sm' value='refunds'>
+              Refunds
+            </TabsTrigger>
+            <TabsTrigger className='text-xs sm:text-sm' value='tenants'>
+              Tenants
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value='rents'>
             <ScrollArea className='h-[300px]'>
               <div className='space-y-4'>
                 {recentRents?.map((payment) => (
-                  <div key={payment.id} className='flex items-center gap-4'>
+                  <div
+                    key={payment.id}
+                    className='flex items-center gap-2 sm:gap-4'
+                  >
                     <Avatar>
                       <AvatarFallback>
                         {payment.tenants.name.substring(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                     <div className='flex-1 space-y-1'>
-                      <p className='text-sm font-medium leading-none'>
+                      <p className='text-xs font-medium leading-none sm:text-sm'>
                         {payment.tenants.name}
                       </p>
-                      <p className='text-sm text-muted-foreground'>
+                      <p className='max-w-[120px] truncate text-xs text-muted-foreground sm:max-w-none sm:text-sm'>
                         {payment.paymentMethod} •{' '}
                         {new Date(payment.paymentDate).toLocaleDateString()}
                       </p>
@@ -138,17 +149,20 @@ export function RecentActivityTabs({
             <ScrollArea className='h-[300px]'>
               <div className='space-y-4'>
                 {recentAdvances?.map((advance) => (
-                  <div key={advance.id} className='flex items-center gap-4'>
+                  <div
+                    key={advance.id}
+                    className='flex items-center gap-2 sm:gap-4'
+                  >
                     <Avatar>
                       <AvatarFallback>
                         {advance.tenants.name.substring(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                     <div className='flex-1 space-y-1'>
-                      <p className='text-sm font-medium leading-none'>
+                      <p className='text-xs font-medium leading-none sm:text-sm'>
                         {advance.tenants.name}
                       </p>
-                      <p className='text-sm text-muted-foreground'>
+                      <p className='max-w-[120px] truncate text-xs text-muted-foreground sm:max-w-none sm:text-sm'>
                         {advance.paymentMethod} •{' '}
                         {new Date(advance.paymentDate).toLocaleDateString()}
                       </p>
@@ -174,17 +188,20 @@ export function RecentActivityTabs({
             <ScrollArea className='h-[300px]'>
               <div className='space-y-4'>
                 {recentRefunds?.map((refund) => (
-                  <div key={refund.id} className='flex items-center gap-4'>
+                  <div
+                    key={refund.id}
+                    className='flex items-center gap-2 sm:gap-4'
+                  >
                     <Avatar>
                       <AvatarFallback>
                         {refund.tenants.name.substring(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                     <div className='flex-1 space-y-1'>
-                      <p className='text-sm font-medium leading-none'>
+                      <p className='text-xs font-medium leading-none sm:text-sm'>
                         {refund.tenants.name}
                       </p>
-                      <p className='text-sm text-muted-foreground'>
+                      <p className='max-w-[120px] truncate text-xs text-muted-foreground sm:max-w-none sm:text-sm'>
                         Refund •{' '}
                         {new Date(refund.createdAt).toLocaleDateString()}
                       </p>
@@ -211,17 +228,20 @@ export function RecentActivityTabs({
               <div className='space-y-4'>
                 <h3 className='text-sm font-medium'>Recently Joined (All)</h3>
                 {recentJoinedTenants?.map((tenant) => (
-                  <div key={tenant.id} className='flex items-center gap-4'>
+                  <div
+                    key={tenant.id}
+                    className='flex items-center gap-2 sm:gap-4'
+                  >
                     <Avatar>
                       <AvatarFallback>
                         {tenant.name.substring(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                     <div className='flex-1 space-y-1'>
-                      <p className='text-sm font-medium leading-none'>
+                      <p className='text-xs font-medium leading-none sm:text-sm'>
                         {tenant.name}
                       </p>
-                      <p className='text-sm text-muted-foreground'>
+                      <p className='max-w-[120px] truncate text-xs text-muted-foreground sm:max-w-none sm:text-sm'>
                         {tenant.phoneNo} • Joined{' '}
                         {new Date(tenant.createdAt).toLocaleDateString()}
                       </p>

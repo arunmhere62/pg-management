@@ -72,58 +72,62 @@ export function MonthSelector({
   const years = Array.from({ length: 5 }, (_, i) => currentYear - 2 + i);
 
   return (
-    <div className='mb-4 flex items-center space-x-2'>
-      <Button
-        variant='outline'
-        size='icon'
-        onClick={handlePreviousMonth}
-        aria-label='Previous month'
-      >
-        <ChevronLeft className='h-4 w-4' />
-      </Button>
-
-      <div className='flex items-center space-x-2'>
-        <Select
-          value={selectedMonth.toString()}
-          onValueChange={handleMonthSelect}
+    <div className='flex flex-wrap gap-2 sm:items-center sm:justify-end'>
+      <div className='flex items-center'>
+        <Button
+          variant='outline'
+          size='sm'
+          className='h-8 w-8 p-0'
+          onClick={handlePreviousMonth}
+          aria-label='Previous month'
         >
-          <SelectTrigger className='w-[130px]'>
-            <SelectValue placeholder='Month' />
-          </SelectTrigger>
-          <SelectContent>
-            {months.map((month, index) => (
-              <SelectItem key={index + 1} value={(index + 1).toString()}>
-                {month}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          <ChevronLeft className='h-3 w-3 sm:h-4 sm:w-4' />
+        </Button>
 
-        <Select
-          value={selectedYear.toString()}
-          onValueChange={handleYearSelect}
+        <div className='flex items-center gap-1 px-1 sm:gap-2'>
+          <Select
+            value={selectedMonth.toString()}
+            onValueChange={handleMonthSelect}
+          >
+            <SelectTrigger className='h-8 w-[90px] text-xs sm:w-[130px] sm:text-sm'>
+              <SelectValue placeholder='Month' />
+            </SelectTrigger>
+            <SelectContent>
+              {months.map((month, index) => (
+                <SelectItem key={index + 1} value={(index + 1).toString()}>
+                  {month}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select
+            value={selectedYear.toString()}
+            onValueChange={handleYearSelect}
+          >
+            <SelectTrigger className='h-8 w-[70px] text-xs sm:w-[100px] sm:text-sm'>
+              <SelectValue placeholder='Year' />
+            </SelectTrigger>
+            <SelectContent>
+              {years.map((year) => (
+                <SelectItem key={year} value={year.toString()}>
+                  {year}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <Button
+          variant='outline'
+          size='sm'
+          className='h-8 w-8 p-0'
+          onClick={handleNextMonth}
+          aria-label='Next month'
         >
-          <SelectTrigger className='w-[100px]'>
-            <SelectValue placeholder='Year' />
-          </SelectTrigger>
-          <SelectContent>
-            {years.map((year) => (
-              <SelectItem key={year} value={year.toString()}>
-                {year}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          <ChevronRight className='h-3 w-3 sm:h-4 sm:w-4' />
+        </Button>
       </div>
-
-      <Button
-        variant='outline'
-        size='icon'
-        onClick={handleNextMonth}
-        aria-label='Next month'
-      >
-        <ChevronRight className='h-4 w-4' />
-      </Button>
     </div>
   );
 }
