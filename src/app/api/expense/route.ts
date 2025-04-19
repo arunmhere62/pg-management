@@ -13,7 +13,7 @@ export const GET = async (req: NextRequest) => {
         status: 400
       });
     }
-    const res = await prisma.otherExpenses.findMany({
+    const res = await prisma.expenses.findMany({
       where: {
         pgId: Number(pgLocationId),
         isDeleted: false
@@ -36,14 +36,16 @@ const isoDateRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
 
 const expenseCreateSchema = z.object({
   amount: z.number().positive('Amount must be a positive number'),
-  description: z.string().optional(),
-  expenseDate: z
+  expenseType: z.string().min(1, 'Expense type is required'),
+  paidTo: z.string().min(1, 'Recipient is required'),
+  paymentMethod: z.string().min(1, 'Payment method is required'),
+  remarks: z.string().optional(),
+  paidDate: z
     .string()
     .refine((date) => isoDateRegex.test(date) && !isNaN(Date.parse(date)), {
       message:
-        'Invalid Expense date format. Use ISO format: yyyy-MM-ddTHH:mm:ss.sssZ'
-    }),
-  expenseName: z.string().min(1, 'Expense name is required')
+        'Invalid Paid date format. Use ISO format: yyyy-MM-ddTHH:mm:ss.sssZ'
+    })
 });
 
 export const POST = async (req: NextRequest) => {
@@ -58,13 +60,16 @@ export const POST = async (req: NextRequest) => {
     if (!parsedData.success) {
       throw new BadRequestError('Invalid request data');
     }
-    const { amount, expenseName, description, expenseDate } = parsedData.data;
-    const newExpense = await prisma.otherExpenses.create({
+    const { amount, expenseType, paidTo, paymentMethod, remarks, paidDate } =
+      parsedData.data;
+    const newExpense = await prisma.expenses.create({
       data: {
         amount,
-        expenseName,
-        description,
-        expenseDate,
+        expenseType,
+        paidTo,
+        paymentMethod,
+        remarks,
+        paidDate,
         pgId: Number(pgLocationId)
       }
     });

@@ -27,10 +27,10 @@ export default function ExpenseForm({
       <div className='grid grid-cols-1 gap-1 sm:gap-6 md:grid-cols-2'>
         <FormField
           control={control}
-          name='expenseName'
+          name='expenseType'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Expense Name</FormLabel>
+              <FormLabel>Expense Type</FormLabel>
               <FormControl>
                 <Input
                   type='text'
@@ -57,13 +57,13 @@ export default function ExpenseForm({
         />
         <FormField
           control={control}
-          name='expenseDate'
+          name='paidDate'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Expense Date</FormLabel>
+              <FormLabel>Paid Date</FormLabel>
               <FormControl>
                 <DatePicker
-                  placeholder='Select Expense Date'
+                  placeholder='Select Paid Date'
                   value={field.value}
                   onChange={field.onChange}
                 />
@@ -74,12 +74,46 @@ export default function ExpenseForm({
         />
         <FormField
           control={control}
-          name='description'
+          name='paidTo'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Description</FormLabel>
+              <FormLabel>Paid To</FormLabel>
               <FormControl>
-                <Input type='text' placeholder='Enter Description' {...field} />
+                <Input type='text' placeholder='Enter Recipient' {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={control}
+          name='paymentMethod'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Payment Method</FormLabel>
+              <SelectComboBox
+                options={[
+                  { value: 'GPAY', label: 'GPAY' },
+                  { value: 'PHONEPE', label: 'PHONEPE' },
+                  { value: 'CASH', label: 'CASH' },
+                  { value: 'BANK_TRANSFER', label: 'BANK_TRANSFER' }
+                ]}
+                placeholder='Select a Payment Method'
+                value={field.value}
+                onChange={field.onChange}
+              />
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={control}
+          name='remarks'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Remarks</FormLabel>
+              <FormControl>
+                <Input type='text' placeholder='Enter Remarks' {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

@@ -11,7 +11,10 @@ import {
   Home,
   IndianRupee,
   Layers,
-  Users
+  Users,
+  CircleDollarSign,
+  Receipt,
+  CreditCard
 } from 'lucide-react';
 import { useSelector } from '@/store';
 import { useSetBreadcrumbs } from '@/hooks/use-breadcrumbs';
@@ -69,9 +72,10 @@ interface ITenantActivity {
   newTenants: number;
   removedTenants: number;
   totalAdvances: number;
-  thisMonthAdvances: number; // Add this month's advances
+  thisMonthAdvances: number;
   lastMonthAdvances: number;
   totalRefunds: number;
+  thisMonthRefunds: number;
   recentRents: ITenantPayment[];
   recentAdvances: any[];
   recentRefunds: any[];
@@ -92,10 +96,25 @@ interface ITenantActivity {
   lastMonthExpenses: {
     id: number;
     amount: number;
-    expenseDate: string;
-    description: string;
+    paidDate: string;
+    expenseType: string;
+    paidTo: string;
+    remarks: string;
+    paymentMethod: string;
+  }[];
+  thisMonthExpensesDetails: {
+    id: number;
+    amount: number;
+    paidDate: string;
+    expenseType: string;
+    paidTo: string;
+    remarks: string;
+    paymentMethod: string;
   }[];
   lastMonthTotalExpenses: number;
+  thisMonthRevenue: number;
+  thisMonthExpenses: number;
+  thisMonthProfit: number;
 }
 
 interface IDashboardOverview {
@@ -136,25 +155,57 @@ export default function PGDashboard() {
 
   // Calculate total revenue, expenses, and profit
   const calculateTotals = () => {
-    if (
-      !dashboardOverview?.financialOverview ||
-      dashboardOverview.financialOverview.length === 0
-    ) {
-      return { totalRevenue: 0, totalExpenses: 0, totalProfit: 0 };
-    }
-
-    return dashboardOverview.financialOverview.reduce(
-      (acc, curr) => {
-        acc.totalRevenue += curr.monthlyIncome;
-        acc.totalExpenses += curr.monthlyExpenses;
-        acc.totalProfit += curr.netProfit;
-        return acc;
-      },
-      { totalRevenue: 0, totalExpenses: 0, totalProfit: 0 }
+    const totalRevenue = dashboardOverview?.financialOverview?.reduce(
+      (sum, item) => sum + item.monthlyIncome,
+      0
     );
+
+    // Include refunds in total expenses
+    const totalRefunds = dashboardOverview?.tenantActivity?.totalRefunds || 0;
+    const totalExpenses =
+      (dashboardOverview?.financialOverview?.reduce(
+        (sum, item) => sum + item.monthlyExpenses,
+        0
+      ) || 0) + totalRefunds;
+
+    const totalProfit = dashboardOverview?.financialOverview?.reduce(
+      (sum, item) => sum + item.netProfit,
+      0
+    );
+
+    // This month's data
+    const thisMonthRevenue =
+      dashboardOverview?.tenantActivity?.thisMonthRevenue || 0;
+    const thisMonthExpenses =
+      (dashboardOverview?.tenantActivity?.thisMonthExpenses || 0) +
+      (dashboardOverview?.tenantActivity?.thisMonthRefunds || 0);
+    const thisMonthProfit =
+      dashboardOverview?.tenantActivity?.thisMonthProfit || 0;
+
+    // Total PG rooms cost
+    const totalRoomsPrice =
+      dashboardOverview?.summaryCard?.totalRoomsPrice || 0;
+
+    return {
+      totalRevenue,
+      totalExpenses,
+      totalProfit,
+      thisMonthRevenue,
+      thisMonthExpenses,
+      thisMonthProfit,
+      totalRoomsPrice
+    };
   };
 
-  const { totalRevenue, totalExpenses, totalProfit } = calculateTotals();
+  const {
+    totalRevenue,
+    totalExpenses,
+    totalProfit,
+    thisMonthRevenue,
+    thisMonthExpenses,
+    thisMonthProfit,
+    totalRoomsPrice
+  } = calculateTotals();
 
   // Get the current month's data
   const getCurrentMonthData = () => {
@@ -205,30 +256,32 @@ export default function PGDashboard() {
               <CardTitle className='text-sm font-medium'>
                 Total Revenue
               </CardTitle>
-              <BadgeIndianRupee className='h-4 w-4 text-muted-foreground' />
+              <CircleDollarSign className='h-4 w-4 text-muted-foreground' />
             </CardHeader>
             <CardContent>
               <div className='text-2xl font-bold'>
-                {formatCurrency(totalRevenue)}
+                {formatCurrency(totalRevenue || 0)}
               </div>
-              {currentMonthData && (
-                <p className='flex items-center gap-1 text-xs text-muted-foreground'>
-                  <span
-                    className={
-                      currentMonthData.monthlyIncome > 0
-                        ? 'text-green-500'
-                        : 'text-red-500'
-                    }
-                  >
-                    {currentMonthData.monthlyIncome > 0 ? (
-                      <ArrowUp className='h-3 w-3' />
-                    ) : (
-                      <ArrowDown className='h-3 w-3' />
-                    )}
+              <div className='mt-2 flex flex-col gap-1'>
+                <p className='flex justify-between text-sm text-muted-foreground'>
+                  <span>This month:</span>
+                  <span className='font-medium'>
+                    {formatCurrency(thisMonthRevenue || 0)}
                   </span>
-                  {formatCurrency(currentMonthData.monthlyIncome)} this month
                 </p>
-              )}
+                <p className='flex justify-between text-xs text-muted-foreground'>
+                  <span>% of PG value:</span>
+                  <span className='font-medium'>
+                    {totalRoomsPrice
+                      ? (
+                          ((thisMonthRevenue || 0) / totalRoomsPrice) *
+                          100
+                        ).toFixed(1)
+                      : 0}
+                    %
+                  </span>
+                </p>
+              </div>
             </CardContent>
           </Card>
 
@@ -237,60 +290,60 @@ export default function PGDashboard() {
               <CardTitle className='text-sm font-medium'>
                 Total Expenses
               </CardTitle>
-              <Activity className='h-4 w-4 text-muted-foreground' />
+              <Receipt className='h-4 w-4 text-muted-foreground' />
             </CardHeader>
             <CardContent>
               <div className='text-2xl font-bold'>
-                {formatCurrency(totalExpenses)}
+                {formatCurrency(totalExpenses || 0)}
               </div>
-              {currentMonthData && (
-                <p className='flex items-center gap-1 text-xs text-muted-foreground'>
-                  <span
-                    className={
-                      currentMonthData.monthlyExpenses > 0
-                        ? 'text-red-500'
-                        : 'text-green-500'
-                    }
-                  >
-                    {currentMonthData.monthlyExpenses > 0 ? (
-                      <ArrowUp className='h-3 w-3' />
-                    ) : (
-                      <ArrowDown className='h-3 w-3' />
+              <div className='mt-2 flex flex-col gap-1'>
+                <p className='flex justify-between text-sm text-muted-foreground'>
+                  <span>This month:</span>
+                  <span className='font-medium'>
+                    {formatCurrency(thisMonthExpenses || 0)}
+                  </span>
+                </p>
+                <p className='flex justify-between text-xs text-muted-foreground'>
+                  <span>Includes refunds:</span>
+                  <span className='font-medium'>
+                    {formatCurrency(
+                      dashboardOverview?.tenantActivity?.thisMonthRefunds || 0
                     )}
                   </span>
-                  {formatCurrency(currentMonthData.monthlyExpenses)} this month
                 </p>
-              )}
+              </div>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
               <CardTitle className='text-sm font-medium'>Net Profit</CardTitle>
-              <IndianRupee className='h-4 w-4 text-muted-foreground' />
+              <CreditCard className='h-4 w-4 text-muted-foreground' />
             </CardHeader>
             <CardContent>
               <div className='text-2xl font-bold'>
-                {formatCurrency(totalProfit)}
+                {formatCurrency(totalProfit || 0)}
               </div>
-              {currentMonthData && (
-                <p className='flex items-center gap-1 text-xs text-muted-foreground'>
-                  <span
-                    className={
-                      currentMonthData.netProfit > 0
-                        ? 'text-green-500'
-                        : 'text-red-500'
-                    }
-                  >
-                    {currentMonthData.netProfit > 0 ? (
-                      <ArrowUp className='h-3 w-3' />
-                    ) : (
-                      <ArrowDown className='h-3 w-3' />
-                    )}
+              <div className='mt-2 flex flex-col gap-1'>
+                <p className='flex justify-between text-sm text-muted-foreground'>
+                  <span>This month:</span>
+                  <span className='font-medium'>
+                    {formatCurrency(thisMonthProfit || 0)}
                   </span>
-                  {formatCurrency(currentMonthData.netProfit)} this month
                 </p>
-              )}
+                <p className='flex justify-between text-xs text-muted-foreground'>
+                  <span>% of PG value:</span>
+                  <span className='font-medium'>
+                    {totalRoomsPrice
+                      ? (
+                          ((thisMonthProfit || 0) / totalRoomsPrice) *
+                          100
+                        ).toFixed(1)
+                      : 0}
+                    %
+                  </span>
+                </p>
+              </div>
             </CardContent>
           </Card>
 
@@ -486,36 +539,40 @@ export default function PGDashboard() {
                   </div>
                 </div>
 
-                {/* Last Month's Expenses */}
+                {/* This Month's Expenses */}
                 <div className='mt-6'>
                   <h3 className='mb-2 text-sm font-medium'>
-                    Last Month's Expenses
+                    This Month&rsquo;s Expenses
                   </h3>
                   <div className='rounded-lg border p-3'>
                     <div className='flex items-center justify-between'>
                       <span className='text-sm text-muted-foreground'>
-                        Total Last Month
+                        Total This Month
                       </span>
                       <span className='font-medium'>
                         {formatCurrency(
                           dashboardOverview?.tenantActivity
-                            ?.lastMonthTotalExpenses || 0
+                            ?.thisMonthExpenses || 0
                         )}
                       </span>
                     </div>
                     <ScrollArea className='mt-2 h-[100px]'>
-                      {dashboardOverview?.tenantActivity?.lastMonthExpenses &&
-                      dashboardOverview.tenantActivity.lastMonthExpenses
+                      {dashboardOverview?.tenantActivity
+                        ?.thisMonthExpensesDetails &&
+                      dashboardOverview.tenantActivity.thisMonthExpensesDetails
                         .length > 0 ? (
                         // Safe to map since we've checked for existence and length
-                        dashboardOverview.tenantActivity.lastMonthExpenses.map(
+                        dashboardOverview.tenantActivity.thisMonthExpensesDetails.map(
                           (expense) => (
                             <div
                               key={expense.id}
                               className='flex items-center justify-between py-1 text-sm'
                             >
                               <span className='text-muted-foreground'>
-                                {expense.description || 'Expense'}
+                                {expense.expenseType ||
+                                  expense.paidTo ||
+                                  expense.remarks ||
+                                  'Expense'}
                               </span>
                               <span>{formatCurrency(expense.amount)}</span>
                             </div>
@@ -523,7 +580,7 @@ export default function PGDashboard() {
                         )
                       ) : (
                         <p className='py-2 text-center text-xs text-muted-foreground'>
-                          No expenses recorded last month.
+                          No expenses recorded this month.
                         </p>
                       )}
                     </ScrollArea>

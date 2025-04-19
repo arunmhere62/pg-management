@@ -31,9 +31,11 @@ export const expenseFormSchema = z.object({
     .refine((val) => /^\d+$/.test(val) && Number(val) > 0, {
       message: 'Expense amount must be a positive number'
     }),
-  expenseName: z.string().min(1, 'Expense name is required'),
-  description: z.string().optional(),
-  expenseDate: z.string().min(1, 'Expense date is required')
+  expenseType: z.string().min(1, 'Expense type is required'),
+  paidTo: z.string().min(1, 'Recipient is required'),
+  paymentMethod: z.string().min(1, 'Payment method is required'),
+  remarks: z.string().optional(),
+  paidDate: z.string().min(1, 'Paid date is required')
 });
 
 interface IMainExpenseFormProps {
@@ -53,9 +55,11 @@ const MainExpenseForm = ({ mode, initialData, id }: IMainExpenseFormProps) => {
   ]);
   const defaultValues = {
     amount: '',
-    expenseName: '',
-    description: '',
-    expenseDate: '',
+    expenseType: '',
+    paidTo: '',
+    paymentMethod: '',
+    remarks: '',
+    paidDate: '',
     ...initialData
   };
 
@@ -68,19 +72,23 @@ const MainExpenseForm = ({ mode, initialData, id }: IMainExpenseFormProps) => {
     try {
       const payload = {
         amount: Number(values.amount),
-        expenseName: values.expenseName,
-        description: values.description,
-        expenseDate: formatDateToDateTime(values.expenseDate)
+        expenseType: values.expenseType,
+        paidTo: values.paidTo,
+        paymentMethod: values.paymentMethod,
+        remarks: values.remarks,
+        paidDate: formatDateToDateTime(values.paidDate)
       };
       if (mode === 'create') {
         const res = await createExpense(payload);
         if (res.status === 201) {
           toast.success('Expense added successfully!');
           form.reset({
-            expenseName: '',
+            expenseType: '',
             amount: '',
-            description: '',
-            expenseDate: ''
+            paidTo: '',
+            paymentMethod: '',
+            remarks: '',
+            paidDate: ''
           });
         }
       } else {
@@ -89,9 +97,11 @@ const MainExpenseForm = ({ mode, initialData, id }: IMainExpenseFormProps) => {
           toast.success('Expense updated successfully!');
           form.reset({
             amount: '',
-            expenseName: '',
-            description: '',
-            expenseDate: ''
+            expenseType: '',
+            paidTo: '',
+            paymentMethod: '',
+            remarks: '',
+            paidDate: ''
           });
         }
       }

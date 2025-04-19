@@ -114,8 +114,8 @@ const ExpensesList = () => {
     //   }
     // },
     // { field: 'tenantName', headerName: 'Name', flex: 1 },
-    { field: 'expenseName', headerName: 'expenseName', flex: 1, minWidth: 150 },
-    { field: 'description', headerName: 'description', flex: 1, minWidth: 150 },
+    { field: 'expenseType', headerName: 'Expense', flex: 1, minWidth: 150 },
+    { field: 'remarks', headerName: 'Remarks', flex: 1, minWidth: 150 },
     {
       field: 'amount',
       headerName: 'amount',
@@ -128,12 +128,22 @@ const ExpensesList = () => {
       )
     },
     {
-      field: 'expenseDate',
-      headerName: 'expenseDate',
+      field: 'paidDate',
+      headerName: 'Payment Date',
       flex: 1,
       minWidth: 150,
       renderCell: (params: any) => (
         <span>{params.value ? formatDateToDDMMYYYY(params.value) : 'N/A'}</span>
+      )
+    },
+    {
+      field: 'paymentMethod',
+      headerName: 'Payment Method',
+      minWidth: 150,
+      renderCell: (params: any) => (
+        <span className='rounded-lg bg-[#fff1bb] px-2 py-1 font-bold text-[#000000]'>
+          {params.value}
+        </span>
       )
     },
     {

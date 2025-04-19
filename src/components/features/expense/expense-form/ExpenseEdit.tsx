@@ -10,9 +10,11 @@ import { formatDateToDDMMYYYY } from '@/services/utils/formaters';
 
 export interface IExpenseEditProps {
   amount?: string;
-  expenseName?: string;
-  description?: string;
-  expenseDate?: string;
+  expenseType?: string;
+  paidTo?: string;
+  paymentMethod?: string;
+  remarks?: string;
+  paidDate?: string;
 }
 const ExpenseEdit = ({ id }: { id: string }) => {
   const [expenseData, setExpenseData] = useState<IExpenseEditProps>();
@@ -23,10 +25,12 @@ const ExpenseEdit = ({ id }: { id: string }) => {
         if (res.data) {
           const formattedRes = {
             amount: res.data.amount?.toString(),
-            expenseName: res.data.expenseName,
-            description: res.data.description,
-            expenseDate: res.data.expenseDate
-              ? formatDateToDDMMYYYY(res.data.expenseDate)
+            expenseType: res.data.expenseType,
+            paidTo: res.data.paidTo,
+            paymentMethod: res.data.paymentMethod,
+            remarks: res.data.remarks,
+            paidDate: res.data.paidDate
+              ? formatDateToDDMMYYYY(res.data.paidDate)
               : ''
           };
           setExpenseData(formattedRes);

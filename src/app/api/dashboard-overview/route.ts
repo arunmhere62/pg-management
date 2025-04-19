@@ -142,9 +142,9 @@ export const GET = async (req: NextRequest) => {
         where: { pgId: Number(pgLocationId), isDeleted: false },
         select: { amountPaid: true, paymentDate: true }
       }),
-      prisma.otherExpenses.findMany({
+      prisma.expenses.findMany({
         where: { pgId: Number(pgLocationId), isDeleted: false },
-        select: { amount: true, expenseDate: true }
+        select: { amount: true, paidDate: true }
       }),
       // Recent rent payments (last 5)
       prisma.tenant_payments.findMany({
@@ -252,7 +252,7 @@ export const GET = async (req: NextRequest) => {
 
     // 4️⃣ Process expenses
     for (const exp of expenses) {
-      const month = formatMonth(exp.expenseDate);
+      const month = formatMonth(exp.paidDate);
       if (!month) continue;
       const amount = Number(exp.amount ?? 0);
       if (!monthlyMap[month]) {
@@ -369,6 +369,63 @@ export const GET = async (req: NextRequest) => {
       return total + Number(payment.amountPaid || 0);
     }, 0);
 
+    // Calculate this month's revenue
+    // Using the already defined thisMonthStart and thisMonthEnd from above
+
+    const thisMonthRentPayments = rentPayments
+      .filter((payment) => {
+        if (!payment.paymentDate) return false;
+        const paymentDate = new Date(payment.paymentDate);
+        return paymentDate >= thisMonthStart && paymentDate <= thisMonthEnd;
+      })
+      .reduce((total, payment) => {
+        return total + Number(payment.amountPaid || 0);
+      }, 0);
+
+    // Calculate this month's expenses using the expenses table
+    const thisMonthExpenses = await prisma.expenses.findMany({
+      where: {
+        pgId: Number(pgLocationId),
+        isDeleted: false,
+        paidDate: {
+          gte: thisMonthStart,
+          lte: thisMonthEnd
+        }
+      },
+      select: {
+        id: true,
+        amount: true,
+        paidDate: true,
+        expenseType: true,
+        paidTo: true,
+        remarks: true,
+        paymentMethod: true
+      }
+    });
+
+    const thisMonthTotalExpenses = thisMonthExpenses.reduce(
+      (total, expense) => {
+        const amount = Number(expense.amount || 0);
+        return total + amount;
+      },
+      0
+    );
+
+    // Calculate this month's refunds
+    const thisMonthRefunds = refundPayments
+      .filter((refund) => {
+        if (!refund.createdAt) return false;
+        const refundDate = new Date(refund.createdAt);
+        return refundDate >= thisMonthStart && refundDate <= thisMonthEnd;
+      })
+      .reduce((total, refund) => {
+        return total + Number(refund.amountPaid || 0);
+      }, 0);
+
+    // Calculate this month's profit
+    const thisMonthProfit =
+      thisMonthRentPayments - thisMonthTotalExpenses - thisMonthRefunds;
+
     const totalRefunds = await prisma.refund_payments.aggregate({
       where: { pgId: Number(pgLocationId), isDeleted: false },
       _sum: {
@@ -416,23 +473,27 @@ export const GET = async (req: NextRequest) => {
 
     // We already defined the date range above
 
-    const lastMonthExpenses = await prisma.otherExpenses.findMany({
+    // Get last month's expenses using the expenses table
+    const lastMonthExpenses = await prisma.expenses.findMany({
       where: {
         pgId: Number(pgLocationId),
         isDeleted: false,
-        expenseDate: {
+        paidDate: {
           gte: lastMonthStart,
           lte: lastMonthEnd
         }
       },
       orderBy: {
-        expenseDate: 'desc'
+        paidDate: 'desc'
       },
       select: {
         id: true,
         amount: true,
-        expenseDate: true,
-        description: true
+        paidDate: true,
+        expenseType: true,
+        paidTo: true,
+        remarks: true,
+        paymentMethod: true
       }
     });
 
@@ -444,8 +505,8 @@ export const GET = async (req: NextRequest) => {
         console.log(
           'Expense amount:',
           amount,
-          'Description:',
-          expense.description
+          'Expense type:',
+          expense.expenseType
         );
         return total + amount;
       },
@@ -454,21 +515,57 @@ export const GET = async (req: NextRequest) => {
 
     console.log('Total expenses calculated:', lastMonthTotalExpenses);
 
+    // Get this month's expenses for display using the expenses table
+    const thisMonthExpensesDetails = await prisma.expenses.findMany({
+      where: {
+        pgId: Number(pgLocationId),
+        isDeleted: false,
+        paidDate: {
+          gte: thisMonthStart,
+          lte: thisMonthEnd
+        }
+      },
+      select: {
+        id: true,
+        amount: true,
+        paidDate: true,
+        expenseType: true,
+        paidTo: true,
+        remarks: true,
+        paymentMethod: true
+      },
+      orderBy: {
+        paidDate: 'desc'
+      }
+    });
+
+    console.log(
+      'This month expenses details:',
+      thisMonthExpensesDetails.length
+    );
+
+    console.log('Found this month expenses:', thisMonthExpensesDetails.length);
+
     // Prepare tenant activity data
     const tenantActivity = {
       newTenants: newTenantsCount,
       removedTenants: removedTenantsCount,
       totalAdvances: totalAdvances,
-      thisMonthAdvances: thisMonthAdvances, // Add this month's advances
+      thisMonthAdvances: thisMonthAdvances,
       lastMonthAdvances: lastMonthAdvances,
       totalRefunds: Number(totalRefunds._sum?.amountPaid || 0),
+      thisMonthRefunds: thisMonthRefunds,
       recentRents: recentRentPayments,
       recentAdvances: recentAdvancePayments,
       recentRefunds: recentRefundPayments,
       recentJoinedTenants: recentJoinedTenants,
       lastMonthJoinedTenants: lastMonthJoinedTenants,
       lastMonthExpenses: lastMonthExpenses,
-      lastMonthTotalExpenses: lastMonthTotalExpenses
+      lastMonthTotalExpenses: lastMonthTotalExpenses,
+      thisMonthExpensesDetails: thisMonthExpensesDetails,
+      thisMonthRevenue: thisMonthRentPayments,
+      thisMonthExpenses: thisMonthTotalExpenses,
+      thisMonthProfit: thisMonthProfit
     };
 
     const summaryCard = {
