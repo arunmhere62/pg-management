@@ -17,8 +17,13 @@ import {
   ChartTooltip,
   ChartTooltipContent
 } from '@/components/ui/chart';
-import { IFinancialOverviewProps } from './overview';
-
+// Define the financial overview interface
+export interface IFinancialOverviewProps {
+  month: string;
+  monthlyIncome: number;
+  monthlyExpenses: number;
+  netProfit: number;
+}
 const chartConfig = {
   income: {
     label: 'Income',

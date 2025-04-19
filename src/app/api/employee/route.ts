@@ -10,11 +10,12 @@ export const GET = async (req: NextRequest) => {
     const cookies = req.cookies;
     const { error, session } = await ensureAuthenticated();
     const organizationId = session?.organizationId;
+
     const pgLocationId = cookies.get('pgLocationId')?.value;
     if (!pgLocationId) throw new BadRequestError('Select pg location');
     const res = await prisma.users.findMany({
       where: {
-        organizationId: Number(organizationId),
+        pgId: Number(pgLocationId),
         isDeleted: false
       },
       select: {
